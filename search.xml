@@ -4,6 +4,45 @@
   
     
     <entry>
+      <title>boke</title>
+      <link href="/2024/08/01/boke/"/>
+      <url>/2024/08/01/boke/</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>靶场题解</title>
+      <link href="/2024/08/01/%E9%9D%B6%E5%9C%BA%E9%A2%98%E8%A7%A3/"/>
+      <url>/2024/08/01/%E9%9D%B6%E5%9C%BA%E9%A2%98%E8%A7%A3/</url>
+      
+        <content type="html"><![CDATA[<h2 id="Fallback"><a href="#Fallback" class="headerlink" title="Fallback"></a>Fallback</h2><p>要求是，成为这个合约的所有者，并使这个合约的钱为零</p><p>首先找到owner，</p><p>分析;<br>从这个合约中可以看到，要成为owner<br>1，我们的钱必须大于合约持有者的钱，但是最开始合约本身就有1000ether，<br>这个时候就走contribute函数不行，因为我们没有那么多钱<br>2，此时发现receive，只要我们的钱和合约的钱大于0，就可以成为这个合约的持有者</p><p>方法：<br>1，在remix上部署这个合约，首先调用contribute函数，给我们转账；<br>2，在调用receive函数，就完成了</p><h2 id="Fal1out"><a href="#Fal1out" class="headerlink" title="Fal1out"></a>Fal1out</h2><p>要求是，成为这个合约的所有者</p><p>从这个题目来看，Fallout,Fal1out,</p><p>分析：<br>首先看与owner相关的函数，再去分析构造的合约名字Fallout，仔细发现有个Fal1out的函数，它实际上是命名错误的，这个时候我们就可以调动这个函数，刚好成为合约的所有者</p><p>方法：</p><p>定义函数接口，直接调用该函数Fal1out,此时就成为了合约的所有者</p>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>my fist blog</title>
+      <link href="/2024/08/01/my-fist-blog/"/>
+      <url>/2024/08/01/my-fist-blog/</url>
+      
+        <content type="html"><![CDATA[<h2 id="先进入blog-cd-blog"><a href="#先进入blog-cd-blog" class="headerlink" title="先进入blog         cd blog"></a>先进入blog         cd blog</h2><h2 id="预览hexo-hexo-s"><a href="#预览hexo-hexo-s" class="headerlink" title="预览hexo             hexo s"></a>预览hexo             hexo s</h2><h2 id="创建文章题目-hexo-new-“”"><a href="#创建文章题目-hexo-new-“”" class="headerlink" title="创建文章题目        hexo new “”"></a>创建文章题目        hexo new “”</h2><h2 id="进入文章目录-cd-提目前，blog后的东西）题目-md"><a href="#进入文章目录-cd-提目前，blog后的东西）题目-md" class="headerlink" title="进入文章目录        cd   (提目前，blog后的东西）题目.md"></a>进入文章目录        cd   (提目前，blog后的东西）题目.md</h2><h2 id="写文章-notepad-题目-md"><a href="#写文章-notepad-题目-md" class="headerlink" title="写文章                  notepad 题目.md"></a>写文章                  notepad 题目.md</h2>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Hello World</title>
       <link href="/2024/08/01/hello-world/"/>
       <url>/2024/08/01/hello-world/</url>
