@@ -4,6 +4,19 @@
   
     
     <entry>
+      <title>ERC20</title>
+      <link href="/2024/08/05/ERC20/"/>
+      <url>/2024/08/05/ERC20/</url>
+      
+        <content type="html"><![CDATA[<h1 id="ERC20"><a href="#ERC20" class="headerlink" title="ERC20"></a>ERC20</h1><p><code>ERC20</code>是以太坊上的代币标准，它实现了代币转账的基本逻辑：</p><ul><li>账户余额(balanceOf())</li><li>转账(transfer())</li><li>授权转账(transferFrom())</li><li>授权(approve())</li><li>代币总供给(totalSupply())</li><li>授权转账额度(allowance())</li><li>代币信息（可选）：名称(name())，代号(symbol())，小数位数(decimals())</li></ul><p>除了ERC20,还有它的接口合约IERC20，就是为了统一规范，以便好使用，接下来就介绍一下IERC20合约的功能</p><h2 id="俩个事件"><a href="#俩个事件" class="headerlink" title="俩个事件"></a>俩个事件</h2><ul><li>释放条件：当 <code>value</code> 单位的货币从账户 (<code>from</code>) 转账到另一账户 (<code>to</code>)时.<br><code>event Transfer(address indexed from, address indexed to, uint256 value);</code></li><li>释放条件：当 <code>value</code> 单位的货币从账户 (<code>owner</code>) 授权给另一账户 (<code>spender</code>）时.<br><code>event Approval(address indexed owner, address indexed spender, uint256 value);</code></li></ul><h2 id="六个函数"><a href="#六个函数" class="headerlink" title="六个函数"></a>六个函数</h2><ul><li><code>totalSupply()</code>返回代币总供给<br><code>function totalSupply() external view returns (uint256);</code></li><li><code>balanceOf()</code>返回账户<code>account</code>所持有的代币数.<br><code>function balanceOf(address account) external view returns (uint256);</code></li><li><code>transfer()</code>转账 <code>amount</code> 单位代币，从调用者账户到另一账户 <code>to</code>,如果成功，返回 <code>true</code>,释放 {Transfer} 事件.<br><code>function transfer(address to, uint256 amount) external returns (bool);</code></li><li><code>allowance()</code>返回<code>owner</code>账户授权给<code>spender</code>账户的额度，默认为0,当{approve} 或 {transferFrom} 被调用时，<code>allowance</code>会改变<br><code>function allowance(address owner, address spender) external view returns (uint256);</code></li><li><code>approve()</code>调用者账户给<code>spender</code>账户授权 <code>amount</code>数量代币,如果成功，返回 <code>true</code>,释放 {Approval} 事件<br><code>function approve(address spender, uint256 amount) external returns (bool);</code></li><li><code>transferFrom()</code>通过授权机制，从<code>from</code>账户向<code>to</code>账户转账<code>amount</code>数量代币。转账的部分会从调用者的<code>allowance</code>中扣除。 如果成功，返回 <code>true</code>. 释放 {Transfer} 事件. <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"> function transferFrom(</span><br><span class="line">    address from,</span><br><span class="line">    address to,</span><br><span class="line">    uint256 amount</span><br><span class="line">) external returns (bool);</span><br></pre></td></tr></table></figure>以上须记住，以便好用</li></ul><p>说白了，它就是以太坊发行代币的一个标准，学会了如何实现ERC20，对入门区块链是很有帮助的</p>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>boke</title>
       <link href="/2024/08/01/boke/"/>
       <url>/2024/08/01/boke/</url>
