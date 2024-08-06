@@ -4,6 +4,45 @@
   
     
     <entry>
+      <title>damn-vulnerable-defi题解</title>
+      <link href="/2024/08/06/damn-vulnerable-defi%E9%A2%98%E8%A7%A3/"/>
+      <url>/2024/08/06/damn-vulnerable-defi%E9%A2%98%E8%A7%A3/</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>hardhat</title>
+      <link href="/2024/08/06/hardhat/"/>
+      <url>/2024/08/06/hardhat/</url>
+      
+        <content type="html"><![CDATA[<h1 id="hardhat"><a href="#hardhat" class="headerlink" title="hardhat"></a>hardhat</h1><p><strong>hardhat</strong>就是以太坊开发环境，如同remix,现在介绍一下安装<strong>hardhat</strong>的步骤</p><ul><li>打开终端，win+r,输入cmd</li><li>检查node js,安装没有，<code>node -v</code> (没有安装去官网下载)</li><li>建一个文件夹，在终端输入<code>mkdir hardhat-tutorial</code>，然后进入文件夹，<code>cd hardhat-tutorial</code></li><li>进行初始化，<code>npm init</code>，接下来一直按enter,直到出现<code>Is this OK? (yes)</code>,回答yes即可</li><li>安装<strong>hardhat</strong> <code>npm install --save-dev hardhat</code>,需要等待几秒</li><li>再安装一个插件 npm install –save-dev @nomicfoundation&#x2F;hardh<br>at-toolbox</li></ul><h2 id="编写合同"><a href="#编写合同" class="headerlink" title="编写合同"></a>编写合同</h2><p>安装完成后，因为使用VScode,所以我们要安装一个VScode 安全帽，它可以帮组我们更好的使用solidity语言，然后在VScode创建一个新目录，写一个简单的.sol合约，在终端中运行该合约，<code>npx hardhat compile,</code>成功后就会看到<code>Compiled 1 Solidity file successfully (evm target: paris).</code></p><h2 id="测试合约"><a href="#测试合约" class="headerlink" title="测试合约"></a>测试合约</h2><p><code>npx hardhat test</code>,如果你想看到solidity的日志消息，合约变量，必须导入<code>hardhat/console.sol</code>合约代码</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pragma solidity ^0.8.0;</span><br><span class="line"></span><br><span class="line">import &quot;hardhat/console.sol&quot;;</span><br><span class="line"></span><br><span class="line">contract Token &#123;</span><br><span class="line">  //...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>再添加一些对该函数console.log的调用transfer()</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function transfer(address to, uint256 amount) external &#123;</span><br><span class="line">    require(balances[msg.sender] &gt;= amount, &quot;Not enough tokens&quot;);</span><br><span class="line"></span><br><span class="line">    console.log(</span><br><span class="line">        &quot;Transferring from %s to %s %s tokens&quot;,</span><br><span class="line">        msg.sender,</span><br><span class="line">        to,</span><br><span class="line">        amount</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    balances[msg.sender] -= amount;</span><br><span class="line">    balances[to] += amount;</span><br><span class="line"></span><br><span class="line">    emit Transfer(msg.sender, to, amount);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>总结，hardhat就是能轻松部署我们的合约、运行测试和调试 Solidity 代码，无需处理实时环境，更多知识请参考<a href="https://hardhat.org/">hardhat</a></p>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Uniswap V2</title>
+      <link href="/2024/08/06/uniswap-V2/"/>
+      <url>/2024/08/06/uniswap-V2/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Uniswap-V2"><a href="#Uniswap-V2" class="headerlink" title="Uniswap V2"></a>Uniswap V2</h1><p><strong>Uniswap</strong>是一种流行的去中心化交易所 (DEX)协议，允许用户将任何 ERC20 代币交换为另一种代币，提供流动性以赚取费用，并访问以太坊区块链上的价格预言机。 而Uniswap V2具有更强大的功能，如下：</p><ul><li>它允许任何的ERC20代币与其他的ERC20代币配对，无需ETH作为中介，这使得流动性池更加多样化和高效，并为交易者提供更好的价格。 就是一种代币可与其他的代币转化，方便很多</li><li>Uniswap V2 实施了一种新颖的机制，可实现高度去中心化且抗操纵的链上价格供给。 这是通过在每个区块开始时测量两种资产的相对价格并随着时间的推移积累历史数据来实现的。 这允许外部智能合约查询任何时间间隔内任何货币对的时间加权平均价格（TWAP），同时将天然气成本和预言机风险降至最低。</li><li>Uniswap V2 支持一种称为闪电互换的新型交易，用户可以从池中接收任意数量的任何资产，并在链上的其他地方使用它，只要他们在交易结束时偿还该金额并支付费用即可。 交易。 这为套利、保证金交易、抵押品互换等开辟了新的可能性。</li></ul><p>同时它也有很多好处：</p><ul><li>低费用：Uniswap V2 对每笔交易收取 0.3% 的固定费用，该费用由所有流动性提供者按其在池中的权益比例分配。 该费用低于大多数中心化交易所和其他 DEX 协议，这使得 Uniswap V2 成为中小额交易的有吸引力的选择。</li><li>高流动性：Uniswap V2 利用以太坊及其庞大的 ERC20 代币生态系统的网络效应，为任何代币对提供高流动性。 任何人都可以通过提供一定数量的两种代币来创建新的货币对或加入现有的货币对，从而增加池的深度和可用性。 此外，Uniswap V2 采用自动做市商（AMM）模型，根据供需情况调整价格，确保任何交易规模始终有足够的流动性。</li><li>无许可访问：Uniswap V2 是<strong>完全去中心化和非托管的</strong>，这意味着任何人都可以使用它，而无需注册帐户、验证身份或信任第三方使用其资金。 用户可以完全控制自己的资产，可以随时进行交易或提供流动性，而无需担心停机、审查或黑客攻击。</li><li>透明定价：Uniswap V2 采用简单透明的定价机制，由恒定乘积公式和矿池当前准备金余额决定。 用户可以轻松计算他们将收到或支付任何交易的确切代币数量，没有任何隐藏费用或滑点。 用户还可以根据池的历史数据访问任何货币对的可靠且无需信任的价格预言机。</li></ul><p>要使用Uniswap V2可在<a href="https://uniswap.org/">官网</a>上访问,可以自己创建一个Uniswap钱包，一定要记住<strong>私钥</strong></p>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>ERC20</title>
       <link href="/2024/08/05/ERC20/"/>
       <url>/2024/08/05/ERC20/</url>
