@@ -1,0 +1,268 @@
+<!DOCTYPE html><html lang="zh-Cn" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>数据库原理及应用 | 何方圜的博客</title><meta name="author" content="何方圜"><meta name="copyright" content="何方圜"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="术语1，数据是数据库储存的基本对象，而数据库则是长期储存在计算机中，有组织，可共享的大量数据的集合  基本特点：永久储存，有组织，可共享，冗余度小，易扩展2，一些基本模型术语：   关系：就是一个整体的表 属性：表中的一列为一个属性 域：属性的取值范围 元组：表中的一行 码：也叫码键，表中的某个属性组，它可以唯一确定一个元组 分量：元组中的一个属性值 关系模式：对关系的描述3，数据库系统里有三种模">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据库原理及应用">
+<meta property="og:url" content="http://example.com/2024/09/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8E%9F%E7%90%86%E5%8F%8A%E5%BA%94%E7%94%A8/index.html">
+<meta property="og:site_name" content="何方圜的博客">
+<meta property="og:description" content="术语1，数据是数据库储存的基本对象，而数据库则是长期储存在计算机中，有组织，可共享的大量数据的集合  基本特点：永久储存，有组织，可共享，冗余度小，易扩展2，一些基本模型术语：   关系：就是一个整体的表 属性：表中的一列为一个属性 域：属性的取值范围 元组：表中的一行 码：也叫码键，表中的某个属性组，它可以唯一确定一个元组 分量：元组中的一个属性值 关系模式：对关系的描述3，数据库系统里有三种模">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg">
+<meta property="article:published_time" content="2024-09-13T10:02:44.000Z">
+<meta property="article:modified_time" content="2024-09-16T12:57:09.619Z">
+<meta property="article:author" content="何方圜">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="shortcut icon" href="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="canonical" href="http://example.com/2024/09/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8E%9F%E7%90%86%E5%8F%8A%E5%BA%94%E7%94%A8/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '数据库原理及应用',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-09-16 20:57:09'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/%5Cimg%5C8a5725b44b17e750ba6ce84aaca3013d.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="何方圜的博客"><span class="site-name">何方圜的博客</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">数据库原理及应用</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-09-13T10:02:44.000Z" title="Created 2024-09-13 18:02:44">2024-09-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2024-09-16T12:57:09.619Z" title="Updated 2024-09-16 20:57:09">2024-09-16</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="数据库原理及应用"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h2><p>1，数据是数据库储存的基本对象，而数据库则是长期储存在计算机中，有组织，可共享的大量数据的集合</p>
+<blockquote>
+<p>基本特点：永久储存，有组织，可共享，冗余度小，易扩展<br>2，一些基本模型术语：</p>
+</blockquote>
+<ul>
+<li>关系：就是一个整体的表</li>
+<li>属性：表中的一列为一个属性</li>
+<li>域：属性的取值范围</li>
+<li>元组：表中的一行</li>
+<li>码：也叫码键，表中的某个属性组，它可以唯一确定一个元组</li>
+<li>分量：元组中的一个属性值</li>
+<li>关系模式：对关系的描述<br>3，数据库系统里有三种模式：<br>a,模式（逻辑模式）：数据库中的全体数据逻辑结构和特征的描述，与物理储存的细节和硬件环境，与具体的应用程序，开发环境及高级程序设计语言无关，它是数据库系统模式的中间层<br>b，外模式（子模式，用户模式）：数据库用户使用的局部数据的逻辑结构和特征的描述，是与某一应用有关的数据的逻辑表示，每个用户只能看见和访问对应的外模式中的数据<br>c，内模式（储存模式）：是数据物理结构和储存方式的描述，是数据在数据库内部的表示方式：记录的储存方式，索引的组织方式，数据是否压缩储存，数据是否加密，数据储存记录记录结构的规定</li>
+</ul>
+<hr>
+<h2 id="MySQL"><a href="#MySQL" class="headerlink" title="MySQL"></a>MySQL</h2><h3 id="基本含义："><a href="#基本含义：" class="headerlink" title="基本含义："></a>基本含义：</h3><p>数据库(DB)：储存数据的仓库<br>MySQL: 操纵何管理数据库的软件，下载安装后，在终端打开，用：net start mysql80,停止用：net stop mysql80<br>MySQL数据库模型：<br>1，关系型数据库（RDBMS）：建立在关系型模型基础上，由多张相互连接的二维表组成的数据库<br> <a target="_blank" rel="noopener" href="http://www.mysql.com/">下载安装MySQL</a><br> 1,登录数据库命令：cd  C:\Program Files\MySQL\MySQL Server 8.0\bin（由于我配置了环境变量，所这步可以省略）<br> 2, 客户端连接，输入mysql -h localhost -u root -p,进入数据库,也可以直接在开始直接打开MySQL的命令提示板输入密码即可<br> 3,输入show databases; 查看当前数据库列表<br> 4,退出执行命令：exit或者quit</p>
+<blockquote>
+<p>一些专业的名词解释：1，索引：加快查询速度的有效方式，用户可以在基本表上建立一个或者多个索引，以提供存取路径，索引是属于内模式的范畴。唯一的索引：使用UNIQUE关键字，每个索引值对应唯一一条数据记录 2，视图：视图是从一个或者几个基本表导出的表，数据库只存在视图的定义而不是存放视图对应的数据，基本表中的数据发生变化，从视图查询出的数据也会随之变化。</p>
+</blockquote>
+<h3 id="SQL："><a href="#SQL：" class="headerlink" title="SQL："></a>SQL：</h3><p>SQL：是用于管理数据库的标准化编程语言，它用于查询，更新，插入和删除数据库中的数据，操作数据库的语言，不管什么数据库管理系统（DBMS），SQL都实用</p>
+<h4 id="一，SQL的通用语法："><a href="#一，SQL的通用语法：" class="headerlink" title="一，SQL的通用语法："></a>一，SQL的通用语法：</h4><p>a，可单行或多行书写，一分号结尾<br>b,可以使用空格或者缩进来增强语句的可读性<br>c,MySQL数据库的SQL语句部区分大小写，关键字建议大写<br>d,注释：</p>
+<ul>
+<li>单行注释：– 注释内容或 #注释内容（MySQL特有）</li>
+<li>多行注释：&#x2F;* 注释内容*&#x2F;</li>
+</ul>
+<h4 id="二，SQL的分类："><a href="#二，SQL的分类：" class="headerlink" title="二，SQL的分类："></a>二，SQL的分类：</h4><h5 id="DDL"><a href="#DDL" class="headerlink" title="DDL"></a>DDL</h5><p>1，DDL：数据定义语言，用来定义数据库对象（数据库，表，字段）</p>
+<p>a,DDL-数据库操作：</p>
+<ul>
+<li>查询：<ul>
+<li>查询所有数据库：SHOW DATABASES；</li>
+<li>查询当前数据库：SELECT DATABASE();</li>
+</ul>
+</li>
+<li>创建：<ul>
+<li>CREATE DATABASE[IF NOT EXISTS]数据库名[DEFAULT CHARSET 字符集] [COLLATE 排序规则]；<blockquote>
+<p>括号代表可以有的，eg:CREATE DATABASE IF NOT EXISTS itcast DEFAULT CHARSET utf8mb4;也可以直接创建CREATE DATABASE itcast;</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>删除：<ul>
+<li>DROP DATABASE[IF EXISTS]数据库名；</li>
+</ul>
+</li>
+<li>使用：<ul>
+<li>USE 数据库名；顾名思义切换到一个数据库中</li>
+</ul>
+</li>
+</ul>
+<p>b,DDL-表操作</p>
+<ul>
+<li>查询<ul>
+<li>查询当前数据库所有表：SHOW TABLES;</li>
+<li>查询表的结构：DESC 表名；</li>
+<li>查询指定表的建表语句 SHOW CREATE TABLE 表名；</li>
+</ul>
+</li>
+<li>创建<ul>
+<li>CREATE TABLE 表名（<br> 字段1 字段类型 COMMENT 字段1注释，<br> 字段1 字段类型 COMMENT 字段1注释，<br> 字段n 字段类型 COMMENT 字段n注释<br>）[COMMENT 表注释] ；<br>（注意：最后一个字段没有逗号，字段的注释必须用’’围住,可以先在记事本上写，然后直接复制）<br>mysql&gt; CREATE TABLE tb_user(<br>-&gt; id int COMMENT ‘编号’<br>-&gt; ) COMMENT ‘用户表’;</li>
+</ul>
+</li>
+</ul>
+<p>c,DDL-表操作-数据类型</p>
+<ul>
+<li>数值类型（参照Java）<ul>
+<li>TINYINT(1byte)，SMALLINT(2bytes),MEDIUMINT(3bytes)，INT(4bytes),BIGINT(8bytes),FLOAT(4bytes),DOUBLE(8bytes)</li>
+<li>有符号（SIGNED），范围有负数，无符号（UNSIGNED），范围无负数，eg:TINYINT 有符号：-128<del>127，无符号：0</del>255；</li>
+<li>举例：年龄：age TINYINT UNSIGNED；分数：score DOUBLE(4,1)，4为标度，总共的数字个数，1为精度，小数的位数</li>
+</ul>
+</li>
+<li>字符串类型<ul>
+<li>CHAR ：定长字符串；VARCHAR：变长字符串；TEST:长文本数据；</li>
+<li>CHAR(10),性能好；VARCHAR(10)</li>
+</ul>
+</li>
+<li>日期时间类型<ul>
+<li>DATE:范围：1000-01-01至9999-12-31，格式：YYYY-MM-DD  日期值  eg:brithday DATE</li>
+<li>TIME:范围：-838：59：59至838：59：59，格式：HH:MM:SS  时间值</li>
+<li>YEAR:范围：1901至2155   格式：YYYY 年份值</li>
+<li>DATETIME:混合日期和时间 格式：YYYY-MM-DD HH-MM-SS</li>
+<li>TIMESTAMP :混合日期和时间，时间戳 格式：YYYY-MM-DD HH-MM-SS</li>
+</ul>
+</li>
+</ul>
+<p>d,DDL-表操作-修改</p>
+<ul>
+<li>添加字段：ALTER TABLE 表名 ADD 字段名 类型（长度）[COMMENT 注释] [约束 ]；</li>
+<li>修改字段<ul>
+<li>修改数据类型 ： ALTER TBALE 表名 字段名 新数据类型（长度）；</li>
+<li>修改字段名，字段类型 ：ALTER TABLE 表名 CHANGE 旧字段名 新字段名 类型（长度）[COMMENT 注释] [约束 ]；</li>
+</ul>
+</li>
+<li>删除字段 : ALTER TABLE 表名 DROP 字段名；</li>
+<li>修改表名 ：ALTER TABLE 表名 RENAME TO 新表名；</li>
+<li>删除：<ul>
+<li>删除表 ：DROP TABLE [IF EXISTS]表名；</li>
+<li>删除指定表，并重新创建该表 : TRUNCATE TABLE 表名；（一般不使用它，因为它会重新创建该表，只是没有结构）<br>MySQL 图形化界面：DataGrip,使用它就可以直接写了</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h5 id="DML"><a href="#DML" class="headerlink" title="DML"></a>DML</h5><p>2，DML：数据操作语言，用来对数据库表中的数据进行修改<br>a,DML-添加数据：</p>
+<ul>
+<li>给指定字段添加数据：INSERT INTO 表名（字段名1，字段名2… ）VALUES（值1，值2…）；</li>
+<li>给全部字段添加数：INSERT INTO 表名 VALUES（值1，值2…）；值1，就是表中第一列</li>
+<li>批量添加数据：<ul>
+<li>INSERT INTO 表名（字段名1，字段名2… ）VALUES（值1，值2…），（值1，值2…），（值1，值2…）；</li>
+<li>INSERT INTO 表名 VALUE(值1，值2)，（值1，值2…）（值1，值2…）；<br>b，DML-修改数据</li>
+</ul>
+</li>
+<li>UPDATE 表名 SET 字段名1 &#x3D; 值1，字段名2 &#x3D; 值2，…[WHERE 条件]；<br>c,DML-删除数据</li>
+<li>DELETE FROM 表名 [WHERE 条件]；</li>
+</ul>
+<p>3，DQL：数据查询语言，用来查询数据库中的表的记录<br>4，DCL：数据控制语言，用来创建数据库用户，控制数据库的访问权限</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://example.com">何方圜</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="http://example.com/2024/09/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8E%9F%E7%90%86%E5%8F%8A%E5%BA%94%E7%94%A8/">http://example.com/2024/09/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8E%9F%E7%90%86%E5%8F%8A%E5%BA%94%E7%94%A8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://HeYuan-33.github.io">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2024/08/30/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%85%A5%E9%97%A8%E7%9F%A5%E8%AF%86%E9%93%BE%E6%8E%A5/" title="区块链入门知识常用链接"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Next</div><div class="next_info">区块链入门知识常用链接</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">何方圜</div><div class="author-info__description">夫孰异道而相安</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/HeYuan-33"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">靶场题解更新</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AF%E8%AF%AD"><span class="toc-number">1.</span> <span class="toc-text">术语</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL"><span class="toc-number">2.</span> <span class="toc-text">MySQL</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E5%90%AB%E4%B9%89%EF%BC%9A"><span class="toc-number">2.1.</span> <span class="toc-text">基本含义：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SQL%EF%BC%9A"><span class="toc-number">2.2.</span> <span class="toc-text">SQL：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%EF%BC%8CSQL%E7%9A%84%E9%80%9A%E7%94%A8%E8%AF%AD%E6%B3%95%EF%BC%9A"><span class="toc-number">2.2.1.</span> <span class="toc-text">一，SQL的通用语法：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%EF%BC%8CSQL%E7%9A%84%E5%88%86%E7%B1%BB%EF%BC%9A"><span class="toc-number">2.2.2.</span> <span class="toc-text">二，SQL的分类：</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#DDL"><span class="toc-number">2.2.2.1.</span> <span class="toc-text">DDL</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#DML"><span class="toc-number">2.2.2.2.</span> <span class="toc-text">DML</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/09/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8E%9F%E7%90%86%E5%8F%8A%E5%BA%94%E7%94%A8/" title="数据库原理及应用">数据库原理及应用</a><time datetime="2024-09-13T10:02:44.000Z" title="Created 2024-09-13 18:02:44">2024-09-13</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/08/30/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%85%A5%E9%97%A8%E7%9F%A5%E8%AF%86%E9%93%BE%E6%8E%A5/" title="区块链入门知识常用链接">区块链入门知识常用链接</a><time datetime="2024-08-30T08:03:12.000Z" title="Created 2024-08-30 16:03:12">2024-08-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/08/30/EVM-puzzle/" title="EVM puzzle">EVM puzzle</a><time datetime="2024-08-30T07:29:01.000Z" title="Created 2024-08-30 15:29:01">2024-08-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/08/19/EVM%E5%85%A5%E9%97%A8/" title="EVM入门">EVM入门</a><time datetime="2024-08-19T08:44:33.000Z" title="Created 2024-08-19 16:44:33">2024-08-19</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/08/19/Compound/" title="Compound">Compound</a><time datetime="2024-08-19T08:32:13.000Z" title="Created 2024-08-19 16:32:13">2024-08-19</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/%5Cimg%5C8a5725b44b17e750ba6ce84aaca3013d.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By 何方圜</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
