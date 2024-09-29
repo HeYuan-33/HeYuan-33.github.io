@@ -8,7 +8,7 @@
       <link href="/2024/09/29/20240508-BSC%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6/"/>
       <url>/2024/09/29/20240508-BSC%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6/</url>
       
-        <content type="html"><![CDATA[<p>这是一起发生在2024年5月8日币安智能链（BSC）上的闪贷攻击事件，影响的是GPU代币合约。该合约存在自转账漏洞，每次自转账都会导致资产翻倍。黑客利用该漏洞，通过DODO协议以闪贷的方式借入BUSD，在PancakeSwap上兑换成GPU代币，再利用漏洞进行多次自转账，导致其GPU代币余额增加了100亿倍，达到28,070,259,409,924枚代币。最后，黑客将GPU代币卖出换成BUSD，用于偿还闪贷本息，最终窃取约3.2万美元资金。</p><p><img src="C:\Users\ASUS\blog\source\link\e747425d-a235-42ae-b901-07f2ea6b3339.webp" alt="这是图片"></p>]]></content>
+        <content type="html"><![CDATA[<p>这是一起发生在2024年5月8日币安智能链（BSC）上的闪贷攻击事件，影响的是GPU代币合约。该合约存在自转账漏洞，每次自转账都会导致资产翻倍。黑客利用该漏洞，通过DODO协议以闪贷的方式借入BUSD，在PancakeSwap上兑换成GPU代币，再利用漏洞进行多次自转账，导致其GPU代币余额增加了100亿倍，达到28,070,259,409,924枚代币。最后，黑客将GPU代币卖出换成BUSD，用于偿还闪贷本息，最终窃取约3.2万美元资金。</p><p><img src="/%5Cimages%5C09afcfa44c4d7ce14ff699e10fd1a22c.jpg%22" alt="这是图片"></p>]]></content>
       
       
       
