@@ -4,6 +4,51 @@
   
     
     <entry>
+      <title>CTF-SafuVault</title>
+      <link href="/2024/10/20/CTF-SafuVault/"/>
+      <url>/2024/10/20/CTF-SafuVault/</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>EIP-1559</title>
+      <link href="/2024/10/20/EIP-1559/"/>
+      <url>/2024/10/20/EIP-1559/</url>
+      
+        <content type="html"><![CDATA[<h2 id="EIP-1559"><a href="#EIP-1559" class="headerlink" title="EIP-1559"></a>EIP-1559</h2><p>在做solidity自我检测的时候,第一次,了解到这个协议,就来做个学习笔记</p><h1 id="含义"><a href="#含义" class="headerlink" title="含义"></a>含义</h1><p>首先它是由V神和Ethhub_io创始人Eric Conner于2019年3月联合提出的以太坊交易手续费机制改进提案。这个提案的主要内容就是对向矿工的支付的gas方式做出了改变,它将gas费分为俩部分:基础费(basefee)+矿工小费</p><p>基础费(basefee)就是以太坊网络根据交易需求和区块大小动态调整的。<code>BASEFEE</code>的计算方式是通过一个名为“基础费用追踪器”的算法来实现的。该算法会根据当前区块的交易需求和区块大小来动态调整<code>BASEFEE</code>，以确保交易能够在合理的时间内得到确认。</p><p>EIP-1559协议的核心思想其实有两块：第一块是变更燃料费价格的定价方式，降低整体的燃料费价格，以利于以太坊生态中的各种应用的发展。第二块是原来的以太坊网络中的燃料费全部是矿工的收入，在EIP-1559协议实施后，燃料费的一部分将燃烧掉，不再作为矿工的收入。</p><h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><p>降低以太坊的矿工费用,维持以太坊网络的稳定</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 协议 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>solidityqestion答案</title>
+      <link href="/2024/10/20/solidityqestion%E7%AD%94%E6%A1%88/"/>
+      <url>/2024/10/20/solidityqestion%E7%AD%94%E6%A1%88/</url>
+      
+        <content type="html"><![CDATA[<h2 id="自查"><a href="#自查" class="headerlink" title="自查"></a>自查</h2><p>最近发现个关于solidity面试的问题网站，正好之前又重新温习了solidity的，所以就来做一下<br><a href="https://www.rareskills.io/post/solidity-interview-questions">点击</a>查看面试问题网站</p><h3 id="容易"><a href="#容易" class="headerlink" title="容易"></a>容易</h3><p>1，私有、内部、公共和外部函数之间有什么区别？</p><ul><li><code>private</code>表示只能在合同内部调用其他函数。 <code>internal</code>类似于私有关键字，但也可由继承当前合同的合同调用。 <code>external</code>只能在合同外部调用。<code> public</code>可在任何地方被调用，无论是内部还是外部。</li></ul><p>2，智能合约大约可以有多大？</p><ul><li>24KB</li></ul><p>3，create 和 create2 有什么区别？</p><ul><li>首先它们都是Solidity中重要的操作码，都是用来部署合约的，区别就是，<strong>create</strong>是通过对发送者地址和nonce值进行哈希运算计算新合约的地址的，<code>keccak256(rlp.encode(deployingAddress, nonce))</code>。而<strong>create2</strong>更为复杂，它使用是通过一个公式计算新合约的地址的，这个公式包括，发送者地址，随机数，salt，字节码等参数，<code>keccak256(0xff ++ deployingAddr ++ salt ++ keccak256(bytecode))</code>，它也有个优点，可以在部署合约之前预测合约地址。</li></ul><p>4，Solidity 0.8.0 版本对算术运算有什么重大变化？</p><ul><li>里面有对整数溢出做出了一个保护</li></ul><p>5，代理需要哪种特殊的 <code>CALL</code> 才能工作？</p><ul><li>一般来说是：<code>delegatecall</code>，因为它主要用于委托调用，允许我们在主合约的上下文中加载和调用另一个合约的代码。被调用合约的代码被执行，但被调用合约所做的任何状态改变实际上是在主合约的存储中进行的，而不是在被调用合约的存储中</li></ul><p>6，在 EIP-1559 之前，如何计算以太坊交易的成本？</p><blockquote><p><code>Ethereum Improvement Proposal (EIP) 1559</code>是以太坊的一个升级，旨在改变以太坊计算和处理网络交易费用（称为“gas费用”）的方式。该升级通过使用基于区块的基础费用<code>basefee</code>和发送方指定的最大费用，而不是对gas价格进行竞价，来更加平衡地激励矿工在高或低网络拥塞期间进行挖矿，从而使以太坊交易更加高效。EIP-1559是一个提案，它改变了gas费用的结构和矿工的奖励方式。该提案于2021年8月5日作为以太坊伦敦硬分叉的一部分实施。<br>gas费 &#x3D; 基础费（<code>Basefee</code>）+ 矿工费（Tip），基础费会根据区块的Gas利用率动态调整，如每个区块的Gas费利用率低于50%，就降低手续费，高于50%，就提高手续费。</p></blockquote><ul><li>关于<a href="https://learnblockchain.cn/article/6914">EIP-1559</a>,可以查看。以以太坊的交易成本有矿工通过拍卖机制来决定的，矿工会选出价高的交易，并将其包含在下一个区块上，交易成本，又俩个因素决定，GasPrice和<code>Gas Limit</code>,<code>Gas Price</code>是以太坊网络中的一种计量单位，用于衡量交易的复杂性。<code>Gas Limit</code>是指交易可以使用的最大Gas数量。交易的成本等于<code>Gas Price</code>乘以Gas Limit。因此，交易的成本取决于<code>Gas Price</code>和<code>Gas Limit</code>的值，这些值由交易的发送者设置。</li></ul><p>7，在区块链上创建随机数有哪些挑战</p><ul><li>不可预测，而且比较困难，因为所有矿工都在一个链上，它们有个共同的共识，如果随意产生伪随机数，那么就可能会导致达不成共识。</li></ul><p>8，荷兰拍卖会和英国拍卖会有什么区别</p><ul><li>这个问感觉和slidity没有太多关系,就不回答了</li></ul><p>9,ERC20 中的 和 有什么区别？<code>transfer</code>和<code>transferFrom</code></p><ul><li><code>transfer</code>是用户直接发送,<code>transferForm</code>是对于用户授权地址进行发送代币,用户可以不用直接参</li><li><code>transfer(address recipient, uint256 amount)</code></li><li><code>transferFrom(address sender, address recipient, uint256 amount)</code></li><li>从上面的表达式也能看出,<code>transfer</code>是直接从当前合约转账给目标合约,<code>transferFrom</code>是可以设置发送账户和目标账户的</li></ul><p>10,哪个更适合用于地址允许列表：映射还是数组？为什么</p><ul><li>数组是可以快速历遍地址列表,而映射可以快速查找地址是否在地址列表中,所以要根据具体的使用情况来决定使用谁</li></ul><p>11,为什么不应该使用 <code>tx.origin</code> 进行身份验证？</p><ul><li><code>tx.origin</code>是发起交易的的人,在 Solidity 中，<code>tx.origin </code>是一个全局变量，它返回发送交易的账户地址。在合约代码中，最常用的是使用 <code>msg.sender </code>来检查授权，但有时由于有些程序员不熟悉 <code>tx.origin </code>和 <code>msg.sender</code> 的区别，如果使用了 <code>tx.origin </code>可能导致合约的安全问题。黑客最典型的攻击场景是利用 <code>tx.origin </code>的代码问题常与钓鱼攻击相结合的组合拳的方式进行攻击。因为 <code>tx.origin </code>返回交易的原始发送者，因为攻击的调用链可能是原始发送者 -&gt; 攻击合约 -&gt; 受攻击合约。在受攻击合约中，<code>tx.origin</code> 是原始发送者。因此，通过调用 <code>tx.origin</code> 来检查授权可能会导致合约受到攻击。为了避免这种情况，建议使用 <code>msg.sender</code> 来检查授权</li></ul><p>12,1 个Ether 相当于 多少个 gwei ？</p><ul><li>1 ether &#x3D; 10^9gwei</li></ul><p>13,1 个Ether 相当于 多少个 wei ？</p><ul><li>1 ether &#x3D; 10^18wei</li></ul><p>14,<code>assert</code> 和 <code>require</code> 之间有什么区别？</p><ul><li><code>require</code> 应该被用于函数中检查条件，<code>assert</code>用于预防不应该发生的情况，即不应该使条件错误。</li></ul><p>15,什么是闪电贷？</p><ul><li>就是无需抵押,就可以借钱,允许在一笔交易中还款</li></ul><p>16,什么是 <code>check-effects-interaction</code> 模式？</p><ul><li><code>Checks-Effects-Interactions</code>模式确保所有通过合约的代码路径在修改合约的状态（<code>Checks</code>）之前完成对所提供的参数的所有必要检查；然后才对状态（<code>Effects</code>）进行任何改变。 在所有计划中的状态变化被写入存储空间之后，它可以调用其他合约中的函数（<code>Interactions</code>）。检查-生效-交互</li></ul><p>17,运行一个单独的质押节点所需的最低以太币数量是多少？</p><ul><li>32个以太币</li></ul><p>18,<code>fallback</code> 和 <code>receive</code> 之间有什么区别？</p><ul><li><code>fallback</code>和<code>receive</code>都是特殊的回调函数，用于处理合约中不存在的函数调用和接收以太币。它们之间的区别在于，<code>fallback</code>函数会在调用合约不存在的函数时被触发，而<code>receive</code>函数只用于处理接收以太币。</li></ul><p>19,如何向没有<code>payable </code>函数、<code>receive </code>或回退的合约发送以太？</p><ul><li>通过自毁合约,将自毁的eth发送给目标合约</li></ul><p>20, <code>view</code> 和 <code>pure </code>之间有什么区别？</p><ul><li><code>view</code>和<code>pure</code>都是函数的修饰符，view可以访问合约中的状态变量，不能修改；<code>pure</code>不能访问也不能修改状态变量。</li></ul><p>21,访问控制是什么，为什么重要？</p><ul><li>访问控制是一种重要的机制，用于限制对智能合约的访问。通过使用访问控制，您可以确保只有经过授权的用户才能执行特定操作或访问敏感信息。这可以帮助保护您的智能合约免受未经授权的访问和攻击。Solidity提供了几种访问控制修饰符，例如<code>public</code>、<code>private</code>、<code>internal</code>和<code>external</code>。这些修饰符用于控制函数和状态变量的可见性和访问权限。</li></ul><p>22, uint256 可以存储的最大值是多少？</p><ul><li>2^256-1</li></ul><p>23,修饰符（modifier）的作用是什么？</p><ul><li>增加对函数的限制或者修饰</li></ul><hr><h3 id="中等"><a href="#中等" class="headerlink" title="中等"></a>中等</h3><p>1, <code>transfer </code>和 <code>send </code>之间有什么区别？为什么不应该使用它们？</p><ul><li><code>transfer</code>和<code>send</code>函数都是用于将以太币从一个地址转移到另一个地址的函数。它们之间的区别在于它们的<code>gas</code>限制不同，这可能会导致一些安全问题。因此，您应该使用<code>call</code>函数来转移以太币,但是会有重入攻击风险。<blockquote><p>（transfer函数的gas限制为2300 gas，这意味着如果接收方合约没有实现fallback函数，或者fallback函数消耗的gas超过了2300，那么转账将失败并回滚所有更改。这可以防止重入攻击，但也可能导致一些问题，例如无法向某些合约发送以太币。<br>send函数的gas限制也为2300 gas，但它返回一个布尔值，指示转账是否成功。如果转账失败，它将返回false。但是，如果接收方合约没有实现fallback函数，或者fallback函数消耗的gas超过了2300，那么转账将失败并回滚所有更改。<br>由于这些限制，transfer和send函数已经被认为是不安全的，因此不应该使用它们。相反，您应该使用call函数来转移以太币。call函数没有gas限制，可以向任何地址发送以太币，并且可以指定要发送的gas数量。但是，您应该小心使用call函数，因为它可能会导致一些安全问题，例如重入攻击。）</p></blockquote></li></ul><p>2,代理合约中的存储冲突是什么？</p><ul><li>存储冲突是指多个合约尝试访问同一存储位置时发生的问题。当多个合约同时尝试更新同一存储位置时，可能会发生存储冲突，导致数据不一致或合约无法正常工作。</li></ul><p>3,在权益证明之前后，<code>block.timestamp</code> 发生了什么变化？</p><ul><li>在PoW协议中，<code>block.timestamp</code>表示矿工开始挖掘新块的时间戳。在PoS协议中，<code>block.timestamp</code>表示验证器开始验证新块的时间戳。</li></ul><p>4,什么是抢跑（frontrunning）？</p><ul><li>抢跑就是抢先在别人的交易的执行前执行,它是通过提交更高的gas费用来达到的</li></ul><p>5,以太坊如何确定 EIP-1559 中的 <code>BASEFEE</code></p><ul><li><code>BASEFEE</code>是由以太坊网络根据交易需求和区块大小动态调整的。<code>BASEFEE</code>的计算方式是通过一个名为“基础费用追踪器”的算法来实现的。该算法会根据当前区块的交易需求和区块大小来动态调整<code>BASEFEE</code>，以确保交易能够在合理的时间内得到确认。</li></ul><p>6,什么是 <code>commit-reveal</code> 方案，何时使用它？</p><ul><li>提交-揭示方案（<code>Commit-Reveal Scheme</code>）是一种用于在区块链上进行投票或竞标的协议。该协议的目的是防止参与者在提交投票或竞标之前查看其他参与者的提交，从而保护投票或竞标的公正性。</li></ul><p>7,在什么情况下，<code>abi.encodePacked</code> 可能会产生漏洞？</p><ul><li><code> abi.encodePacked</code>可能会产生漏洞，因为它不会在参数之间添加填充，而是将所有参数拼接在一起。这可能会导致哈希碰撞，从而使攻击者能够伪造交易或执行其他恶意操作。例如，如果攻击者知道您使用<code>abi.encodePacked</code>来编码交易数据，他们可以构造一个具有相同哈希值的交易，从而欺骗您的智能合约。</li></ul><p>8,AMM 如何定价资产？</p><ul><li>通过恒定乘积算法，a * b &#x3D; k ,兑换 m个a 需要的b数量算法 &#x3D; k&#x2F;(a+m) - b ,这里没计算手续费。</li></ul><p>9, 函数参数中的 memory 和 calldata 有什么区别？</p><ul><li>memory：用于声明函数参数将被存储在内存中。内存中的数据只在函数执行期间存在，执行完毕后就被销毁。在函数内部，您可以使用memory关键字来创建临时变量，但是不能在函数之外使用它们。在函数调用期间，函数参数的值将从调用方复制到内存中，并在函数执行完毕后被销毁。<br>calldata：用于声明函数参数将被存储在调用数据区域中。调用数据区域是一个不可修改的区域，用于保存函数参数。在函数内部，您可以使用calldata关键字来访问函数参数，但是不能在函数之外使用它们。在函数调用期间，函数参数的值将从调用方复制到调用数据区域中，并在函数执行完毕后被销毁</li></ul>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>CTF-jpeg-sniper</title>
       <link href="/2024/10/19/CTF-jpeg-sniper/"/>
       <url>/2024/10/19/CTF-jpeg-sniper/</url>
@@ -548,7 +593,7 @@
       
         <tags>
             
-            <tag> ERC </tag>
+            <tag> 协议 </tag>
             
         </tags>
       
