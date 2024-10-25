@@ -4,6 +4,63 @@
   
     
     <entry>
+      <title>CTF-MasterChef</title>
+      <link href="/2024/10/25/CTF-MasterChef/"/>
+      <url>/2024/10/25/CTF-MasterChef/</url>
+      
+        <content type="html"><![CDATA[<h1 id="CTF-MasterChef"><a href="#CTF-MasterChef" class="headerlink" title="CTF-MasterChef"></a>CTF-MasterChef</h1><p>题目源码;<a href="https://github.com/0xToshii/mr-steal-yo-crypto-ctf/tree/implement/contracts/inflationary-net-worth">点击</a></p><p>要求是：<br>有一个 MasterChef 合约，它接受 MULA 代币并向质押者铸造 MUNY 作为奖励。</p><p>MULA 具有通缩转账税机制，每次转账会销毁 5% 的数量，以有效激励长期持有者。</p><p>你的任务是欺骗 MasterChef，使其为你铸造分配给所有质押者的所有 MUNY。你开始时拥有 10,000 MULA。</p><p>看到有源代码，和之前的质押合约很像，存款获得奖励，而我们就是要获得这个MdsterChef合约中全部的奖励，看到题目说有5%的手续费，初步想法就是会不会是溢出啥的，但是看到存取代码时，我并没有看见有对5%的手续费的说明</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//_pid是流动池的ID</span><br><span class="line"> function deposit(uint256 _pid, uint256 _amount) public &#123;</span><br><span class="line">        PoolInfo storage pool = poolInfo[_pid];</span><br><span class="line">        UserInfo storage user = userInfo[_pid][msg.sender];</span><br><span class="line">        updatePool(_pid);</span><br><span class="line">        if (user.amount &gt; 0) &#123;</span><br><span class="line">            uint256 pending =</span><br><span class="line">                user.amount.mul(pool.accMunyPerShare).div(1e12).sub(</span><br><span class="line">                    user.rewardDebt</span><br><span class="line">                );</span><br><span class="line">            safeMunyTransfer(msg.sender, pending);</span><br><span class="line">        &#125;</span><br><span class="line">        pool.lpToken.safeTransferFrom(</span><br><span class="line">            address(msg.sender),</span><br><span class="line">            address(this),</span><br><span class="line">            _amount</span><br><span class="line">        );</span><br><span class="line">        user.amount = user.amount.add(_amount);</span><br><span class="line">        user.rewardDebt = user.amount.mul(pool.accMunyPerShare).div(1e12);</span><br><span class="line">        emit Deposit(msg.sender, _pid, _amount);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // Withdraw LP tokens from MasterChef.</span><br><span class="line">    function withdraw(uint256 _pid, uint256 _amount) public &#123;</span><br><span class="line">        PoolInfo storage pool = poolInfo[_pid];</span><br><span class="line">        UserInfo storage user = userInfo[_pid][msg.sender];</span><br><span class="line">        require(user.amount &gt;= _amount, &quot;withdraw: not good&quot;);</span><br><span class="line">        updatePool(_pid);</span><br><span class="line">        uint256 pending =</span><br><span class="line">            user.amount.mul(pool.accMunyPerShare).div(1e12).sub(</span><br><span class="line">                user.rewardDebt</span><br><span class="line">            );</span><br><span class="line">        safeMunyTransfer(msg.sender, pending);</span><br><span class="line">        user.amount = user.amount.sub(_amount);</span><br><span class="line">        user.rewardDebt = user.amount.mul(pool.accMunyPerShare).div(1e12);</span><br><span class="line">        pool.lpToken.safeTransfer(address(msg.sender), _amount);</span><br><span class="line">        emit Withdraw(msg.sender, _pid, _amount);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure><p>那么是不是就可以执行循环存取款，（题目也说了我们有10,000 MULA），获得奖励</p><p>攻击思路：就是通过循环存取款，获得奖励（注意，因为MulaToken合约中有自带的损失5%，所以最后攻击者还是的损失代币，不过是题目初始的，并不用担心）</p><p>其他的不用去纠结那么多，就是考察这个货币有没有通货紧缩代币支持</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> CTF </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>ERC721</title>
+      <link href="/2024/10/25/ERC721/"/>
+      <url>/2024/10/25/ERC721/</url>
+      
+        <content type="html"><![CDATA[<h1 id="ERC721"><a href="#ERC721" class="headerlink" title="ERC721"></a>ERC721</h1><p>非同质代币标准</p><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>非同质化代币（NFT）用于以唯一的方式标识某人或者某物。 此类型的代币可以被完美地用于出售下列物品的平台：收藏品、密钥、彩票、音乐会座位编号、体育比赛等。 这种类型的代币有着惊人的潜力，因此它需要一个适当的标准。ERC-721 就是为解决这个问题而来！</p><p>ERC-721 为 NFT 引入了一个标准，换言之，这种类型的代币是独一无二的，并且可能与来自同一智能合约的另一代币有不同的价值，也许是因为它的年份、稀有性、甚至是它的观感。</p><p>是的。 所有 NFTs 都有一个 uint256 变量，名为 tokenId，所以对于任何 ERC-721 合约，这对值contract address, tokenId 必须是全局唯一的。 也就是说，去中心化应用程序可以有一个“转换器”， 使用 tokenId 作为输入并输出一些很酷的事物图像，例如僵尸、武器、技能或神奇的小猫咪！</p><h2 id="主要功能"><a href="#主要功能" class="headerlink" title="主要功能"></a>主要功能</h2><p>协议函数如下：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function balanceOf(address _owner) external view returns (uint256);</span><br><span class="line"></span><br><span class="line">function ownerOf(uint256 _tokenId) external view returns (address);</span><br><span class="line">//注意发送的tokenid，没有数量</span><br><span class="line">function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes data) external payable;</span><br><span class="line"></span><br><span class="line">function safeTransferFrom(address _from, address _to, uint256 _tokenId) external payable;</span><br><span class="line"></span><br><span class="line">function transferFrom(address _from, address _to, uint256 _tokenId) external payable;</span><br><span class="line"></span><br><span class="line">function approve(address _approved, uint256 _tokenId) external payable;</span><br><span class="line"></span><br><span class="line">function setApprovalForAll(address _operator, bool _approved) external;</span><br><span class="line"></span><br><span class="line">function getApproved(uint256 _tokenId) external view returns (address);</span><br><span class="line"></span><br><span class="line">function isApprovedForAll(address _owner, address _operator) external view returns (bool);</span><br><span class="line"></span><br></pre></td></tr></table></figure><p>说明：<br>balanceOf(): 返回由_owner 持有的NFTs的数量。</p><p>ownerOf(): 返回tokenId代币持有者的地址。</p><p>approve(): 授予地址_to具有_tokenId的控制权，方法成功后需触发Approval 事件。</p><p>setApprovalForAll(): 授予地址_operator具有所有NFTs的控制权，成功后需触发ApprovalForAll事件。</p><p>getApproved()、isApprovedForAll(): 用来查询授权。</p><p>safeTransferFrom(): 转移NFT所有权，一次成功的转移操作必须发起 Transer 事件。函数的实现需要做一下几种检查：</p><ul><li>调用者msg.sender应该是当前tokenId的所有者或被授权的地址</li><li>_from 必须是 _tokenId的所有者</li><li>_tokenId 应该是当前合约正在监测的NFTs 中的任何一个</li><li>_to 地址不应该为 0，如果_to 是一个合约应该调用其onERC721Received方法, 并且检查其返回值，如果返回值不为bytes4(keccak256(“onERC721Received(address,uint256,bytes)”))抛出异常。<br>一个可接收NFT的合约必须实现ERC721TokenReceiver接口：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">interface ERC721TokenReceiver &#123;</span><br><span class="line">    /// @return `bytes4(keccak256(&quot;onERC721Received(address,uint256,bytes)&quot;))`</span><br><span class="line">    function onERC721Received(address _from, uint256 _tokenId, bytes data) external returns(bytes4);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li><li>transferFrom(): 用来转移NFTs, 方法成功后需触发Transfer事件。调用者自己确认_to地址能正常接收NFT，否则将丢失此NFT。此函数实现时需要检查上面条件的前4条。</li></ul>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 协议 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>CTF-nft-bonanza</title>
+      <link href="/2024/10/25/CTF-nft-bonanza/"/>
+      <url>/2024/10/25/CTF-nft-bonanza/</url>
+      
+        <content type="html"><![CDATA[<h1 id="CTF-ntf-bonanza"><a href="#CTF-ntf-bonanza" class="headerlink" title="CTF-ntf-bonanza"></a>CTF-ntf-bonanza</h1><p>题目源代码：<a href="https://github.com/0xToshii/mr-steal-yo-crypto-ctf/tree/implement/contracts/nft-bonanza">点击</a></p><p>要求是：新的 NFT 交易合约 BonanzaMarketplace 已经推出，它允许交易选定的白名单 ERC721 和 ERC1155 代币。您的挑战是获得所有列出的 NFT。</p><p>根据源码，可以发现此时的NTF都是ERC721代币，所以了解ERC721非同质化代币标准，会很好的理解。</p><p>要获得所列的NTF，就先看看，buyItem函数</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function buyItem(</span><br><span class="line">       address _nftAddress,</span><br><span class="line">       uint256 _tokenId,</span><br><span class="line">       address _owner,</span><br><span class="line">       uint256 _quantity</span><br><span class="line">   )</span><br><span class="line">       external</span><br><span class="line">       nonReentrant</span><br><span class="line">       isListed(_nftAddress, _tokenId, _owner)</span><br><span class="line">       validListing(_nftAddress, _tokenId, _owner)</span><br><span class="line">   &#123;</span><br><span class="line">       require(_msgSender() != _owner, &quot;Cannot buy your own item&quot;);</span><br><span class="line"></span><br><span class="line">       Listing memory listedItem = listings[_nftAddress][_tokenId][_owner];</span><br><span class="line">       require(listedItem.quantity &gt;= _quantity, &quot;not enough quantity&quot;);</span><br><span class="line"></span><br><span class="line">       // Transfer NFT to buyer</span><br><span class="line">       if (IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721)) &#123;</span><br><span class="line">           IERC721(_nftAddress).safeTransferFrom(_owner, _msgSender(), _tokenId);</span><br><span class="line">       &#125; else &#123;</span><br><span class="line">           IERC1155(_nftAddress).safeTransferFrom(_owner, _msgSender(), _tokenId, _quantity, bytes(&quot;&quot;));</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       if (listedItem.quantity == _quantity) &#123;</span><br><span class="line">           delete (listings[_nftAddress][_tokenId][_owner]);</span><br><span class="line">       &#125; else &#123;</span><br><span class="line">           listings[_nftAddress][_tokenId][_owner].quantity -= _quantity;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       emit ItemSold(</span><br><span class="line">           _owner,</span><br><span class="line">           _msgSender(),</span><br><span class="line">           _nftAddress,</span><br><span class="line">           _tokenId,</span><br><span class="line">           _quantity,</span><br><span class="line">           listedItem.pricePerItem</span><br><span class="line">       );</span><br><span class="line"></span><br><span class="line">       _buyItem(listedItem.pricePerItem, _quantity, _owner);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   function _buyItem(</span><br><span class="line">       uint256 _pricePerItem,</span><br><span class="line">       uint256 _quantity,</span><br><span class="line">       address _owner</span><br><span class="line">   ) internal &#123;</span><br><span class="line">       uint256 totalPrice = _pricePerItem * _quantity;</span><br><span class="line">       uint256 feeAmount = totalPrice * fee / BASIS_POINTS;</span><br><span class="line">       IERC20(paymentToken).safeTransferFrom(_msgSender(), feeReceipient, feeAmount);</span><br><span class="line">       IERC20(paymentToken).safeTransferFrom(_msgSender(), _owner, totalPrice - feeAmount);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure><p>从上我们可以看到，并没有对购买数量quantity的检查，所以即使购买零个NTF也是可以的，重点来了，在ERC721代币标准中，对于购买数量并没有要求，还是会发送tokenId给购买者，这就是漏洞所在</p><p>攻击思路：直接调用buyItem函数，购买零个ERC721代币标准的NTF就可以了</p><p>个人认为，这个题就是疏忽了ERC721代币的执行标准，所以对于一些主流协议，还是必须的了解。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> CTF </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>可怕的外部调用？</title>
       <link href="/2024/10/25/%E5%8F%AF%E6%80%95%E7%9A%84%E5%A4%96%E9%83%A8%E8%B0%83%E7%94%A8%EF%BC%9F/"/>
       <url>/2024/10/25/%E5%8F%AF%E6%80%95%E7%9A%84%E5%A4%96%E9%83%A8%E8%B0%83%E7%94%A8%EF%BC%9F/</url>
