@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>CTF-governance-shenamigans</title>
+      <link href="/2024/10/25/CTF-governance-shenamigans/"/>
+      <url>/2024/10/25/CTF-governance-shenamigans/</url>
+      
+        <content type="html"><![CDATA[<h1 id="CTF-governance-shenamigans"><a href="#CTF-governance-shenamigans" class="headerlink" title="CTF-governance-shenamigans"></a>CTF-governance-shenamigans</h1><p>题目源码：<a href="https://github.com/0xToshii/mr-steal-yo-crypto-ctf/tree/implement/contracts/governance-shenanigans">点击</a></p><p>要求是;<br>NotSushiToken 治理代币合约已经上线，旨在决定谁是最佳寿司厨师。谁不想要这样的荣耀呢？<br>该合约只允许 WLed 地址投票。幸运的是，你的 Sybil 攻击让你获得了 3 个可以投票的 WLed 地址。<br>你的目标是获得最多的委托投票，成为真正的寿司之王。你手中有 500 个代币，而你的竞争对手有 2000 个。</p><p>从题目中就可以得到一点方向，就是有3个可以投票的地址，说明我们肯定要运用起来</p><p>整个合约的逻辑就是委托投票，那么如果，我们将原有的500 个代币，委托给那3个地址，给我们投票，那么我们不就有很多票了吗</p><p>看向代码，允许我们这么做吗</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function _delegate(address delegator, address delegatee)</span><br><span class="line">       internal</span><br><span class="line">   &#123;</span><br><span class="line">       address currentDelegate = _delegates[delegator];</span><br><span class="line">       uint256 delegatorBalance = balanceOf(delegator); // balance of underlying SUSHIs (not scaled);</span><br><span class="line">       _delegates[delegator] = delegatee;</span><br><span class="line"></span><br><span class="line">       emit DelegateChanged(delegator, currentDelegate, delegatee);</span><br><span class="line"></span><br><span class="line">       _moveDelegates(currentDelegate, delegatee, delegatorBalance);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   /// @dev votes are transfered from delegatee `srcRep` to `dstRep`</span><br><span class="line">   function _moveDelegates(address srcRep, address dstRep, uint256 amount) internal &#123;</span><br><span class="line">       if (srcRep != dstRep &amp;&amp; amount &gt; 0) &#123;</span><br><span class="line">           if (srcRep != address(0)) &#123;</span><br><span class="line">               // decrease old representative</span><br><span class="line">               uint32 srcRepNum = numCheckpoints[srcRep];</span><br><span class="line">               uint256 srcRepOld = srcRepNum &gt; 0 ? checkpoints[srcRep][srcRepNum - 1].votes : 0;</span><br><span class="line">               uint256 srcRepNew = srcRepOld.sub(amount);</span><br><span class="line">               _writeCheckpoint(srcRep, srcRepNum, srcRepOld, srcRepNew);</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           if (dstRep != address(0)) &#123;</span><br><span class="line">               // increase new representative</span><br><span class="line">               uint32 dstRepNum = numCheckpoints[dstRep];</span><br><span class="line">               uint256 dstRepOld = dstRepNum &gt; 0 ? checkpoints[dstRep][dstRepNum - 1].votes : 0;</span><br><span class="line">               uint256 dstRepNew = dstRepOld.add(amount);</span><br><span class="line">               _writeCheckpoint(dstRep, dstRepNum, dstRepOld, dstRepNew);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure><p>发现没有什么限制，就能更新 <code>_delegates[delegator] = delegatee</code> 代表者,  也就是说刚刚那个想法就可实现</p><p>攻击思路：<br>三个地址，attracker,B,C,<br>attracter发送500代币给B，B在委托给attracker,  此时attracker的投票数500；<br>B将500代币发送给C，C在委托给attracker,此此时attrcaker的投票数为1000；<br>C将500代币发送给attracker,attracker在再重复前面的工作，直至投票数超过2000；</p><p>个人认为,这个合约漏洞是，可以随意更新代表者，并且委托人的token会留在它自己这儿，就好像双花一样，代币被重复使用。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> CTF </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>CTF-MasterChef</title>
       <link href="/2024/10/25/CTF-MasterChef/"/>
       <url>/2024/10/25/CTF-MasterChef/</url>
