@@ -110,7 +110,7 @@
       <link href="/2024/10/30/capture-the-ether/"/>
       <url>/2024/10/30/capture-the-ether/</url>
       
-        <content type="html"><![CDATA[<p>对于随机数，来实现一个更好的理解。</p><h2 id=""><a href="#" class="headerlink" title=""></a></h2>]]></content>
+        <content type="html"><![CDATA[<p>对于随机数，来实现一个更好的理解。</p><h2 id="math"><a href="#math" class="headerlink" title="math"></a>math</h2><h3 id="1"><a href="#1" class="headerlink" title="1"></a>1</h3><p>第一个很简单，答案直接告诉你了，输入即可</p><h3 id="2"><a href="#2" class="headerlink" title="2"></a>2</h3><p>第二个，暴力破解，关键就是uint8,一个字节的符号，范围0-127，直接暴力破解，循环</p><h3 id="3"><a href="#3" class="headerlink" title="3"></a>3</h3><p>第三个，有一些拆分，由于哈希计算的是当前的时间戳，所以我们直接引用它的计算哈希的表达式就行了，写一个攻击合约，在同一笔交易中进行就可以了</p><h3 id="4"><a href="#4" class="headerlink" title="4"></a>4</h3><p>第四个，就要使用控制台了，查询当前的密码，然后输入就可以了</p>]]></content>
       
       
       
