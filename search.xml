@@ -4,6 +4,19 @@
   
     
     <entry>
+      <title>codeHawks-2024-11-twentyone 审计报告</title>
+      <link href="/2024/12/04/codeHawks-2024-11-twentyone-%E5%AE%A1%E8%AE%A1%E6%8A%A5%E5%91%8A/"/>
+      <url>/2024/12/04/codeHawks-2024-11-twentyone-%E5%AE%A1%E8%AE%A1%E6%8A%A5%E5%91%8A/</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>CTF-Storage</title>
       <link href="/2024/12/02/CTF-Storage/"/>
       <url>/2024/12/02/CTF-Storage/</url>
@@ -465,7 +478,7 @@
       <link href="/2024/11/02/git-%E5%8D%8F%E4%BD%9C%E6%B5%81%E7%A8%8B/"/>
       <url>/2024/11/02/git-%E5%8D%8F%E4%BD%9C%E6%B5%81%E7%A8%8B/</url>
       
-        <content type="html"><![CDATA[<h2 id="团队协作"><a href="#团队协作" class="headerlink" title="团队协作"></a>团队协作</h2><p>首先使用在gitub 上进行团队的协作，就是你自己要先弄一个分支，然后再提交上去，<br>流程如下：<br><strong>git clone 仓库</strong><br><strong>进入到仓库中：cd 仓库名</strong><br><strong>然后切换分支到要协作的分支：git checkout 分支名</strong><br><strong>创建自己的分支：git checkout -b 分支名1</strong><br><strong>写好自己的部分再提交：git add .</strong><br><strong>同上提交：git commit -m “描述”</strong><br><strong>推送至远程自己创建的分支：git push origin 分支名1</strong><br>这样就可以再创库中看到自己的分支，然后再提交去分支名（也就是说pr:Pull requst）注意要指定review;</p><h2 id="个人上传文件到仓库"><a href="#个人上传文件到仓库" class="headerlink" title="个人上传文件到仓库"></a>个人上传文件到仓库</h2><p> 将本地文件上传到github上，<br>要有一个自己想上传的仓库，<br>cd 要上传的文件名，git remote add origin (ssh下的仓库地址)，<br>切换分支，主要是看仓库是master,还是main, 还是其他的分支，git branch -M main , 切换到main分支上<br>直接上传到分支上 git push -u origin main<br>即可</p><h2 id="初始化一个仓库"><a href="#初始化一个仓库" class="headerlink" title="初始化一个仓库"></a>初始化一个仓库</h2><p>git init 仓库名<br>写好文件后<br>使用git add . 将文件上传至缓存区<br>查看分支 git branch<br>选择要上传到的分支，git checkout 分支名<br>然后就可以直接远程推送 git push -u origin main </p>]]></content>
+        <content type="html"><![CDATA[<h2 id="团队协作"><a href="#团队协作" class="headerlink" title="团队协作"></a>团队协作</h2><p>首先使用在gitub 上进行团队的协作，就是你自己要先弄一个分支，然后再提交上去，<br>流程如下：<br><strong>git clone 仓库</strong><br><strong>进入到仓库中：cd 仓库名</strong><br><strong>然后切换分支到要协作的分支：git checkout 分支名</strong><br><strong>创建自己的分支：git checkout -b 分支名1</strong><br><strong>写好自己的部分再提交：git add .</strong><br><strong>同上提交：git commit -m “描述”</strong><br><strong>推送至远程自己创建的分支：git push origin 分支名1</strong><br>这样就可以再创库中看到自己的分支，然后再提交去分支名（也就是说pr:Pull requst）注意要指定review;</p><h2 id="个人上传文件到仓库"><a href="#个人上传文件到仓库" class="headerlink" title="个人上传文件到仓库"></a>个人上传文件到仓库</h2><p> 将本地文件上传到github上，<br>要有一个自己想上传的仓库，<br>cd 要上传的文件名，git remote add origin (ssh下的仓库地址)，<br>切换分支，主要是看仓库是master,还是main, 还是其他的分支，git branch -M main , 切换到main分支上<br>直接上传到分支上 git push -u origin main<br>即可</p><h2 id="初始化一个仓库"><a href="#初始化一个仓库" class="headerlink" title="初始化一个仓库"></a>初始化一个仓库</h2><p>git init 仓库名<br>写好文件后<br>使用git add . 将文件上传至缓存区<br>查看分支 git branch<br>选择要上传到的分支，git checkout 分支名<br>然后就可以直接远程推送 git push -u origin main </p><blockquote><p>遇到文件太大，就使用git lfs install 来安装<br>s</p></blockquote>]]></content>
       
       
       
