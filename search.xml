@@ -8,9 +8,15 @@
       <link href="/2024/12/04/codeHawks-2024-11-twentyone-%E5%AE%A1%E8%AE%A1%E6%8A%A5%E5%91%8A/"/>
       <url>/2024/12/04/codeHawks-2024-11-twentyone-%E5%AE%A1%E8%AE%A1%E6%8A%A5%E5%91%8A/</url>
       
-        <content type="html"><![CDATA[]]></content>
+        <content type="html"><![CDATA[<h1 id="twentyone-审计报告"><a href="#twentyone-审计报告" class="headerlink" title="twentyone 审计报告"></a>twentyone 审计报告</h1><h1 id=""><a href="#" class="headerlink" title=""></a></h1><p>我自己这次犯了一个重大错误。就是没有真正的理解题目意思。导致全是找的破环游戏规则（可以任意查看手牌的错误。其实是游戏这么设定是合理的）然后这次就不放我的报告的了。因为都是public惹得祸。让我以为这次的首飞就是只有权限的问题，那就看看正确的漏洞出处</p><h1 id="计算玩家和庄家的手牌不一致-（高）"><a href="#计算玩家和庄家的手牌不一致-（高）" class="headerlink" title="计算玩家和庄家的手牌不一致 （高）"></a>计算玩家和庄家的手牌不一致 （高）</h1><p>其实这个问题应该是最简单的。因为从下面代码就能显而易见</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//playerHand</span><br><span class="line">            if (cardValue == 0 || cardValue &gt;= 10) &#123;</span><br><span class="line">                playerTotal += 10;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                playerTotal += cardValue;</span><br><span class="line">            &#125;</span><br><span class="line">//dealerHand</span><br><span class="line">            if (cardValue &gt;= 10) &#123;</span><br><span class="line">                dealerTotal += 10;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                dealerTotal += cardValue;</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure><p>就是没有发现cardValue在玩家和庄家的计算手牌处理方式就不以样，那么这个游戏的公平性就没有了</p><h1 id="庄家无法提款，资金锁定-（高）"><a href="#庄家无法提款，资金锁定-（高）" class="headerlink" title="庄家无法提款，资金锁定 （高）"></a>庄家无法提款，资金锁定 （高）</h1><p>我感觉这是合约的功能实现问题了。就没有玩家如果输了。那么转账就该给庄家。但是合约并没有实现。所以就出现了资金锁定的问题<br>重点就是这个结束游戏的函数实现，部分代码如下：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">if (playerWon) &#123;</span><br><span class="line">           payable(player).transfer(2 ether); // 将奖励转账给玩家</span><br><span class="line">           emit FeeWithdrawn(player, 2 ether); // 触发奖励提取事件</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure><p>可以发现，只有给玩家转账，但是没有给庄家的转账</p><h1 id="开始游戏是返回的是玩家的手牌（其实这一个漏洞其实我并不认可。）（高）"><a href="#开始游戏是返回的是玩家的手牌（其实这一个漏洞其实我并不认可。）（高）" class="headerlink" title="开始游戏是返回的是玩家的手牌（其实这一个漏洞其实我并不认可。）（高）"></a>开始游戏是返回的是玩家的手牌（其实这一个漏洞其实我并不认可。）（高）</h1><p>看他的报告。我认为这和漏洞是没有必要的，而且这个合约本来就很矛盾，没有初始化的金额。然后这个漏洞又是基于合约中由大量的金额才能实施，先来看看他是怎么说的</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">TwentyOne.sol 合约中的 startGame() 函数返回玩家的初始手牌值作为 uint256。这使得攻击者能够通过回滚不利的交易，确保只在获得有利手牌的情况下继续游戏，从而操控游戏玩法。攻击者可以利用一个定制的攻击合约，轻松地耗尽合约中的资金，而损失极小。</span><br><span class="line"></span><br><span class="line">漏洞详情</span><br><span class="line">根本原因</span><br><span class="line">漏洞存在于 startGame() 函数中，该函数将玩家的初始手牌值作为返回值暴露。这种设计缺陷使得攻击者能够通过检查返回的值，选择性地回滚不利的交易。</span><br><span class="line"></span><br><span class="line">利用过程</span><br><span class="line">初始化： 攻击者部署并为恶意合约 AttackTwentyOne.sol 提供资金，恶意合约与 TwentyOne.sol 合约进行交互。</span><br><span class="line"></span><br><span class="line">选择性执行： 攻击合约调用 startGame()，检查返回的手牌值（playerHand），如果该值低于预定义的阈值（例如 20），则回滚交易。</span><br><span class="line"></span><br><span class="line">确保优势： 只有当攻击者的手牌值足够高时，交易才会继续，从而确保攻击者具有极高的获胜几率。</span><br><span class="line"></span><br><span class="line">耗尽合约资金： 攻击者通过这种方式持续进行操作，直到目标合约的余额被耗尽。</span><br><span class="line"></span><br><span class="line">function startGame() public payable returns (uint256) &#123;</span><br><span class="line">    require(</span><br><span class="line">        address(this).balance &gt;= 2 ether,</span><br><span class="line">        &quot;Not enough ether on contract to start game&quot;</span><br><span class="line">    );</span><br><span class="line">    address player = msg.sender;</span><br><span class="line">    require(msg.value == 1 ether, &quot;start game only with 1 ether&quot;);</span><br><span class="line"></span><br><span class="line">    initializeDeck(player);</span><br><span class="line"></span><br><span class="line">    uint256 card1 = drawCard(player);</span><br><span class="line">    uint256 card2 = drawCard(player);</span><br><span class="line">    addCardForPlayer(player, card1);</span><br><span class="line">    addCardForPlayer(player, card2);</span><br><span class="line">    return playersHand(player); // 暴露游戏状态</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>个人认为，这个是游戏的开始才能调用的函数，而且还要初始化player,那么攻击者的调用就没有意义。而且攻击者要成功的调用这个startGame函数，查看玩家的手牌，那么还要发送一个1 ether，攻击者赢得游戏也才2 ether,攻击者还要使用1 ehter去开启游戏，所以这个是得不偿失的存在，虽然这个问题是存在的，但是我认为攻击者没有收益去这么做</p><h1 id="平局判玩家输，不符合规定21点的游戏规则-（中）"><a href="#平局判玩家输，不符合规定21点的游戏规则-（中）" class="headerlink" title="平局判玩家输，不符合规定21点的游戏规则 （中）"></a>平局判玩家输，不符合规定21点的游戏规则 （中）</h1><p>这个就是纯游戏理解规则了，最开始我也了解了21点的游戏规则，但是后来我认为这个应该是合约这么设定的，就是由平局就是庄家胜，结果者居然是个漏洞，不可思议吗，这是漏洞代码</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">if (dealerHand &gt; 21) &#123;</span><br><span class="line">    emit PlayerWonTheGame(&quot;Dealer went bust, players winning hand: &quot;, playerHand);</span><br><span class="line">    endGame(msg.sender, true);</span><br><span class="line">&#125; else if (playerHand &gt; dealerHand) &#123;</span><br><span class="line">    emit PlayerWonTheGame(&quot;Dealer&#x27;s hand is lower, players winning hand: &quot;, playerHand);</span><br><span class="line">    endGame(msg.sender, true);</span><br><span class="line">&#125; else &#123;  // 这个 else 块错误地将平局处理为玩家的失败</span><br><span class="line">    emit PlayerLostTheGame(&quot;Dealer&#x27;s hand is higher, dealers winning hand: &quot;, dealerHand);</span><br><span class="line">    endGame(msg.sender, false);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h1 id="庄家的爆牌概率很高-（中）"><a href="#庄家的爆牌概率很高-（中）" class="headerlink" title="庄家的爆牌概率很高 （中）"></a>庄家的爆牌概率很高 （中）</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">概述</span><br><span class="line">TwentyOne 合约中的庄家手牌随机逻辑导致庄家超出21点（爆牌）的概率较高（超过50%）。从长期来看，玩家将能够赢取合约中的所有ETH。</span><br><span class="line"></span><br><span class="line">漏洞详情</span><br><span class="line">庄家手牌的阈值（standThreshold）是基于一个随机数来决定的，该随机数通过对 block.timestamp、msg.sender 和 block.prevrandao 进行哈希处理后，对5取模，并加上17，得出庄家停止抽牌的阈值。</span><br><span class="line"></span><br><span class="line">TwentyOne.sol</span><br><span class="line"></span><br><span class="line">solidity</span><br><span class="line">复制代码</span><br><span class="line">uint256 standThreshold = (uint256(</span><br><span class="line">    keccak256(</span><br><span class="line">        abi.encodePacked(block.timestamp, msg.sender, block.prevrandao)</span><br><span class="line">    )</span><br><span class="line">) % 5) + 17;</span><br><span class="line">从上面的代码可以看出，standThreshold 有5个可能的值：&#123;17, 18, 19, 20, 21&#125;。</span><br><span class="line"></span><br><span class="line">庄家需要抽取卡片，直到手牌的点数达到该随机阈值。</span><br><span class="line"></span><br></pre></td></tr></table></figure><p>个人认为这也是一个矛盾的点。审计开始的时候还说了用随机性来处理庄家的代码手牌，结果这样是个漏洞，确实导致了游戏的不公平进行</p><h1 id="还有一些其他的低问题，就不说了"><a href="#还有一些其他的低问题，就不说了" class="headerlink" title="还有一些其他的低问题，就不说了"></a>还有一些其他的低问题，就不说了</h1>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> 审计报告 </tag>
+            
+        </tags>
       
     </entry>
     
@@ -65,7 +71,7 @@
       
         <tags>
             
-            <tag> java </tag>
+            <tag> 课程学习 </tag>
             
         </tags>
       
@@ -82,6 +88,12 @@
       
       
       
+        <tags>
+            
+            <tag> 课程学习 </tag>
+            
+        </tags>
+      
     </entry>
     
     
@@ -97,7 +109,7 @@
       
         <tags>
             
-            <tag> java </tag>
+            <tag> 课程学习 </tag>
             
         </tags>
       
@@ -110,9 +122,15 @@
       <link href="/2024/11/30/CTF-OwnerBuy/"/>
       <url>/2024/11/30/CTF-OwnerBuy/</url>
       
-        <content type="html"><![CDATA[]]></content>
+        <content type="html"><![CDATA[<h1 id="CTF-OwnerBuy"><a href="#CTF-OwnerBuy" class="headerlink" title="CTF-OwnerBuy"></a>CTF-OwnerBuy</h1><p>题目源码有很多文件。就看一个最关键的</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 0.5.1-c8a2</span><br><span class="line">// Enable optimization</span><br><span class="line">pragma solidity ^0.5.0;</span><br><span class="line">import &quot;./contracts/ERC20.sol&quot;;</span><br><span class="line">import &quot;./contracts/IERC20.sol&quot;;</span><br><span class="line">import &quot;./contracts/ERC20Detailed.sol&quot;;</span><br><span class="line"></span><br><span class="line">interface Changing &#123;</span><br><span class="line">    function isOwner(address) external returns (bool);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract Ownable &#123;</span><br><span class="line">    address public _owner;</span><br><span class="line">    address public _previousOwner;</span><br><span class="line"></span><br><span class="line">    event OwnershipTransferred(</span><br><span class="line">        address indexed previousOwner,</span><br><span class="line">        address indexed newOwner</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * @dev Initializes the contract setting the deployer as the initial owner.</span><br><span class="line">     */</span><br><span class="line">    constructor() internal &#123;</span><br><span class="line">        address msgSender = msg.sender;</span><br><span class="line">        _owner = msgSender;</span><br><span class="line">        emit OwnershipTransferred(address(0), msgSender);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * @dev Returns the address of the current owner.</span><br><span class="line">     */</span><br><span class="line">    function owner() public view returns (address) &#123;</span><br><span class="line">        return _owner;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * @dev Throws if called by any account other than the owner.</span><br><span class="line">     */</span><br><span class="line">    modifier onlyOwner() &#123;</span><br><span class="line">        require(_owner == msg.sender, &quot;Ownable: caller is not the owner&quot;);</span><br><span class="line">        _;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * @dev Leaves the contract without owner. It will not be possible to call</span><br><span class="line">     * `onlyOwner` functions anymore. Can only be called by the current owner.</span><br><span class="line">     *</span><br><span class="line">     * NOTE: Renouncing ownership will leave the contract without an owner,</span><br><span class="line">     * thereby removing any functionality that is only available to the owner.</span><br><span class="line">     */</span><br><span class="line">    function renounceOwnership() public onlyOwner &#123;</span><br><span class="line">        emit OwnershipTransferred(_owner, address(0));</span><br><span class="line">        _owner = address(0);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * @dev Transfers ownership of the contract to a new account (`newOwner`).</span><br><span class="line">     * Can only be called by the current owner.</span><br><span class="line">     */</span><br><span class="line">    function transferOwnership(address newOwner) public onlyOwner &#123;</span><br><span class="line">        require(</span><br><span class="line">            newOwner != address(0),</span><br><span class="line">            &quot;Ownable: new owner is the zero address&quot;</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        emit OwnershipTransferred(_owner, newOwner);</span><br><span class="line">        _owner = newOwner;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //Locks the contract for owner for the amount of time provided</span><br><span class="line">    function lock() public onlyOwner &#123;</span><br><span class="line">        _previousOwner = _owner;</span><br><span class="line">        _owner = address(0);</span><br><span class="line">        emit OwnershipTransferred(_owner, address(0));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //Unlocks the contract for owner when _lockTime is exceeds</span><br><span class="line">    function unlock() external payable &#123;</span><br><span class="line">        require(msg.value &gt;= 1 ether);</span><br><span class="line">        emit OwnershipTransferred(_owner, _previousOwner);</span><br><span class="line">        _owner = _previousOwner;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract OwnerBuy is Ownable, ERC20, ERC20Detailed &#123;</span><br><span class="line">    mapping(address =&gt; bool) public status;</span><br><span class="line">    mapping(address =&gt; uint256) public Times;</span><br><span class="line">    mapping(address =&gt; bool) internal whiteList;</span><br><span class="line">    uint256 MAXHOLD = 100;</span><br><span class="line"></span><br><span class="line">    event finished(bool);</span><br><span class="line"></span><br><span class="line">    constructor() public ERC20Detailed(&quot;DEMO&quot;, &quot;DEMO&quot;, 18) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    // 查看是否位于白名单中</span><br><span class="line">    function isWhite(address addr) public view returns (bool) &#123;</span><br><span class="line">        return whiteList[addr];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 只有owner才能设置白名单</span><br><span class="line">    function setWhite(address addr) external onlyOwner returns (bool) &#123;</span><br><span class="line">        whiteList[addr] = true;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 只有owner才能设置白名单</span><br><span class="line">    function unsetWhite(address addr) external onlyOwner returns (bool) &#123;</span><br><span class="line">        whiteList[addr] = false;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 转账</span><br><span class="line">    function _transfer(address sender, address recipient, uint256 amount) internal &#123;</span><br><span class="line">        _balances[sender] = _balances[sender].sub(amount);</span><br><span class="line">        _balances[recipient] = _balances[recipient].add(amount);</span><br><span class="line">        // 如果接收者不是白名单的用户，那么该用户最多拥有金额MAXHOLD</span><br><span class="line">        if (!isWhite(recipient)) &#123;</span><br><span class="line">            require(_balances[recipient] &lt;= MAXHOLD, &quot;hold overflow&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        emit Transfer(sender, recipient, amount);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 如果调用者是合约，则它可以设置自己的状态</span><br><span class="line">    function changestatus(address _owner) public &#123;</span><br><span class="line">        Changing tmp = Changing(msg.sender);</span><br><span class="line">        if (!tmp.isOwner(_owner)) &#123;</span><br><span class="line">            status[msg.sender] = tmp.isOwner(_owner);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 更改owner</span><br><span class="line">    function changeOwner() public &#123;</span><br><span class="line">        // 需要用合约</span><br><span class="line">        require(tx.origin != msg.sender);</span><br><span class="line">        // 调用者地址的低2字节为ffff</span><br><span class="line">        require(uint(msg.sender) &amp; 0xffff == 0xffff);</span><br><span class="line">        // 需要合约已经设置状态为true</span><br><span class="line">        if (status[msg.sender] == true) &#123;</span><br><span class="line">            status[msg.sender] = false;</span><br><span class="line">            _owner = msg.sender;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 购买</span><br><span class="line">    function buy() public payable returns (bool success) &#123;</span><br><span class="line">        //只有_owner为 0x220866B1A2219f40e72f5c628B65D54268cA3A9D 才能调用</span><br><span class="line">        require(_owner == 0x220866B1A2219f40e72f5c628B65D54268cA3A9D);</span><br><span class="line">        // 要用合约买</span><br><span class="line">        require(tx.origin != msg.sender);</span><br><span class="line">        require(Times[msg.sender] == 0);</span><br><span class="line">        // msg.sender没钱</span><br><span class="line">        require(_balances[msg.sender] == 0);</span><br><span class="line">        // 要发1 wei</span><br><span class="line">        require(msg.value == 1 wei);</span><br><span class="line">        // 得到100</span><br><span class="line">        _balances[msg.sender] = 100;</span><br><span class="line">        // 记录</span><br><span class="line">        Times[msg.sender] = 1;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 很明显的重入</span><br><span class="line">    function sell(uint256 _amount) public returns (bool success) &#123;</span><br><span class="line">        // 至少卖200</span><br><span class="line">        require(_amount &gt;= 200);</span><br><span class="line">        // 调用者地址的低2字节为ffff</span><br><span class="line">        require(uint(msg.sender) &amp; 0xffff == 0xffff);</span><br><span class="line">        // 必须调用buy之后</span><br><span class="line">        require(Times[msg.sender] &gt; 0);</span><br><span class="line">        // 足够的余额</span><br><span class="line">        require(_balances[msg.sender] &gt;= _amount);</span><br><span class="line">        // 足够的余额</span><br><span class="line">        require(address(this).balance &gt;= _amount);</span><br><span class="line">        msg.sender.call.gas(1000000)(&quot;&quot;);</span><br><span class="line">        _transfer(msg.sender, address(this), _amount); // 这个有安全库保护，因此余额无法下溢</span><br><span class="line">        Times[msg.sender] -= 1; // 这个可以下溢</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 任务是Times至少100</span><br><span class="line">    function finish() public onlyOwner returns (bool) &#123;</span><br><span class="line">        require(Times[msg.sender] &gt;= 100);</span><br><span class="line">        Times[msg.sender] = 0;</span><br><span class="line">        msg.sender.transfer(address(this).balance);</span><br><span class="line">        emit finished(true);</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>从finish() 函数可以看见要求，</p>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> CTF </tag>
+            
+        </tags>
       
     </entry>
     
@@ -224,7 +242,7 @@
       
         <tags>
             
-            <tag> 攻击事件的分析 </tag>
+            <tag> 攻击事件分析 </tag>
             
         </tags>
       
@@ -465,7 +483,7 @@
       
         <tags>
             
-            <tag> 基础知识 </tag>
+            <tag> 基本知识 </tag>
             
         </tags>
       
@@ -481,6 +499,12 @@
         <content type="html"><![CDATA[<h2 id="团队协作"><a href="#团队协作" class="headerlink" title="团队协作"></a>团队协作</h2><p>首先使用在gitub 上进行团队的协作，就是你自己要先弄一个分支，然后再提交上去，<br>流程如下：<br><strong>git clone 仓库</strong><br><strong>进入到仓库中：cd 仓库名</strong><br><strong>然后切换分支到要协作的分支：git checkout 分支名</strong><br><strong>创建自己的分支：git checkout -b 分支名1</strong><br><strong>写好自己的部分再提交：git add .</strong><br><strong>同上提交：git commit -m “描述”</strong><br><strong>推送至远程自己创建的分支：git push origin 分支名1</strong><br>这样就可以再创库中看到自己的分支，然后再提交去分支名（也就是说pr:Pull requst）注意要指定review;</p><h2 id="个人上传文件到仓库"><a href="#个人上传文件到仓库" class="headerlink" title="个人上传文件到仓库"></a>个人上传文件到仓库</h2><p> 将本地文件上传到github上，<br>要有一个自己想上传的仓库，<br>cd 要上传的文件名，git remote add origin (ssh下的仓库地址)，<br>切换分支，主要是看仓库是master,还是main, 还是其他的分支，git branch -M main , 切换到main分支上<br>直接上传到分支上 git push -u origin main<br>即可</p><h2 id="初始化一个仓库"><a href="#初始化一个仓库" class="headerlink" title="初始化一个仓库"></a>初始化一个仓库</h2><p>git init 仓库名<br>写好文件后<br>使用git add . 将文件上传至缓存区<br>查看分支 git branch<br>选择要上传到的分支，git checkout 分支名<br>然后就可以直接远程推送 git push -u origin main </p><blockquote><p>遇到文件太大，就使用git lfs install 来安装<br>s</p></blockquote>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> 基本知识 </tag>
+            
+        </tags>
       
     </entry>
     
@@ -780,6 +804,12 @@
       
       
       
+        <tags>
+            
+            <tag> 基本知识 </tag>
+            
+        </tags>
+      
     </entry>
     
     
@@ -909,7 +939,7 @@
       
         <tags>
             
-            <tag> java </tag>
+            <tag> 课程学习 </tag>
             
         </tags>
       
@@ -964,6 +994,12 @@
       
       
       
+        <tags>
+            
+            <tag> 基本知识 </tag>
+            
+        </tags>
+      
     </entry>
     
     
@@ -1017,7 +1053,7 @@
       
         <tags>
             
-            <tag> 攻击描述 </tag>
+            <tag> 基本知识 </tag>
             
         </tags>
       
@@ -1036,7 +1072,7 @@
       
         <tags>
             
-            <tag> 基础知识 </tag>
+            <tag> 基本知识 </tag>
             
         </tags>
       
@@ -1055,7 +1091,7 @@
       
         <tags>
             
-            <tag> 攻击描述 </tag>
+            <tag> 基本知识 </tag>
             
         </tags>
       
@@ -1074,7 +1110,7 @@
       
         <tags>
             
-            <tag> 攻击描述 </tag>
+            <tag> 基本知识 </tag>
             
         </tags>
       
@@ -1148,6 +1184,12 @@
       
       
       
+        <tags>
+            
+            <tag> 基本知识 </tag>
+            
+        </tags>
+      
     </entry>
     
     
@@ -1163,7 +1205,7 @@
       
         <tags>
             
-            <tag> 攻击描述 </tag>
+            <tag> 基本知识 </tag>
             
         </tags>
       
@@ -1182,7 +1224,7 @@
       
         <tags>
             
-            <tag> 攻击描述 </tag>
+            <tag> 基本知识 </tag>
             
         </tags>
       
@@ -1201,7 +1243,7 @@
       
         <tags>
             
-            <tag> 攻击描述 </tag>
+            <tag> 基本知识 </tag>
             
         </tags>
       
@@ -1239,7 +1281,7 @@
       
         <tags>
             
-            <tag> 基础知识 </tag>
+            <tag> 基本知识 </tag>
             
         </tags>
       
@@ -1290,7 +1332,7 @@
       
         <tags>
             
-            <tag> 基础知识 </tag>
+            <tag> 基本知识 </tag>
             
         </tags>
       
@@ -1309,7 +1351,7 @@
       
         <tags>
             
-            <tag> 基础知识 </tag>
+            <tag> 课程学习 </tag>
             
         </tags>
       
@@ -1328,7 +1370,7 @@
       
         <tags>
             
-            <tag> 基础知识 </tag>
+            <tag> 课程学习 </tag>
             
         </tags>
       
@@ -1345,6 +1387,12 @@
       
       
       
+        <tags>
+            
+            <tag> 链接 </tag>
+            
+        </tags>
+      
     </entry>
     
     
@@ -1360,7 +1408,7 @@
       
         <tags>
             
-            <tag> EVM </tag>
+            <tag> 题解 </tag>
             
         </tags>
       
@@ -1379,7 +1427,7 @@
       
         <tags>
             
-            <tag> EVM </tag>
+            <tag> 基本知识 </tag>
             
         </tags>
       
@@ -1398,7 +1446,7 @@
       
         <tags>
             
-            <tag> 基础知识 </tag>
+            <tag> 基本知识 </tag>
             
         </tags>
       
@@ -1415,6 +1463,12 @@
       
       
       
+        <tags>
+            
+            <tag> 基本知识 </tag>
+            
+        </tags>
+      
     </entry>
     
     
@@ -1430,7 +1484,7 @@
       
         <tags>
             
-            <tag> 基础知识 </tag>
+            <tag> 基本知识 </tag>
             
         </tags>
       
@@ -1506,7 +1560,7 @@
       
         <tags>
             
-            <tag> 基础知识 </tag>
+            <tag> 基本知识 </tag>
             
         </tags>
       
