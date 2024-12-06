@@ -1,0 +1,192 @@
+<!DOCTYPE html><html lang="zh-Cn" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>关于solidity漏洞的基础知识 | 何方圜的博客</title><meta name="author" content="何方圜"><meta name="copyright" content="何方圜"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="关于solidity漏洞的基础知识精度的计算这个错误常常出现于计算过程当中，使用了先除后乘，就会导致精度的计算错误，比如 interest &#x3D; principal &#x2F; 3_333 * 10_000; 如果本金小于3_333，那么就会计算的利息为零如果按一下的例子计算 interest &#x3D; principal * 10_000 &#x2F; 3_333; 那么就不会出现这种的错误，因为使先扩大的精度，再除的话">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于solidity漏洞的基础知识">
+<meta property="og:url" content="http://example.com/2024/12/06/%E5%85%B3%E4%BA%8Esolidity%E6%BC%8F%E6%B4%9E%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/index.html">
+<meta property="og:site_name" content="何方圜的博客">
+<meta property="og:description" content="关于solidity漏洞的基础知识精度的计算这个错误常常出现于计算过程当中，使用了先除后乘，就会导致精度的计算错误，比如 interest &#x3D; principal &#x2F; 3_333 * 10_000; 如果本金小于3_333，那么就会计算的利息为零如果按一下的例子计算 interest &#x3D; principal * 10_000 &#x2F; 3_333; 那么就不会出现这种的错误，因为使先扩大的精度，再除的话">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg">
+<meta property="article:published_time" content="2024-12-06T11:15:37.000Z">
+<meta property="article:modified_time" content="2024-12-06T12:34:02.478Z">
+<meta property="article:author" content="何方圜">
+<meta property="article:tag" content="基本知识">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="shortcut icon" href="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="canonical" href="http://example.com/2024/12/06/%E5%85%B3%E4%BA%8Esolidity%E6%BC%8F%E6%B4%9E%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":false,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '关于solidity漏洞的基础知识',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-12-06 20:34:02'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">9</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/8a5725b44b17e750ba6ce84aaca3013d.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="何方圜的博客"><img class="site-icon" src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"/><span class="site-name">何方圜的博客</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">关于solidity漏洞的基础知识</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-12-06T11:15:37.000Z" title="Created 2024-12-06 19:15:37">2024-12-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2024-12-06T12:34:02.478Z" title="Updated 2024-12-06 20:34:02">2024-12-06</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="关于solidity漏洞的基础知识"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="关于solidity漏洞的基础知识"><a href="#关于solidity漏洞的基础知识" class="headerlink" title="关于solidity漏洞的基础知识"></a>关于solidity漏洞的基础知识</h1><h2 id="精度的计算"><a href="#精度的计算" class="headerlink" title="精度的计算"></a>精度的计算</h2><p>这个错误常常出现于计算过程当中，使用了先除后乘，就会导致精度的计算错误，比如</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">interest = principal / 3_333 * 10_000;</span><br></pre></td></tr></table></figure>
+<p>如果本金小于3_333，那么就会计算的利息为零<br>如果按一下的例子计算</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">interest = principal * 10_000 / 3_333;</span><br></pre></td></tr></table></figure>
+<p>那么就不会出现这种的错误，因为使先扩大的精度，再除的话，就能避免精度的损失<br>个人也是通过近几次的审计报告发现，大家都是很注意计算的地方</p>
+<h2 id="函数变量不用同一个变量声明"><a href="#函数变量不用同一个变量声明" class="headerlink" title="函数变量不用同一个变量声明"></a>函数变量不用同一个变量声明</h2><p>这是我再审计报告中，第一次了解到这个问题，但是学过<code>Java</code>的都知道，成员变量和方法的变量冲突的话就会使用this来区分，而我们solidity没有这种说法，所以只能用不同的命名来表示，比如</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">address owner;</span><br><span class="line"></span><br><span class="line">function  change owner(address owner) internal&#123;</span><br><span class="line">    require(owner == msg.sender,&quot;NOT CHANGE&quot;);</span><br><span class="line">    owner = owner;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个函数中，我们可以清楚的看见想要修改合约的所有者。但是<code>owner</code>还是<code>owner</code>没有改变过，所以这个是修改不成功的<br>这里的 <code>owner</code> 参数与状态变量 <code>owner</code> 同名，这就导致了一个作用域的问题。<br>在 Solidity 中，函数参数的作用域优先于状态变量，这意味着在函数内部，<code>owner</code> 会首先指代函数的参数<code> address owner</code>，而不是合约的状态变量 <code>owner</code>。<br>因此，<code>owner</code> &#x3D; <code>owner</code>; 只是将函数的参数 <code>owner</code> 赋值给它自己，并没有对链上的状态变量<code>owner</code>做任何修改。<br>在 Solidity 中，<code>owner = owner</code>; 是一个 自我赋值，没有任何效果，除非你在这个赋值中显式地引用状态变量。</p>
+<blockquote>
+<p>状态变量（State Variables）：状态变量存储在区块链上，生命周期与合约相同，可以在整个合约中访问和修改。<br>函数参数（Function Arguments）：这些变量仅在函数执行期间有效，当函数执行完后，它们就不再存在。<br>局部变量（Local Variables）：在函数内部声明的变量，它们只在函数的执行期间有效。</p>
+</blockquote>
+<p>真确的改法：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">address owner;</span><br><span class="line"></span><br><span class="line">function  change owner(address newowner) internal&#123;</span><br><span class="line">    require(owner == msg.sender,&quot;NOT CHANGE&quot;);</span><br><span class="line">    owner = newowner;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="慎用transfer或者send"><a href="#慎用transfer或者send" class="headerlink" title="慎用transfer或者send"></a>慎用transfer或者send</h2><p>我们大家都知道，这俩个都是发送eth使用的，起初是因为开发者害怕重入攻击设置的，因为这俩个都有2300 gas的限制，所以就导致攻击者会消耗这俩个的gas上限，然后使合约功能不能正常进行</p>
+<h2 id="tx-origin和msg-sender"><a href="#tx-origin和msg-sender" class="headerlink" title="tx.origin和msg.sender"></a>tx.origin和msg.sender</h2><p>这个也是一个非常经典的问题,由于中间合约的存在，验证调用者的时候就要谨慎使用<code>tx.origin</code><br><code>tx.origin</code>是签署交易的钱包。<code>msg.sender</code>是直接调用者。 如果一个钱包直接调用一个合约<br> <strong>钱包 → 合约</strong><br>那么从合约的角度来看，钱包既是<code>msg.sender</code>也是<code>tx.origin</code>。现在考虑如果钱包调用一个中间合约，然后中间合约再调用最终合约：<br><strong>钱包 → 中间合约 → 最终合约</strong><br>从最终合约的角度来看，钱包是<code>tx.origin</code>，中间合约是<code>msg.sender</code>。<br>使用<code>tx.origin</code>来识别调用者会带来安全漏洞。假设用户被钓鱼攻击，调用了一个恶意中间合约<br><strong>钱包 → 恶意中间合约 → 最终合约</strong><br>在这种情况下，恶意中间合约获得了钱包的所有权限，允许它执行钱包被授权执行的任何操作——例如转移资金。</p>
+<h2 id="控制访问的问题"><a href="#控制访问的问题" class="headerlink" title="控制访问的问题"></a>控制访问的问题</h2><p>一般是由于函数缺少权限的限制，然后攻击者就可以随意调用。<br>或者就是管理员的权限太大，然后就导致了，攻击者一旦成为管理者，那么整个合约就会出现严重的危害，所以一般就要去看，关键的函数，有没有实现public,让攻击者乘虚而入</p>
+<h2 id="无限循环的问题"><a href="#无限循环的问题" class="headerlink" title="无限循环的问题"></a>无限循环的问题</h2><p>一般出现在数组过长，那么历遍他们，就会消耗很多的gas，有些攻击者发现某个合约存在数组很长的函数，那么他就会恶意多次调用，就是恶意消耗gas</p>
+<h2 id="不遵循样式指南"><a href="#不遵循样式指南" class="headerlink" title="不遵循样式指南"></a>不遵循样式指南</h2><p>以下是要点：</p>
+<ul>
+<li>构造函数是第一个函数</li>
+<li>然后是fallback()和receive()（如果合约有的话）</li>
+<li>然后是external函数，public函数，internal函数和pure函数</li>
+<li>在每个组内<ul>
+<li>payable函数优先</li>
+<li>接着是非payable非view函数</li>
+<li>view函数最后</li>
+</ul>
+</li>
+</ul>
+<h2 id="抢跑交易"><a href="#抢跑交易" class="headerlink" title="抢跑交易"></a>抢跑交易</h2><p>这是一个很常见的漏洞，因为交易信息都是要被打包送进交易池的，等待矿工确认，但是这就相当于信息共享了。然后攻击者利用这些信息，就会发送一个gas费更高的交易，抢先在正常交易的前面，通常发生在defi，一些猜测的游戏</p>
+<h2 id="没有统一单位（10-18-10-8）往往会出现计算错误"><a href="#没有统一单位（10-18-10-8）往往会出现计算错误" class="headerlink" title="没有统一单位（10^18,10^8）往往会出现计算错误"></a>没有统一单位（10^18,10^8）往往会出现计算错误</h2><p>这是solidity中最常见的单位，一些粗心的开发者就会混用这俩个单位，往往在那种计算很杂的地方容易犯错</p>
+<h2 id="FOT代币，在转账的时候会产生手续费，就会导致一些计算失败"><a href="#FOT代币，在转账的时候会产生手续费，就会导致一些计算失败" class="headerlink" title="FOT代币，在转账的时候会产生手续费，就会导致一些计算失败"></a>FOT代币，在转账的时候会产生手续费，就会导致一些计算失败</h2><p>这是我在审计报告中第一次遇到这个Fee-on-Transfer (FOT) 代币，通常发生在那些借贷协议中，使用的代币数量很多，然后计算金额的时候又没有考虑到有些代币存在手续费的问题，就会导致一些计算的不准确</p>
+<h2 id="预言机的相关问题"><a href="#预言机的相关问题" class="headerlink" title="预言机的相关问题"></a>预言机的相关问题</h2><p>对于预言机这方面，我还是缺少了解，就是对于它不是很敏感。我目前已知这类的问题都是用于价格的计算<br>比如，使用<code>getThePrice() </code>函数来预测价格，那么就必须满足以下的条件</p>
+<p>合约是否暂停（isPaused）。&#x2F;&#x2F;这个可以省略，具体看合约的功能<br>价格预言机是否存在。<br>L2序列器是否正常（对于L2链）。<br>返回的价格是否大于零。</p>
+<p>价格更新的时间戳（updatedAt）。<br>回合是否完整（answeredInRound）。<br>回合是否按顺序回答（answeredInRound &gt;&#x3D; roundId）。</p>
+<p>用预言机的话，就要注意到这几个细节<br>配置更新时间阈值： 为了应对不同的市场环境，可以让合约所有者设置一个自定义的价格数据有效时间（比如，10分钟或者更短）。<br>价格验证事件： 在每次价格验证时，触发事件记录价格数据的验证状态，这有助于监控和审计价格来源的健康状态。<br>公开数据接口： 提供一个视图函数，返回包括时间戳和回合 ID 在内的完整价格数据，供外部用户验证和分析。<br>时间戳验证缺失： 如果预言机数据的更新时间戳很久之前，那么这个价格数据就是“过时”的，应该拒绝使用。<br>回合完整性检查： 如果价格数据属于一个不完整的回合（例如，数据没有完全更新），则无法保证其准确性。<br>回合顺序验证： 需要确保返回的回合数据是按顺序的，否则有可能是过时的无效数据。</p>
+<h2 id=""><a href="#" class="headerlink" title=""></a></h2></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://example.com">何方圜</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="http://example.com/2024/12/06/%E5%85%B3%E4%BA%8Esolidity%E6%BC%8F%E6%B4%9E%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">http://example.com/2024/12/06/关于solidity漏洞的基础知识/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://https://HeYuan-33.github.io/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%9F%BA%E6%9C%AC%E7%9F%A5%E8%AF%86/">基本知识</a></div><div class="post_share"><div class="social-share" data-image="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/12/06/CTF-EverythingArt/" title="CTF-EverythingArt"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">CTF-EverythingArt</div></div></a></div><div class="next-post pull-right"><a href="/2024/12/04/codeHawks-2024-11-twentyone-%E5%AE%A1%E8%AE%A1%E6%8A%A5%E5%91%8A/" title="codeHawks-2024-11-twentyone 审计报告"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Next</div><div class="next_info">codeHawks-2024-11-twentyone 审计报告</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/10/16/AMM%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" title="AMM漏洞分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-16</div><div class="title">AMM漏洞分析</div></div></a></div><div><a href="/2024/10/16/AMM-%E8%87%AA%E5%8A%A8%E5%8C%96%E5%81%9A%E5%B8%82%E5%95%86/" title="AMM(自动化做市商)"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-16</div><div class="title">AMM(自动化做市商)</div></div></a></div><div><a href="/2024/08/19/Aave%E5%AD%A6%E4%B9%A0%E7%9F%A5%E8%AF%86/" title="Aave学习知识"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">Aave学习知识</div></div></a></div><div><a href="/2024/08/19/Compound/" title="Compound"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">Compound</div></div></a></div><div><a href="/2024/08/19/EVM%E5%85%A5%E9%97%A8/" title="EVM入门"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">EVM入门</div></div></a></div><div><a href="/2024/08/19/GHO/" title="GHO"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">GHO</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">何方圜</div><div class="author-info__description">夫孰异道而相安</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">9</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/HeYuan-33/HeYuan-33.github.io"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/HeYuan-33" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="/1405269390@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">CTF的更新</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B3%E4%BA%8Esolidity%E6%BC%8F%E6%B4%9E%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="toc-text">关于solidity漏洞的基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B2%BE%E5%BA%A6%E7%9A%84%E8%AE%A1%E7%AE%97"><span class="toc-text">精度的计算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%8F%98%E9%87%8F%E4%B8%8D%E7%94%A8%E5%90%8C%E4%B8%80%E4%B8%AA%E5%8F%98%E9%87%8F%E5%A3%B0%E6%98%8E"><span class="toc-text">函数变量不用同一个变量声明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%85%8E%E7%94%A8transfer%E6%88%96%E8%80%85send"><span class="toc-text">慎用transfer或者send</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tx-origin%E5%92%8Cmsg-sender"><span class="toc-text">tx.origin和msg.sender</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E8%AE%BF%E9%97%AE%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-text">控制访问的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A0%E9%99%90%E5%BE%AA%E7%8E%AF%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-text">无限循环的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8D%E9%81%B5%E5%BE%AA%E6%A0%B7%E5%BC%8F%E6%8C%87%E5%8D%97"><span class="toc-text">不遵循样式指南</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%A2%E8%B7%91%E4%BA%A4%E6%98%93"><span class="toc-text">抢跑交易</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B2%A1%E6%9C%89%E7%BB%9F%E4%B8%80%E5%8D%95%E4%BD%8D%EF%BC%8810-18-10-8%EF%BC%89%E5%BE%80%E5%BE%80%E4%BC%9A%E5%87%BA%E7%8E%B0%E8%AE%A1%E7%AE%97%E9%94%99%E8%AF%AF"><span class="toc-text">没有统一单位（10^18,10^8）往往会出现计算错误</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FOT%E4%BB%A3%E5%B8%81%EF%BC%8C%E5%9C%A8%E8%BD%AC%E8%B4%A6%E7%9A%84%E6%97%B6%E5%80%99%E4%BC%9A%E4%BA%A7%E7%94%9F%E6%89%8B%E7%BB%AD%E8%B4%B9%EF%BC%8C%E5%B0%B1%E4%BC%9A%E5%AF%BC%E8%87%B4%E4%B8%80%E4%BA%9B%E8%AE%A1%E7%AE%97%E5%A4%B1%E8%B4%A5"><span class="toc-text">FOT代币，在转账的时候会产生手续费，就会导致一些计算失败</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%84%E8%A8%80%E6%9C%BA%E7%9A%84%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98"><span class="toc-text">预言机的相关问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-text"></span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/06/CTF-ApproveMain/" title="CTF-ApproveMain">CTF-ApproveMain</a><time datetime="2024-12-06T13:04:35.000Z" title="Created 2024-12-06 21:04:35">2024-12-06</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/06/CTF-EverythingArt/" title="CTF-EverythingArt">CTF-EverythingArt</a><time datetime="2024-12-06T12:47:23.000Z" title="Created 2024-12-06 20:47:23">2024-12-06</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/06/%E5%85%B3%E4%BA%8Esolidity%E6%BC%8F%E6%B4%9E%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" title="关于solidity漏洞的基础知识">关于solidity漏洞的基础知识</a><time datetime="2024-12-06T11:15:37.000Z" title="Created 2024-12-06 19:15:37">2024-12-06</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/04/codeHawks-2024-11-twentyone-%E5%AE%A1%E8%AE%A1%E6%8A%A5%E5%91%8A/" title="codeHawks-2024-11-twentyone 审计报告">codeHawks-2024-11-twentyone 审计报告</a><time datetime="2024-12-04T10:10:07.000Z" title="Created 2024-12-04 18:10:07">2024-12-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/02/CTF-Storage/" title="CTF-Storage">CTF-Storage</a><time datetime="2024-12-02T13:47:15.000Z" title="Created 2024-12-02 21:47:15">2024-12-02</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/img/8a5725b44b17e750ba6ce84aaca3013d.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By 何方圜</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
