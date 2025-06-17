@@ -4,6 +4,38 @@
   
     
     <entry>
+      <title>sherlock-S-locker System</title>
+      <link href="/2025/06/17/sherlock-S-locker-System/"/>
+      <url>/2025/06/17/sherlock-S-locker-System/</url>
+      
+        <content type="html"><![CDATA[<h1 id="sherlock-S-locker-System"><a href="#sherlock-S-locker-System" class="headerlink" title="sherlock-S-locker System"></a>sherlock-S-locker System</h1><h2 id="升级合同，常量发生改变"><a href="#升级合同，常量发生改变" class="headerlink" title="升级合同，常量发生改变"></a>升级合同，常量发生改变</h2><p>现有正式合约中的 DOWNSCALER 为 1e16，而提议升级的合约中 DOWNSCALER 为 1e18，两者不一致，导致以下影响：</p><ul><li><p>升级合约后新加入的质押者，在 <code>lockedStakedBalance</code> 相同的情况下，所获得的单位数（units）明显少于老质押者，分配收益时不公平。</p></li><li><p>升级合约后，如果已有质押者追加较少（少于100倍）的质押金额，其单位数反而会减少，获得的税收分成变少。</p></li><li><p>质押者可能会提前操作，在合约升级前抢先质押，以获得更多单位数并获取更大的税收分成。</p></li></ul><h2 id="抢跑攻击，在知晓分配收益时，扩大自己的份额，获取更多的收益"><a href="#抢跑攻击，在知晓分配收益时，扩大自己的份额，获取更多的收益" class="headerlink" title="抢跑攻击，在知晓分配收益时，扩大自己的份额，获取更多的收益"></a>抢跑攻击，在知晓分配收益时，扩大自己的份额，获取更多的收益</h2><p>在解锁获得惩罚金时，攻击者提前知道，然后通过提供流动性或者质押金额，去分配获益</p><ul><li><p>某个用户准备进行立即解锁（instant unlock）。</p></li><li><p>恶意的 Locker 拥有者在此之前增加自己的流动性或质押额度。</p></li><li><p><code>_instantUnlock</code> 被调用，惩罚金被分配给当前的 LP 和质押者。</p></li><li><p>恶意 Locker 拥有者因持有单位（units）而获得部分惩罚金收益。</p></li><li><p>获取收益后，立即撤回流动性或解除质押。</p></li></ul><p>恶意的 Locker 拥有者可以通过前置操作抢跑，临时提高自己的持仓量，从而在惩罚金分配中获利，获得不公平优势。<br>建议对 <code>FLUID.distribute</code> 逻辑进行调整或增加锁仓时间&#x2F;份额快照机制，防止抢跑获利</p><h2 id="缺金额的有效验证"><a href="#缺金额的有效验证" class="headerlink" title="缺金额的有效验证"></a>缺金额的有效验证</h2><p><code>FluidLocker::provideLiquidity</code> 函数缺少对 <code>getAvailableBalance()</code> 的校验，导致在 6 个月免税期结束后，质押代币可以被提取，但不需要调用 <code>FluidLocker::unstake</code>。这意味着质押奖励会继续累积，尽管代币已经不在合约中，造成质押奖励系统完整性的损失。</p><ul><li><p>Locker 拥有者调用 <code>FluidLocker::stake</code>，将 locker 内所有可用代币进行质押。</p></li><li><p>Locker 拥有者调用 <code>FluidLocker::provideLiquidity</code>，用这些质押代币创建 Uniswap 流动性仓位。注意此步骤会将代币转移出 locker。</p></li><li><p>6 个月后，Locker 拥有者调用 <code>FluidLocker::withdrawLiquidity</code> 触发免税提现路径。此时用于提供流动性的代币已经回到 Locker 拥有者地址，但 locker 仍认为这些代币处于质押状态。</p></li></ul><h2 id="分发金额错误，有些金额已经在之前的时段分发过了"><a href="#分发金额错误，有些金额已经在之前的时段分发过了" class="headerlink" title="分发金额错误，有些金额已经在之前的时段分发过了"></a>分发金额错误，有些金额已经在之前的时段分发过了</h2><p>当 <code>block.timestamp &gt; endDate - EARLY_PROGRAM_END</code> 时，一部分初始存入的代币<code>（initialDeposit）已在 block.timestamp - (endDate - EARLY_PROGRAM_END)</code> 这段时间内被分发。<br>但是合约却仍然发送了全部的<code> initialDeposit</code>。</p><h2 id="没有检查单位池是否有单位数"><a href="#没有检查单位池是否有单位数" class="headerlink" title="没有检查单位池是否有单位数"></a>没有检查单位池是否有单位数</h2><p>在区块链系统中，很多奖励或惩罚机制通过将代币或奖励“分发”到某个“单位池”（unit pool）来完成。但如果目标池中没有接收者（即单位数 units &#x3D;&#x3D; 0），系统仍然执行分发操作，则这些代币会 没有接收者，永久卡在合约中 或 直接被销毁</p><h2 id="分发奖励时，用户成为唯一的质押者，导致不用罚金"><a href="#分发奖励时，用户成为唯一的质押者，导致不用罚金" class="headerlink" title="分发奖励时，用户成为唯一的质押者，导致不用罚金"></a>分发奖励时，用户成为唯一的质押者，导致不用罚金</h2><p>但如果用户是唯一的质押者或流动性提供者，那么惩罚金（penalty）通过分发逻辑又返回到了用户自己的 Locker 中：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">// 向流动性提供者分发惩罚金</span><br><span class="line">FLUID.distribute(address(this), LP_DISTRIBUTION_POOL, penaltyAmount * providerAllocation / BP_DENOMINATOR);</span><br><span class="line"></span><br><span class="line">// 向质押者分发惩罚金</span><br><span class="line">FLUID.distribute(address(this), STAKER_DISTRIBUTION_POOL, penaltyAmount - actualProviderDistributionAmount);</span><br></pre></td></tr></table></figure><p>上述分发实际上又回到了当前调用的 Locker，也就是说，罚金并没有“损失”出去。<br>这意味着用户可以重复调用 instant unlock，通过多次操作，几乎免除应缴的 80% 惩罚金，只留下少量残余资金因最低解锁额度被锁在合约中（由于每次都有小额惩罚，但大部分都被返回）。</p><p>影响是：<br>用户可以绕过 80% 惩罚费用，立即取出大部分原本锁定的资金；<br>导致协议的惩罚机制失效，流动性和质押的经济模型失衡。</p><h2 id="检查条件不完整"><a href="#检查条件不完整" class="headerlink" title="检查条件不完整"></a>检查条件不完整</h2><p>你有一笔钱放进了某个平台的“保险箱”里（这个保险箱就是合约），本来要锁6个月才能取出来。</p><p>但平台说：</p><p>“如果你急着用钱，可以立即取出来，但你要交一点‘罚金’。”</p><p>这个罚金不会烧掉，而是分给两个群体的人：</p><p>有人把钱放进平台来做质押（我们叫这些人“质押者”）</p><p>有人提供了交易对来让别人兑换代币（我们叫这些人“流动性提供者”）</p><p>⚠️ 那问题来了：<br>假如项目方设置说：</p><p>“罚金全给流动性提供者（LP），不给质押者”。</p><p>于是大家一看质押没奖励，就没人再质押了！</p><p>🧨 现在你要取钱！<br>你说：“我想立刻解锁我保险箱里的钱，我愿意交罚金！”</p><p>平台合约内部运行逻辑是：</p><p>看看现在质押池（staker pool）有没有人 → 哦！没人？不行，不让你取钱！</p><p>看看流动性池（LP pool）有没有人 → 有人？那继续执行。</p><p>你是不是觉得很奇怪？</p><p>明明 项目方说了不给质押者奖励（是 0%），现在没人质押本来是正常的，但合约却说：“没人质押，不能解锁”，是不是脑子有点问题？</p><p>🧱 这就是这个漏洞！<br>合约逻辑写死了：“只要没人质押就不给解锁”，但没考虑到某些时候奖池设置为 0%，本来就不该有人质押啊！</p><p>所以你无法解锁你的资金，卡死了！</p><h2 id="俩个不同的量放在一起计算缓冲区buffer是错误的"><a href="#俩个不同的量放在一起计算缓冲区buffer是错误的" class="headerlink" title="俩个不同的量放在一起计算缓冲区buffer是错误的"></a>俩个不同的量放在一起计算缓冲区buffer是错误的</h2><p>合约有两个流：</p><ul><li>fundingFlowRate：给员工的钱</li><li>subsidyFlowRate：税、补贴之类的钱</li></ul><p>合约代码把这两个流加起来，一起算了一次 buffer：<br><code>buffer = getBufferAmountByFlowRate(fundingFlowRate + subsidyFlowRate);</code><br>但平台规则其实是：</p><p>每个流都要单独算 buffer，因为每个都得保证“不断流”。</p><p>buffer 是预留的“流动资金池”，你每开一个钱流，就要准备够它的“最低启动金”。这个漏洞就是因为错把两个钱流当成一个处理，导致算少了 buffer，启动失败。</p><h2 id="通过直接读取本地的余额，导致用户可以事先转入，绕过某些检查"><a href="#通过直接读取本地的余额，导致用户可以事先转入，绕过某些检查" class="headerlink" title="通过直接读取本地的余额，导致用户可以事先转入，绕过某些检查"></a>通过直接读取本地的余额，导致用户可以事先转入，绕过某些检查</h2><p>function provideLiquidity(uint256 supAmount) external payable nonReentrant onlyLockerOwner {<br>    uint256 ethAmount &#x3D; msg.value;  &#x2F;&#x2F; 1. 用户调用时发送的ETH数量（msg.value）</p><pre><code>_pump(weth, ethAmount * BP_PUMP_RATIO / BP_DENOMINATOR);  // 2. 调用内部函数_pump，扣除一定比例的ETH作为“承诺金”uint256 ethLPAmount = IERC20(weth).balanceOf(address(this));  // 3. 读取合约中当前WETH余额TransferHelper.safeApprove(weth, address(NONFUNGIBLE_POSITION_MANAGER), ethLPAmount);  // 4. 授权NFT管理合约花费这些WETHTransferHelper.safeApprove(address(FLUID), address(NONFUNGIBLE_POSITION_MANAGER), supAmount);  // 5. 授权FLUID代币给NFT管理合约_createPosition(ethLPAmount, supAmount);  // 6. 创建流动性头寸，使用ethLPAmount数量的WETH和supAmount数量的FLUID</code></pre><p>}</p><p>第3步，<code>ethLPAmount</code> 是读取合约当前 WETH余额，但这个余额可能包含之前用户直接转账给合约的WETH（用户绕过了调用时传ETH的限制）</p><p>用户可以先偷偷把很多WETH转给合约（绕过_pump的承诺金扣除），然后只用很少的ETH调用 <code>provideLiquidity</code> 函数</p><p>这样导致用户占用了大量流动性份额，却没有付出相应的“承诺金”，从而绕过了_pump设计的限制</p><h2 id="零头没有处理好，导致卡住合约"><a href="#零头没有处理好，导致卡住合约" class="headerlink" title="零头没有处理好，导致卡住合约"></a>零头没有处理好，导致卡住合约</h2><p>用户调用<code> provideLiquidity()</code>（提供流动性）时，合约会把用户的 ETH 和 SUP（代币）一起放到 <code>Uniswap V3</code> 池子里。</p><p>但 Uniswap 不一定能刚好用完用户所有的 SUP，可能会退回一小部分剩余的 SUP（叫做“dust”，即“零头”）。</p><ul><li><p>这部分剩余的 SUP 会退回到用户的 <code>FluidLocker</code> 合约里。</p></li><li><p>按理说，这些退回来的 SUP 是“闲置”的，用户可以选择质押（<code>stake</code>）或解锁（<code>unlock</code>）它们。</p></li><li><p>但是，在项目的初始阶段（即<code> UNLOCK_AVAILABLE == false</code>），质押和解锁功能都被关闭了，用户根本不能动这些剩余的 SUP。</p></li></ul>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 审计报告 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>sherlock-DODO Cross-Chain DEX</title>
+      <link href="/2025/06/17/sherlock-DODO-Cross-Chain-DEX/"/>
+      <url>/2025/06/17/sherlock-DODO-Cross-Chain-DEX/</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>单机版区块链的实现</title>
       <link href="/2025/06/16/%E5%8D%95%E6%9C%BA%E7%89%88%E5%8C%BA%E5%9D%97%E9%93%BE%E7%9A%84%E5%AE%9E%E7%8E%B0/"/>
       <url>/2025/06/16/%E5%8D%95%E6%9C%BA%E7%89%88%E5%8C%BA%E5%9D%97%E9%93%BE%E7%9A%84%E5%AE%9E%E7%8E%B0/</url>
