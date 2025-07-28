@@ -4,13 +4,38 @@
   
     
     <entry>
+      <title>Notional Exponent 审计</title>
+      <link href="/2025/07/28/Notional-Exponent-%E5%AE%A1%E8%AE%A1%E6%8A%A5%E5%91%8A/"/>
+      <url>/2025/07/28/Notional-Exponent-%E5%AE%A1%E8%AE%A1%E6%8A%A5%E5%91%8A/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Notional-Exponent审计报告"><a href="#Notional-Exponent审计报告" class="headerlink" title="Notional Exponent审计报告"></a>Notional Exponent审计报告</h1><h2 id="迁移pool池的功能，把迁移数设置为了不可变量"><a href="#迁移pool池的功能，把迁移数设置为了不可变量" class="headerlink" title="迁移pool池的功能，把迁移数设置为了不可变量"></a>迁移pool池的功能，把迁移数设置为了不可变量</h2><p>当 <code>Convex </code>的某个奖励池被废弃（例如旧的 <code>pid </code>失效），并为同一个<code>LP token</code>分配了新的 <code>pid</code> 时，升级管理员可以执行“迁移”操作，将流动性从旧 <code>pid</code> 提取，再存入新的 <code>pid</code>。</p><p>但是，策略合约中记录的 <code>pid</code> 是不可变（<code>immutable</code>）的。这意味着策略合约本身仍会引用旧的 <code>pid</code> 和旧的奖励池（即旧的<code> yieldToken</code>），即使底层资产已经迁移到了新的奖励池。结果是：策略的内部状态与 <code>Convex</code> 实际奖励池状态不一致，功能失效。</p><h2 id="迁移资金时，没有注意还有其他的资金在另外一个地方"><a href="#迁移资金时，没有注意还有其他的资金在另外一个地方" class="headerlink" title="迁移资金时，没有注意还有其他的资金在另外一个地方"></a>迁移资金时，没有注意还有其他的资金在另外一个地方</h2><blockquote><p>这个要根据分析迁移时的资金转移来看，必须得深入每一个调用链的关系.分析资金的走向</p></blockquote><p><code>AbstractRewardManager::migrateRewardPool</code> 函数允许管理员将当前奖励池迁移至一个新的奖励池。</p><p>在迁移过程中，合约会尝试先领取旧奖励池的奖励，然后再将资产转入新奖励池。但在调用链深入分析后发现，这个流程 忽略了 <code>Convex</code> 中“奖励暂存合约（<code>stash</code>）”中的奖励领取机制，导致部分奖励在迁移中丢失。</p><h2 id="错误的计算，通过一种资产计算另一种资产"><a href="#错误的计算，通过一种资产计算另一种资产" class="headerlink" title="错误的计算，通过一种资产计算另一种资产"></a>错误的计算，通过一种资产计算另一种资产</h2><p>计算逻辑：</p><p>PT → 可换 SY（看得见）</p><p>SY ≠ Yield Token（预言机误认为是）</p><p>所以：PT价格 &#x3D; SY数量 × YieldToken价格 → ❌ 高估</p><p>→ 抵押被高估 → 超额借款 → 爆仓风险上升</p><h2 id="没有在支持的链上实现特定的功能"><a href="#没有在支持的链上实现特定的功能" class="headerlink" title="没有在支持的链上实现特定的功能"></a>没有在支持的链上实现特定的功能</h2><p>该项目在以太坊主网上实现了撤回资金的功能，但是并没有在侧链上实现，导致功能的受损</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 审计报告 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>GMX协议遭受重入攻击损失4200万美美金</title>
       <link href="/2025/07/11/GMX%E5%8D%8F%E8%AE%AE%E9%81%AD%E5%8F%97%E9%87%8D%E5%85%A5%E6%94%BB%E5%87%BB%E6%8D%9F%E5%A4%B14200%E4%B8%87%E7%BE%8E%E7%BE%8E%E9%87%91/"/>
       <url>/2025/07/11/GMX%E5%8D%8F%E8%AE%AE%E9%81%AD%E5%8F%97%E9%87%8D%E5%85%A5%E6%94%BB%E5%87%BB%E6%8D%9F%E5%A4%B14200%E4%B8%87%E7%BE%8E%E7%BE%8E%E9%87%91/</url>
       
-        <content type="html"><![CDATA[]]></content>
+        <content type="html"><![CDATA[<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>在2025年7月9号，也就是前不久，GMX协议在Arbitrum上遭黑客攻击，攻击的主要问题集中在 <strong>重入+share price 操控</strong></p><blockquote><p>常见的攻击模式：在 <code>deposit/mint</code> 中重入，通过再次 <code>deposit</code>或者 <code>donate</code> 的形式，操控 <code>share price</code> 导致 <code>withdraw/redeem</code> 的时候 <code>share</code> 价格相对于 <code>deposit/mint</code> 过程发生变化。从而实现立马获取收益</p></blockquote><p>在这个合约中，并不是这样简单的重入（如果这样，早就被盗窃完了），仔细看代码，其实是 <code>GMX</code> 协议本身依赖外部合约进行重入保护，但是外部合约对用户地址存在 <code>callback</code>，且没有使用安全的<code>callback</code> 形式，导致用户绕过了外部的重入开关后，直接对 <code>share price</code> 价格进行操控。从而获利。</p>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> 攻击事件分析 </tag>
+            
+        </tags>
       
     </entry>
     
