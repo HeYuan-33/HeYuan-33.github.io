@@ -1,0 +1,314 @@
+<!DOCTYPE html><html lang="zh-Cn" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>MOVE漏洞总结 | 何方圜的博客</title><meta name="author" content="何方圜"><meta name="copyright" content="何方圜"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Move 语言智能合约安全：10 个经典漏洞深度剖析Move 是一种专为资产安全和可信赖性而设计的编程语言，它的核心理念是通过其独特的**资源类型系统（Resource Type System）**来从根本上防止资产被复制、意外销毁或丢失。它在编译时强制执行这些规则，从而在很大程度上避免了许多传统区块链语言中常见的致命漏洞，比如代币重复发行或意外丢失。 然而，尽管 Move 提供了强大的安全保障">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MOVE漏洞总结">
+<meta property="og:url" content="http://example.com/2025/08/29/MOVE%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="何方圜的博客">
+<meta property="og:description" content="Move 语言智能合约安全：10 个经典漏洞深度剖析Move 是一种专为资产安全和可信赖性而设计的编程语言，它的核心理念是通过其独特的**资源类型系统（Resource Type System）**来从根本上防止资产被复制、意外销毁或丢失。它在编译时强制执行这些规则，从而在很大程度上避免了许多传统区块链语言中常见的致命漏洞，比如代币重复发行或意外丢失。 然而，尽管 Move 提供了强大的安全保障">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg">
+<meta property="article:published_time" content="2025-08-29T05:51:57.000Z">
+<meta property="article:modified_time" content="2025-08-29T07:07:03.026Z">
+<meta property="article:author" content="何方圜">
+<meta property="article:tag" content="基础知识">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="shortcut icon" href="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="canonical" href="http://example.com/2025/08/29/MOVE%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":false,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'MOVE漏洞总结',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-08-29 15:07:03'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">110</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/8a5725b44b17e750ba6ce84aaca3013d.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="何方圜的博客"><img class="site-icon" src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"/><span class="site-name">何方圜的博客</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">MOVE漏洞总结</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-08-29T05:51:57.000Z" title="Created 2025-08-29 13:51:57">2025-08-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-08-29T07:07:03.026Z" title="Updated 2025-08-29 15:07:03">2025-08-29</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="MOVE漏洞总结"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><hr>
+<h1 id="Move-语言智能合约安全：10-个经典漏洞深度剖析"><a href="#Move-语言智能合约安全：10-个经典漏洞深度剖析" class="headerlink" title="Move 语言智能合约安全：10 个经典漏洞深度剖析"></a>Move 语言智能合约安全：10 个经典漏洞深度剖析</h1><p>Move 是一种专为资产安全和可信赖性而设计的编程语言，它的核心理念是通过其独特的**资源类型系统（Resource Type System）**来从根本上防止资产被复制、意外销毁或丢失。它在编译时强制执行这些规则，从而在很大程度上避免了许多传统区块链语言中常见的致命漏洞，比如代币重复发行或意外丢失。</p>
+<p>然而，尽管 Move 提供了强大的安全保障，但合约的安全性最终还是取决于开发者的设计和实现。不正确的逻辑、对 Move 特性的误解或编程上的疏忽，仍然可能引入严重的漏洞。</p>
+<p>本文件将对 Move 智能合约中 10 个常见且潜在的漏洞类型进行深度剖析，旨在帮助开发者更好地理解语言陷阱，并编写出更健壮、更安全的合约。</p>
+<hr>
+<h3 id="1-资产权限管理不当-Improper-Capability-Management"><a href="#1-资产权限管理不当-Improper-Capability-Management" class="headerlink" title="1. 资产权限管理不当 (Improper Capability Management)"></a>1. 资产权限管理不当 (Improper Capability Management)</h3><p><strong>核心原理：</strong></p>
+<p>在 Move 中，<strong>能力 (Capability)</strong> 是一种特殊的资源类型，它代表了对特定操作的权限。这是一种强大的访问控制机制，例如，一个 <code>AdminCap</code> 资源可以授予持有者调用管理函数的权限。这种模式比依赖于硬编码的地址更安全，因为能力可以像普通资产一样被转移或销毁。</p>
+<p><strong>漏洞描述：</strong></p>
+<p>当开发者没有正确地管理这些能力资源时，就会导致权限泄露或被滥用。这通常发生在以下几种情况：</p>
+<ul>
+<li><strong>能力泄露 (Capability Leakage):</strong> 这是最危险的情况。当一个能力资源被错误地存储在公共可访问的结构体中，或者在一个不安全的函数中被意外返回，任何用户都可以获取并滥用该权限。</li>
+<li><strong>非预期的能力转移 (Unintended Capability Transfer):</strong> 在函数调用中，开发者意外地将能力作为参数传递给一个不应拥有此权限的模块或函数。这使得该模块获得了超越其设计权限的能力，可能被用于恶意目的。</li>
+<li><strong>未撤销的能力 (Unrevoked Capabilities):</strong> 在合约升级或状态变更后，旧的能力没有被正确地销毁或撤销。这可能导致旧的、不再有效的能力仍然可以被用来执行过时的或不安全的操作，造成合约状态的不一致。</li>
+</ul>
+<p><strong>伪代码示例 (能力泄露):</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">module my_contract::cap_leak &#123;</span><br><span class="line">    use std::signer;</span><br><span class="line"></span><br><span class="line">    // 错误的实现: AdminCap 被作为公共资源存储在用户账户下</span><br><span class="line">    // 任何拥有该 AdminCap 资源的用户都可以调用特权函数</span><br><span class="line">    struct AdminCap has key, store &#123; &#125;</span><br><span class="line"></span><br><span class="line">    // ❌ 错误：这个函数应该只在模块初始化时被调用一次，但它却是公共的</span><br><span class="line">    public fun give_admin_cap(recipient: &amp;signer) &#123;</span><br><span class="line">        let cap = AdminCap &#123;&#125;;</span><br><span class="line">        // 将 AdminCap 资源转移到用户的账户下</span><br><span class="line">        move_to(recipient, cap);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // ❌ 错误：这个特权函数没有检查调用者的身份，只依赖于 `AdminCap`</span><br><span class="line">    public fun mint_tokens(admin_cap: &amp;AdminCap, amount: u64) &#123;</span><br><span class="line">        // ...铸造代币的逻辑...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>防范措施：</strong></p>
+<ul>
+<li><strong>将初始化逻辑放在 <code>init_module</code> 中：</strong> <code>init_module</code> 函数只在模块发布时自动执行一次，是创建和分发初始能力的最安全场所。</li>
+<li><strong>使用签名者进行权限验证：</strong> 始终将需要权限的函数用 <code>signer</code> 参数进行限制，并检查其地址是否为管理员地址，以进行双重验证。</li>
+<li><strong>私有化特权函数：</strong> 将需要能力才能调用的函数声明为 <code>private</code>，并只在模块内部的公共函数中调用，从而限制外部访问。</li>
+</ul>
+<hr>
+<h3 id="2-外部合约调用中的可重入性-Re-entrancy"><a href="#2-外部合约调用中的可重入性-Re-entrancy" class="headerlink" title="2. 外部合约调用中的可重入性 (Re-entrancy)"></a>2. 外部合约调用中的可重入性 (Re-entrancy)</h3><p><strong>核心原理：</strong></p>
+<p>可重入性攻击在以太坊等区块链中非常常见。Move 的资源类型和原子性在很大程度上缓解了典型的可重入攻击，因为资源所有权转移是原子的。然而，如果一个函数在更新其内部状态<strong>之前</strong>，调用了另一个外部函数，而这个外部函数又可以再次调用回原函数，就可能导致状态不一致。</p>
+<p><strong>漏洞描述：</strong></p>
+<p>这种攻击通常被称为**循环回调 (Recursive Calls)**。例如，在一个借贷协议中，一个函数在给用户转账之后、但在更新其借贷状态之前，意外地被一个恶意合约再次调用。这使得攻击者可以在一次交易中多次取款，造成协议资金的损失。</p>
+<p><strong>伪代码示例 (借贷协议中的可重入):</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">module my_contract::reentrancy_risk &#123;</span><br><span class="line">    use std::signer;</span><br><span class="line">    use a_coin_module::Coin; // 假设的一个代币模块</span><br><span class="line"></span><br><span class="line">    struct UserBalance has key &#123;</span><br><span class="line">        balance: u64,</span><br><span class="line">        is_locked: bool,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // ❌ 错误：在转账后才更新状态</span><br><span class="line">    public fun withdraw(account: &amp;signer, amount: u64) acquires UserBalance &#123;</span><br><span class="line">        let user_address = signer::address_of(account);</span><br><span class="line">        let user_balance = borrow_global_mut&lt;UserBalance&gt;(user_address);</span><br><span class="line"></span><br><span class="line">        assert!(user_balance.balance &gt;= amount, 101);</span><br><span class="line"></span><br><span class="line">        // ❌ 风险点：在更新余额前调用了外部函数</span><br><span class="line">        // 这里可以调用一个恶意合约的函数，该恶意合约会再次调用 withdraw</span><br><span class="line">        // 恶意合约::re_call_me(user_address, amount); </span><br><span class="line"></span><br><span class="line">        // 假设 `A_COIN_MODULE::transfer` 是一个外部调用，</span><br><span class="line">        // 恶意合约可能在 transfer 中重新进入此函数</span><br><span class="line">        a_coin_module::transfer(user_address, amount);</span><br><span class="line"></span><br><span class="line">        user_balance.balance = user_balance.balance - amount;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>防范措施：</strong></p>
+<ul>
+<li><strong>“检查-影响-交互”模式：</strong> 始终遵循这个安全模式。<strong>检查</strong>（Check）所有的前提条件，如余额是否足够。然后<strong>影响</strong>（Effect）合约内部的状态，例如更新用户的余额。最后，再进行<strong>交互</strong>（Interaction），如调用外部函数或进行转账。</li>
+<li><strong>使用锁或状态标志：</strong> 在复杂的交互中，可以使用一个布尔标志（如 <code>is_locked</code>）来防止一个函数在执行过程中被再次调用。</li>
+</ul>
+<hr>
+<h3 id="3-未受保护的初始化函数-Unprotected-Initialization-Functions"><a href="#3-未受保护的初始化函数-Unprotected-Initialization-Functions" class="headerlink" title="3. 未受保护的初始化函数 (Unprotected Initialization Functions)"></a>3. 未受保护的初始化函数 (Unprotected Initialization Functions)</h3><p><strong>核心原理：</strong></p>
+<p>合约的初始化是其生命周期中至关重要的一步，通常用于设置管理员地址、初始代币供应量或其他关键配置参数。Move 提供了 <code>init_module</code> 函数，它只在模块发布时被 Move VM 自动执行一次。</p>
+<p><strong>漏洞描述：</strong></p>
+<p>当开发者没有利用 <code>init_module</code> 的特性，而是编写了一个公共的、没有权限控制的初始化函数时，就会引入巨大的安全风险。</p>
+<ul>
+<li><strong>重复初始化 (Re-initialization):</strong> 如果初始化函数没有检查一个全局状态变量（如 <code>is_initialized</code>）来防止重复调用，任何用户都可以在合约部署后反复执行该函数，从而覆盖掉初始配置。</li>
+<li><strong>权限劫持 (Privilege Hijacking):</strong> 恶意用户在合约部署后抢先调用初始化函数，将合约的所有权或管理员权限转移到自己的地址，从而完全控制合约。</li>
+</ul>
+<p><strong>伪代码示例 (权限劫持):</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">module my_contract::unprotected_init &#123;</span><br><span class="line">    use std::signer;</span><br><span class="line">    struct Config has key &#123; admin: address &#125;</span><br><span class="line"></span><br><span class="line">    // ❌ 错误：这个公共函数可以被任何人在任何时候调用</span><br><span class="line">    public fun set_initial_config(admin: &amp;signer) &#123;</span><br><span class="line">        // 如果 `Config` 资源不存在，则创建并移动</span><br><span class="line">        if (!exists&lt;Config&gt;(@self)) &#123;</span><br><span class="line">            move_to(@self, Config &#123; admin: signer::address_of(admin) &#125;);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            // 否则更新管理员地址</span><br><span class="line">            let config = borrow_global_mut&lt;Config&gt;(@self);</span><br><span class="line">            config.admin = signer::address_of(admin);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>防范措施：</strong></p>
+<ul>
+<li><strong>使用 <code>init_module</code>：</strong> 将所有初始化逻辑放在 <code>init_module</code> 函数中，它是最安全的初始化方式。</li>
+<li><strong>使用单次执行标志：</strong> 如果确实需要一个公共的初始化函数，那么必须使用一个全局的布尔标志来确保它只能被调用一次。</li>
+</ul>
+<hr>
+<h3 id="4-资源销毁不当-Improper-Resource-Destruction"><a href="#4-资源销毁不当-Improper-Resource-Destruction" class="headerlink" title="4. 资源销毁不当 (Improper Resource Destruction)"></a>4. 资源销毁不当 (Improper Resource Destruction)</h3><p><strong>核心原理：</strong></p>
+<p>Move 的资源（<code>resource</code>）类型是其最重要的安全特性之一，它强制所有权模型，确保资源不能被复制或隐式丢弃。然而，开发者仍然需要明确地管理资源的生命周期，否则可能导致问题。</p>
+<p><strong>漏洞描述：</strong></p>
+<ul>
+<li><strong>资源意外丢失 (Unintended Resource Loss):</strong> 一个函数接收一个资源，但没有正确地处理它（例如，既没有将其返回，也没有 <code>move_to</code> 到某个账户下），导致资源被意外丢弃。尽管 Move 的编译器会检查这种未使用的资源，但在复杂的逻辑中仍可能发生。</li>
+<li><strong>非空资源被丢弃 (Dropping a non-empty Resource):</strong> 如果一个资源结构体包含其他嵌套资源，而开发者在不检查其内部状态的情况下销毁了外部资源，可能导致内部的宝贵资源被永久销毁。</li>
+</ul>
+<p><strong>伪代码示例:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">module my_contract::resource_loss &#123;</span><br><span class="line">    use std::signer;</span><br><span class="line"></span><br><span class="line">    struct ImportantNFT has key, store &#123; id: u64 &#125;</span><br><span class="line">    struct NFTBox has key &#123; nft: ImportantNFT &#125;</span><br><span class="line"></span><br><span class="line">    // ❌ 错误：NFTBox 被销毁，导致内部的 NFT 也被销毁</span><br><span class="line">    public fun destroy_box_and_nft(account: &amp;signer) acquires NFTBox &#123;</span><br><span class="line">        let box = move_from&lt;NFTBox&gt;(signer::address_of(account));</span><br><span class="line">        // box 在函数结束时被销毁，其内部的 `nft` 资源也跟着被销毁</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>防范措施：</strong></p>
+<ul>
+<li><strong>强制资源生命周期：</strong> 确保所有接收资源的函数都遵循清晰的生命周期：要么将其作为返回值返回，要么将其 <code>move_to</code> 到另一个账户。</li>
+<li><strong>使用 <code>drop</code> 能力：</strong> 谨慎使用 <code>drop</code> 能力，它允许资源被显式销毁。只在确实需要销毁资源时才使用。</li>
+</ul>
+<hr>
+<h3 id="5-整数溢出和下溢-Integer-Overflow-and-Underflow"><a href="#5-整数溢出和下溢-Integer-Overflow-and-Underflow" class="headerlink" title="5. 整数溢出和下溢 (Integer Overflow and Underflow)"></a>5. 整数溢出和下溢 (Integer Overflow and Underflow)</h3><p><strong>核心原理：</strong></p>
+<p>在 Move 2024 版本中，大多数算术运算默认都进行了溢出和下溢检查，并在发生时直接 <code>panic</code>（中止）。这从语言层面提供了强大的安全保障。然而，在一些特定场景或使用旧版代码时，开发者仍需手动检查。</p>
+<p><strong>漏洞描述：</strong></p>
+<ul>
+<li><strong>显式溢出 (Explicit Overflow):</strong> 如果算术操作的结果超出了其类型可以表示的最大值，就会发生溢出，导致结果变为一个很小的值。</li>
+<li><strong>显式下溢 (Explicit Underflow):</strong> 如果从一个值中减去一个更大的值，结果超出了其类型可以表示的最小值，就会发生下溢，导致结果变为一个巨大的正数。</li>
+</ul>
+<p><strong>伪代码示例 (下溢):</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">module my_contract::underflow &#123;</span><br><span class="line">    use std::signer;</span><br><span class="line"></span><br><span class="line">    struct UserBalance has key &#123; balance: u64 &#125;</span><br><span class="line"></span><br><span class="line">    // ❌ 错误：未检查余额就进行减法</span><br><span class="line">    public fun withdraw_tokens(account: &amp;signer, amount: u64) acquires UserBalance &#123;</span><br><span class="line">        let user_balance = borrow_global_mut&lt;UserBalance&gt;(signer::address_of(account));</span><br><span class="line">        // 如果 user_balance.balance &lt; amount，就会发生下溢</span><br><span class="line">        user_balance.balance = user_balance.balance - amount;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>防范措施：</strong></p>
+<ul>
+<li><strong>始终进行检查：</strong> 在进行减法或任何可能导致下溢的操作之前，使用 <code>assert!</code> 或 <code>if</code> 语句检查前提条件。</li>
+<li><strong>使用 Move 2024+：</strong> 使用最新的 Move 编译器，它包含了默认的溢出检查，这能极大地提高代码的安全性。</li>
+</ul>
+<hr>
+<h3 id="6-权限分离不当-Improper-Separation-of-Privileges"><a href="#6-权限分离不当-Improper-Separation-of-Privileges" class="headerlink" title="6. 权限分离不当 (Improper Separation of Privileges)"></a>6. 权限分离不当 (Improper Separation of Privileges)</h3><p><strong>核心原理：</strong></p>
+<p>良好的合约设计应严格区分特权操作（如管理配置）和非特权操作（如存款或查询）。在 Move 中，权限通常通过签名者 (<code>signer</code>) 或能力 (<code>capability</code>) 来管理。</p>
+<p><strong>漏洞描述：</strong></p>
+<ul>
+<li><strong>不必要的 <code>signer</code> 参数：</strong> 一个函数本应是公共可调用的（例如查询余额），但却不必要地要求一个 <code>signer</code> 参数，导致只有拥有私钥的签名者才能调用，降低了合约的可用性和互操作性。</li>
+<li><strong>特权操作未受限：</strong> 一个本应只被管理员调用的函数，却没有使用 <code>signer</code> 或能力进行访问控制，这允许任何用户执行特权操作。</li>
+</ul>
+<p><strong>伪代码示例:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">module my_contract::privilege_issue &#123;</span><br><span class="line">    use std::signer;</span><br><span class="line"></span><br><span class="line">    // ❌ 错误：查询操作不应需要签名者权限</span><br><span class="line">    public fun get_balance_of(user: &amp;signer): u64 &#123;</span><br><span class="line">        // ...</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 修复方案：</span><br><span class="line">    public fun get_balance_of_safe(user_address: address): u64 &#123;</span><br><span class="line">        // ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>防范措施：</strong></p>
+<ul>
+<li><strong>按需使用 <code>signer</code>：</strong> 只有当函数需要执行特权操作或验证调用者身份时，才使用 <code>signer</code> 作为参数。</li>
+<li><strong>使用能力进行访问控制：</strong> 对于复杂的权限系统，使用能力资源是更优的选择，它能提供更细粒度的权限控制。</li>
+</ul>
+<hr>
+<h3 id="7-逻辑错误导致的状态不一致-Logic-Errors-Leading-to-Inconsistent-State"><a href="#7-逻辑错误导致的状态不一致-Logic-Errors-Leading-to-Inconsistent-State" class="headerlink" title="7. 逻辑错误导致的状态不一致 (Logic Errors Leading to Inconsistent State)"></a>7. 逻辑错误导致的状态不一致 (Logic Errors Leading to Inconsistent State)</h3><p><strong>核心原理：</strong></p>
+<p>Move 的类型系统可以防止许多低级错误，但无法检查合约的业务逻辑。开发者在设计和实现合约时，如果逻辑考虑不周，就可能导致合约状态进入一个非预期的、不一致的状态。</p>
+<p><strong>漏洞描述：</strong></p>
+<ul>
+<li><strong>条件竞态 (Race Conditions):</strong> 多个用户或交易几乎同时执行某个操作，且没有正确地通过原子性操作来管理，可能导致状态在其中一个操作完成之前被另一个操作改变。</li>
+<li><strong>状态机设计不当 (Improper State Machine Design):</strong> 合约的状态机（例如：<code>Initialized</code> -&gt; <code>Active</code> -&gt; <code>Paused</code>）设计有缺陷，允许从一个非法的状态转换到另一个状态。</li>
+</ul>
+<p><strong>伪代码示例 (拍卖合约中的逻辑错误):</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">module my_contract::logic_error &#123;</span><br><span class="line">    struct AuctionState has key &#123;</span><br><span class="line">        is_active: bool,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // ❌ 错误：在拍卖结束后仍然可以出价</span><br><span class="line">    public fun place_bid(amount: u64) acquires AuctionState &#123;</span><br><span class="line">        let state = borrow_global_mut&lt;AuctionState&gt;(@self);</span><br><span class="line">        // 如果开发者忘记检查 `state.is_active`，那么在拍卖结束后，用户仍然可以出价</span><br><span class="line">        // assert!(state.is_active, 1); // 缺少了这行关键的检查</span><br><span class="line">        // ...出价逻辑...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>防范措施：</strong></p>
+<ul>
+<li><strong>状态机建模：</strong> 在设计合约时，首先绘制一个清晰的状态转换图，并确保每个函数都严格检查并只允许合法的状态转换。</li>
+<li><strong>单元测试和形式化验证：</strong> 编写全面的单元测试来覆盖所有可能的逻辑路径，并考虑使用形式化验证工具来证明关键属性的正确性。</li>
+</ul>
+<hr>
+<h3 id="8-signer-和-address-的混淆-Confusion-between-signer-and-address"><a href="#8-signer-和-address-的混淆-Confusion-between-signer-and-address" class="headerlink" title="8. signer 和 address 的混淆 (Confusion between signer and address)"></a>8. <code>signer</code> 和 <code>address</code> 的混淆 (Confusion between <code>signer</code> and <code>address</code>)</h3><p><strong>核心原理：</strong></p>
+<p>在 Move 中，<code>signer</code> 类型代表一个拥有私钥并能够签名交易的实体。<code>address</code> 类型则是一个不拥有私钥的地址，它只是一个数据值。</p>
+<p><strong>漏洞描述：</strong></p>
+<ul>
+<li><strong>不正确的身份验证：</strong> 一个函数需要验证调用者的身份，但开发者错误地使用 <code>address</code> 类型作为身份验证，而不是 <code>signer</code>。这使得任何知道该地址的人都可以伪造调用，因为 <code>address</code> 可以作为一个常量被硬编码或传递。</li>
+</ul>
+<p><strong>伪代码示例:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">module my_contract::signer_address_confusion &#123;</span><br><span class="line">    use std::signer;</span><br><span class="line"></span><br><span class="line">    const ADMIN_ADDRESS: address = @0x1;</span><br><span class="line"></span><br><span class="line">    // ❌ 错误：仅使用地址进行权限检查</span><br><span class="line">    public fun set_config_unsecure(config: u64) &#123;</span><br><span class="line">        // 这里的 `@sender` 是一个地址值，任何人都可以通过一个脚本传入</span><br><span class="line">        assert!(@sender == ADMIN_ADDRESS, 0); </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 修复方案：</span><br><span class="line">    public fun set_config_secure(admin: &amp;signer, config: u64) &#123;</span><br><span class="line">        // `signer` 类型强制调用者必须是拥有私钥的实体</span><br><span class="line">        assert!(signer::address_of(admin) == ADMIN_ADDRESS, 0);</span><br><span class="line">        // ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>防范措施：</strong></p>
+<ul>
+<li><strong>理解类型语义：</strong> 牢记 <code>signer</code> 代表权限，而 <code>address</code> 只是一个数据值。在所有需要权限验证的场景下，都必须使用 <code>signer</code>。</li>
+</ul>
+<hr>
+<h3 id="9-特权函数中的不安全-public-声明-Unsafe-public-Declaration"><a href="#9-特权函数中的不安全-public-声明-Unsafe-public-Declaration" class="headerlink" title="9. 特权函数中的不安全 public 声明 (Unsafe public Declaration)"></a>9. 特权函数中的不安全 <code>public</code> 声明 (Unsafe <code>public</code> Declaration)</h3><p><strong>核心原理：</strong></p>
+<p>在 Move 中，函数可以被声明为 <code>private</code>、<code>public</code>、<code>script</code> 或 <code>entry</code>。当一个函数被声明为 <code>public</code> 时，它可以在模块外部被调用。</p>
+<p><strong>漏洞描述：</strong></p>
+<p>如果一个特权操作函数被错误地声明为 <code>public</code> 且没有其他权限限制，那么任何外部模块或脚本都可以调用它。这暴露了合约的关键功能，可能导致资产被盗或配置被篡改。</p>
+<p><strong>伪代码示例:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">module my_contract::unsafe_public &#123;</span><br><span class="line">    struct AdminCap has key &#123;&#125;</span><br><span class="line"></span><br><span class="line">    // ❌ 错误：这个特权函数没有权限控制</span><br><span class="line">    public fun set_admin(new_admin_address: address) &#123;</span><br><span class="line">        // 如果没有其他权限检查，任何人都可以调用此函数</span><br><span class="line">        // 来改变管理员地址</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 修复方案：</span><br><span class="line">    public fun set_admin_safe(admin: &amp;signer, new_admin_address: address) acquires AdminCap &#123;</span><br><span class="line">        let admin_cap = borrow_global&lt;AdminCap&gt;(signer::address_of(admin));</span><br><span class="line">        // ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>防范措施：</strong></p>
+<ul>
+<li><strong>最小权限原则：</strong> 只给函数必要的权限。如果一个函数只应该被模块内部的其他函数调用，就应该将其声明为 <code>private</code>。</li>
+<li><strong>使用 <code>entry</code> 函数：</strong> 对于需要外部调用的特权函数，将其声明为 <code>entry</code> 函数，并使用 <code>signer</code> 参数进行严格的权限检查。</li>
+</ul>
+<hr>
+<h3 id="10-signer-的意外使用-signer-as-a-Data-Source"><a href="#10-signer-的意外使用-signer-as-a-Data-Source" class="headerlink" title="10. signer 的意外使用 (signer as a Data Source)"></a>10. <code>signer</code> 的意外使用 (<code>signer</code> as a Data Source)</h3><p><strong>核心原理：</strong></p>
+<p><code>signer</code> 的主要作用是验证调用者的权限。然而，开发者有时会意外地将它当作一个普通的数据源，这不仅没有增加安全性，反而可能导致代码变得复杂。</p>
+<p><strong>漏洞描述：</strong></p>
+<ul>
+<li><strong>不必要的 <code>signer</code> 操作：</strong> 在不需要验证调用者权限的情况下，过度地使用 <code>signer</code> 类型，使得合约的调用方式变得复杂。例如，一个只读函数不应该要求 <code>signer</code> 参数。</li>
+</ul>
+<p><strong>伪代码示例:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">module my_contract::signer_abuse &#123;</span><br><span class="line">    use std::signer;</span><br><span class="line">    struct UserData has key &#123; balance: u64 &#125;</span><br><span class="line"></span><br><span class="line">    // ❌ 错误：这是一个只读函数，不应要求签名者权限</span><br><span class="line">    public fun get_balance_of(user: &amp;signer): u64 acquires UserData &#123;</span><br><span class="line">        let user_address = signer::address_of(user);</span><br><span class="line">        let data = borrow_global&lt;UserData&gt;(user_address);</span><br><span class="line">        return data.balance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 修复方案：</span><br><span class="line">    public fun get_balance_of_safe(user_address: address): u64 acquires UserData &#123;</span><br><span class="line">        let data = borrow_global&lt;UserData&gt;(user_address);</span><br><span class="line">        return data.balance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>防范措施：</strong></p>
+<ul>
+<li><strong>按需使用 <code>signer</code>：</strong> 只有当函数需要进行状态变更或验证调用者身份时，才使用 <code>signer</code> 类型。对于只读查询，使用 <code>address</code> 类型即可。</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://example.com">何方圜</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="http://example.com/2025/08/29/MOVE%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/">http://example.com/2025/08/29/MOVE漏洞总结/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://https://HeYuan-33.github.io/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a></div><div class="post_share"><div class="social-share" data-image="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2025/07/28/move-%E5%AD%A6%E4%B9%A0/" title="move 学习"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Next</div><div class="next_info">move 学习</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">何方圜</div><div class="author-info__description">夫孰异道而相安</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">110</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/HeYuan-33/HeYuan-33.github.io"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/HeYuan-33" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="/1405269390@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">CTF的更新</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Move-%E8%AF%AD%E8%A8%80%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6%E5%AE%89%E5%85%A8%EF%BC%9A10-%E4%B8%AA%E7%BB%8F%E5%85%B8%E6%BC%8F%E6%B4%9E%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90"><span class="toc-text">Move 语言智能合约安全：10 个经典漏洞深度剖析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%B5%84%E4%BA%A7%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E4%B8%8D%E5%BD%93-Improper-Capability-Management"><span class="toc-text">1. 资产权限管理不当 (Improper Capability Management)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%A4%96%E9%83%A8%E5%90%88%E7%BA%A6%E8%B0%83%E7%94%A8%E4%B8%AD%E7%9A%84%E5%8F%AF%E9%87%8D%E5%85%A5%E6%80%A7-Re-entrancy"><span class="toc-text">2. 外部合约调用中的可重入性 (Re-entrancy)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9C%AA%E5%8F%97%E4%BF%9D%E6%8A%A4%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96%E5%87%BD%E6%95%B0-Unprotected-Initialization-Functions"><span class="toc-text">3. 未受保护的初始化函数 (Unprotected Initialization Functions)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E8%B5%84%E6%BA%90%E9%94%80%E6%AF%81%E4%B8%8D%E5%BD%93-Improper-Resource-Destruction"><span class="toc-text">4. 资源销毁不当 (Improper Resource Destruction)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA%E5%92%8C%E4%B8%8B%E6%BA%A2-Integer-Overflow-and-Underflow"><span class="toc-text">5. 整数溢出和下溢 (Integer Overflow and Underflow)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%9D%83%E9%99%90%E5%88%86%E7%A6%BB%E4%B8%8D%E5%BD%93-Improper-Separation-of-Privileges"><span class="toc-text">6. 权限分离不当 (Improper Separation of Privileges)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E9%80%BB%E8%BE%91%E9%94%99%E8%AF%AF%E5%AF%BC%E8%87%B4%E7%9A%84%E7%8A%B6%E6%80%81%E4%B8%8D%E4%B8%80%E8%87%B4-Logic-Errors-Leading-to-Inconsistent-State"><span class="toc-text">7. 逻辑错误导致的状态不一致 (Logic Errors Leading to Inconsistent State)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-signer-%E5%92%8C-address-%E7%9A%84%E6%B7%B7%E6%B7%86-Confusion-between-signer-and-address"><span class="toc-text">8. signer 和 address 的混淆 (Confusion between signer and address)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E7%89%B9%E6%9D%83%E5%87%BD%E6%95%B0%E4%B8%AD%E7%9A%84%E4%B8%8D%E5%AE%89%E5%85%A8-public-%E5%A3%B0%E6%98%8E-Unsafe-public-Declaration"><span class="toc-text">9. 特权函数中的不安全 public 声明 (Unsafe public Declaration)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-signer-%E7%9A%84%E6%84%8F%E5%A4%96%E4%BD%BF%E7%94%A8-signer-as-a-Data-Source"><span class="toc-text">10. signer 的意外使用 (signer as a Data Source)</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/08/29/MOVE%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/" title="MOVE漏洞总结">MOVE漏洞总结</a><time datetime="2025-08-29T05:51:57.000Z" title="Created 2025-08-29 13:51:57">2025-08-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/07/28/move-%E5%AD%A6%E4%B9%A0/" title="move 学习">move 学习</a><time datetime="2025-07-28T08:25:39.000Z" title="Created 2025-07-28 16:25:39">2025-07-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/07/28/Notional-Exponent-%E5%AE%A1%E8%AE%A1%E6%8A%A5%E5%91%8A/" title="Notional Exponent 审计">Notional Exponent 审计</a><time datetime="2025-07-28T03:13:50.000Z" title="Created 2025-07-28 11:13:50">2025-07-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/07/11/GMX%E5%8D%8F%E8%AE%AE%E9%81%AD%E5%8F%97%E9%87%8D%E5%85%A5%E6%94%BB%E5%87%BB%E6%8D%9F%E5%A4%B14200%E4%B8%87%E7%BE%8E%E7%BE%8E%E9%87%91/" title="GMX协议遭受重入攻击损失4200万美美金">GMX协议遭受重入攻击损失4200万美美金</a><time datetime="2025-07-11T08:10:53.000Z" title="Created 2025-07-11 16:10:53">2025-07-11</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/19/%E5%85%B3%E4%BA%8EOPE/" title="关于OPE">关于OPE</a><time datetime="2025-06-19T07:29:54.000Z" title="Created 2025-06-19 15:29:54">2025-06-19</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/img/8a5725b44b17e750ba6ce84aaca3013d.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By 何方圜</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
