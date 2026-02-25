@@ -1,0 +1,246 @@
+<!DOCTYPE html><html lang="zh-Cn" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Liquidation 安全 | 何方圜的博客</title><meta name="author" content="何方圜"><meta name="copyright" content="何方圜"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="LIQ-01: 清算机制在极端行情下是否仍然有效？  描述：在快速下跌或剧烈波动行情中，如果清算逻辑执行效率不足、Gas 消耗过高、价格更新滞后或存在批量处理限制，可能导致抵押品价值迅速低于债务但系统未能及时清算，从而产生坏账并放大平台系统性风险。极端行情往往暴露清算路径的性能瓶颈与价格依赖问题。  建议：对极端市场条件进行压力测试与仿真分析，确保在高波动、高拥堵环境下清算机制仍可顺利执行，同时">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Liquidation 安全">
+<meta property="og:url" content="http://example.com/2026/02/25/Liquidation%20%E5%AE%89%E5%85%A8/index.html">
+<meta property="og:site_name" content="何方圜的博客">
+<meta property="og:description" content="LIQ-01: 清算机制在极端行情下是否仍然有效？  描述：在快速下跌或剧烈波动行情中，如果清算逻辑执行效率不足、Gas 消耗过高、价格更新滞后或存在批量处理限制，可能导致抵押品价值迅速低于债务但系统未能及时清算，从而产生坏账并放大平台系统性风险。极端行情往往暴露清算路径的性能瓶颈与价格依赖问题。  建议：对极端市场条件进行压力测试与仿真分析，确保在高波动、高拥堵环境下清算机制仍可顺利执行，同时">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg">
+<meta property="article:published_time" content="2026-02-25T06:39:55.000Z">
+<meta property="article:modified_time" content="2026-02-25T09:36:15.070Z">
+<meta property="article:author" content="何方圜">
+<meta property="article:tag" content="基本知识">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="shortcut icon" href="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="canonical" href="http://example.com/2026/02/25/Liquidation%20%E5%AE%89%E5%85%A8/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":false,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Liquidation 安全',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2026-02-25 17:36:15'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">114</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/8a5725b44b17e750ba6ce84aaca3013d.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="何方圜的博客"><img class="site-icon" src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"/><span class="site-name">何方圜的博客</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Liquidation 安全</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-02-25T06:39:55.000Z" title="Created 2026-02-25 14:39:55">2026-02-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-02-25T09:36:15.070Z" title="Updated 2026-02-25 17:36:15">2026-02-25</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Liquidation 安全"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><ul>
+<li><p><strong>LIQ-01: 清算机制在极端行情下是否仍然有效？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>在快速下跌或剧烈波动行情中，如果清算逻辑执行效率不足、Gas 消耗过高、价格更新滞后或存在批量处理限制，可能导致抵押品价值迅速低于债务但系统未能及时清算，从而产生坏账并放大平台系统性风险。极端行情往往暴露清算路径的性能瓶颈与价格依赖问题。</p>
+</li>
+<li><p><strong>建议：</strong>对极端市场条件进行压力测试与仿真分析，确保在高波动、高拥堵环境下清算机制仍可顺利执行，同时优化 Gas 结构与价格更新逻辑以提高鲁棒性。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>LIQ-02: 抵押不足或违约时是否可以强制清算？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若系统在抵押率低于阈值或贷款逾期时无法触发清算，或存在逻辑路径使某些头寸无法被清算，将直接威胁出借人资金安全。清算条件若存在计算错误或权限限制，也可能导致部分违约仓位长期存在。</p>
+</li>
+<li><p><strong>建议：</strong>确保在抵押不足或贷款违约的任何情况下均可触发清算，并验证清算条件判断逻辑不存在绕过路径或边界异常。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>LIQ-03: 是否存在自清算套利空间？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若协议允许用户主动触发自身清算，且清算奖励结构设计不合理，用户可能通过构造仓位故意触发清算从中获利。这类“自清算套利”会削弱系统激励平衡，并可能形成经济漏洞。</p>
+</li>
+<li><p><strong>建议：</strong>审计清算奖励机制与手续费结构，确保自清算无法产生正向套利收益，同时进行经济模型模拟验证激励设计合理性。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>LIQ-04: 暂停转账或抵押操作时是否可能导致非预期清算？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若协议在暂停存款、转账或抵押补充期间仍允许清算执行，用户可能因无法及时追加抵押而被强制清算。这种状态不一致可能在系统维护或紧急暂停期间造成用户损失。</p>
+</li>
+<li><p><strong>建议：</strong>设计暂停逻辑时确保清算与抵押补充机制状态一致，或在暂停期间设置合理保护机制避免非预期清算。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>LIQ-05: 清算暂停与恢复是否存在系统性风险？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若协议允许暂停清算，在暂停期间坏账风险可能持续累积；恢复清算时可能出现集中爆发式清算，导致价格冲击或系统异常行为。暂停与恢复机制若缺乏明确规则，会增加偿付风险。</p>
+</li>
+<li><p><strong>建议：</strong>制定清晰的暂停与恢复流程，明确触发条件与恢复策略，并评估暂停期间对系统偿付能力的影响。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>LIQ-06: 是否存在通过抢跑防止清算的操控空间？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>用户可能通过前置交易（front-running）在清算交易前小幅增加抵押或调整仓位，从而阻止清算执行。这类行为可能被滥用为“清算骚扰”或“清算阻断”手段，影响清算效率。</p>
+</li>
+<li><p><strong>建议：</strong>优化清算触发逻辑，避免因微小仓位变动即可阻止清算，必要时引入宽限区间或基于区块确认的判定机制。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>LIQ-07: 不同规模仓位是否均具备合理清算激励？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若小额仓位的清算奖励不足以覆盖 Gas 成本，清算人可能忽略这些仓位，导致长期存在低价值坏账。清算激励设计不平衡会影响系统效率与健康度。</p>
+</li>
+<li><p><strong>建议：</strong>设计合理的清算奖励机制，确保不同规模仓位均具备经济可行性，同时评估 Gas 成本与奖励比例匹配程度。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>LIQ-08: LTV 计算是否包含累计利息？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若在 Loan-to-Value 计算中未计入已累计但未支付的利息，将低估真实债务规模，导致风险评估偏差。这可能使部分仓位在账面上健康，但实际上已处于风险边缘。</p>
+</li>
+<li><p><strong>建议：</strong>在 LTV 与清算判定中包含累计利息与所有相关费用，确保风险评估准确反映真实债务情况。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>LIQ-09: 清算与还款功能是否存在状态不一致问题？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若协议允许单独暂停清算或还款，而未确保二者逻辑一致，可能出现用户无法还款但仍被清算，或无法清算但仍继续计息的异常状态，影响系统稳定性。</p>
+</li>
+<li><p><strong>建议：</strong>统一管理清算与还款状态，确保二者在暂停或恢复时保持逻辑一致，避免出现功能错配。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>LIQ-10: 清算奖励计算是否存在不一致或偏差？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若清算奖励计算公式复杂或存在舍入误差，清算人可能获得低于预期的奖励，从而降低参与积极性。奖励计算不透明或不一致也可能影响市场信任。</p>
+</li>
+<li><p><strong>建议：</strong>确保清算奖励计算机制明确、稳定且一致，并进行边界值测试验证在极端价格条件下的计算准确性。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>LIQ-11: 是否存在用户无法正常还款的永久债务风险？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>在某些极端条件下，例如费用结构异常、价格剧烈波动或逻辑限制，用户可能处于无法完全偿还债务的状态，形成“永久负债”。该问题会影响用户体验并增加系统坏账风险。</p>
+</li>
+<li><p><strong>建议：</strong>审查借贷逻辑与费用结构，确保不存在阻止用户偿还全部债务的条件，并为极端场景设计合理的债务清算或重置机制。</p>
+</li>
+</ul>
+</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://example.com">何方圜</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="http://example.com/2026/02/25/Liquidation%20%E5%AE%89%E5%85%A8/">http://example.com/2026/02/25/Liquidation 安全/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://https://HeYuan-33.github.io/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%9F%BA%E6%9C%AC%E7%9F%A5%E8%AF%86/">基本知识</a></div><div class="post_share"><div class="social-share" data-image="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/02/25/Vesting-%E5%AE%89%E5%85%A8/" title="Vesting 安全"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Vesting 安全</div></div></a></div><div class="next-post pull-right"><a href="/2026/02/25/Crosschain%20%E5%AE%89%E5%85%A8/" title="Crosschain 安全"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Next</div><div class="next_info">Crosschain 安全</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/08/19/Aave%E5%AD%A6%E4%B9%A0%E7%9F%A5%E8%AF%86/" title="Aave学习知识"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">Aave学习知识</div></div></a></div><div><a href="/2024/10/16/AMM%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" title="AMM漏洞分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-16</div><div class="title">AMM漏洞分析</div></div></a></div><div><a href="/2024/10/16/AMM-%E8%87%AA%E5%8A%A8%E5%8C%96%E5%81%9A%E5%B8%82%E5%95%86/" title="AMM(自动化做市商)"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-16</div><div class="title">AMM(自动化做市商)</div></div></a></div><div><a href="/2024/08/19/Compound/" title="Compound"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">Compound</div></div></a></div><div><a href="/2024/08/19/GHO/" title="GHO"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">GHO</div></div></a></div><div><a href="/2024/08/19/EVM%E5%85%A5%E9%97%A8/" title="EVM入门"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">EVM入门</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">何方圜</div><div class="author-info__description">夫孰异道而相安</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">114</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/HeYuan-33/HeYuan-33.github.io"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/HeYuan-33" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="/1405269390@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">CTF的更新</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/25/Vesting-%E5%AE%89%E5%85%A8/" title="Vesting 安全">Vesting 安全</a><time datetime="2026-02-25T06:39:55.000Z" title="Created 2026-02-25 14:39:55">2026-02-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/25/Liquidation%20%E5%AE%89%E5%85%A8/" title="Liquidation 安全">Liquidation 安全</a><time datetime="2026-02-25T06:39:55.000Z" title="Created 2026-02-25 14:39:55">2026-02-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/25/Crosschain%20%E5%AE%89%E5%85%A8/" title="Crosschain 安全">Crosschain 安全</a><time datetime="2026-02-25T06:39:09.000Z" title="Created 2026-02-25 14:39:09">2026-02-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/12/15/Uniswap-v4/" title="Uniswap v4">Uniswap v4</a><time datetime="2025-12-15T13:39:31.000Z" title="Created 2025-12-15 21:39:31">2025-12-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/08/29/MOVE%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/" title="MOVE漏洞总结">MOVE漏洞总结</a><time datetime="2025-08-29T05:51:57.000Z" title="Created 2025-08-29 13:51:57">2025-08-29</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/img/8a5725b44b17e750ba6ce84aaca3013d.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2026 By 何方圜</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

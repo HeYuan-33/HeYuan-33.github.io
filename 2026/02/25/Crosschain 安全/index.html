@@ -1,0 +1,314 @@
+<!DOCTYPE html><html lang="zh-Cn" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Crosschain 安全 | 何方圜的博客</title><meta name="author" content="何方圜"><meta name="copyright" content="何方圜"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="CC-01: 是否正确验证跨链消息来源（Message Authentication）？  描述：跨链消息若未严格校验 sourceChainId、sourceAddress 或签名验证逻辑，攻击者可能伪造消息，从目标链释放资产或执行 mint。 建议：合约应严格校验跨链消息的来源链 ID 与可信桥接合约地址，禁止仅依赖 msg.sender 进行判断。签名验证逻辑应采用标准化域分离机制（如 E">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Crosschain 安全">
+<meta property="og:url" content="http://example.com/2026/02/25/Crosschain%20%E5%AE%89%E5%85%A8/index.html">
+<meta property="og:site_name" content="何方圜的博客">
+<meta property="og:description" content="CC-01: 是否正确验证跨链消息来源（Message Authentication）？  描述：跨链消息若未严格校验 sourceChainId、sourceAddress 或签名验证逻辑，攻击者可能伪造消息，从目标链释放资产或执行 mint。 建议：合约应严格校验跨链消息的来源链 ID 与可信桥接合约地址，禁止仅依赖 msg.sender 进行判断。签名验证逻辑应采用标准化域分离机制（如 E">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg">
+<meta property="article:published_time" content="2026-02-25T06:39:09.000Z">
+<meta property="article:modified_time" content="2026-02-25T09:31:12.819Z">
+<meta property="article:author" content="何方圜">
+<meta property="article:tag" content="基本知识">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="shortcut icon" href="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="canonical" href="http://example.com/2026/02/25/Crosschain%20%E5%AE%89%E5%85%A8/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":false,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Crosschain 安全',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2026-02-25 17:31:12'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">114</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/8a5725b44b17e750ba6ce84aaca3013d.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="何方圜的博客"><img class="site-icon" src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"/><span class="site-name">何方圜的博客</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Crosschain 安全</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-02-25T06:39:09.000Z" title="Created 2026-02-25 14:39:09">2026-02-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-02-25T09:31:12.819Z" title="Updated 2026-02-25 17:31:12">2026-02-25</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Crosschain 安全"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><ul>
+<li><p><strong>CC-01: 是否正确验证跨链消息来源（Message Authentication）？</strong></p>
+<ul>
+<li><strong>描述：</strong>跨链消息若未严格校验 sourceChainId、sourceAddress 或签名验证逻辑，攻击者可能伪造消息，从目标链释放资产或执行 mint。</li>
+<li><strong>建议：</strong>合约应严格校验跨链消息的来源链 ID 与可信桥接合约地址，禁止仅依赖 msg.sender 进行判断。签名验证逻辑应采用标准化域分离机制（如 EIP-712），并确保签名数据中包含链 ID、目标合约地址及 nonce 等关键信息，从根本上避免伪造消息执行的风险。</li>
+</ul>
+</li>
+<li><p><strong>CC-02: 是否防范 Replay Attack（重放攻击）？</strong></p>
+<ul>
+<li><strong>描述：</strong>若跨链 payload 未记录 nonce 或 message hash，攻击者可重复提交同一跨链消息，多次提款。</li>
+<li><strong>建议：</strong>系统应为每条跨链消息设置唯一 nonce，并按链维度进行隔离管理。消息执行后必须立即将其标记为已处理，防止重复调用。同时建议使用 message hash 映射进行状态记录，并确保 nonce 单调递增且不可复用。</li>
+</ul>
+</li>
+<li><p><strong>CC-03: 是否防范 Liquidity Imbalance 攻击？</strong></p>
+<ul>
+<li><strong>描述：</strong>在 liquidity-based bridge 中，攻击者可能在某条链集中提现，造成单链流动性耗尽。</li>
+<li><strong>建议：</strong>协议应设置单笔提现上限与单链流动性上限，并引入动态费率机制，使流动性失衡程度越高时手续费越高，从经济上抑制单边流出。同时应持续监控跨链净流动情况，并设计自动或人工再平衡机制。</li>
+</ul>
+</li>
+<li><p><strong>CC-04: 是否存在跨链执行失败导致资金卡死（Stuck Funds）？</strong></p>
+<ul>
+<li><strong>描述：</strong>目标链执行失败但源链资产已锁定，可能造成资金永久卡死。</li>
+<li><strong>建议：</strong>协议应设计可重试机制或超时回滚逻辑，并允许在目标链执行失败时通过备用流程进行资产赎回。此外，应记录失败状态并提供管理员或自动恢复机制，避免用户资金永久锁定。</li>
+</ul>
+</li>
+<li><p><strong>CC-05: 是否存在跨链回调重入风险？</strong></p>
+<ul>
+<li><strong>描述：</strong>某些桥协议支持回调执行，若合约未加 reentrancy 防护，可能导致重复提款。</li>
+<li><strong>建议：</strong>所有涉及跨链执行与资产转移的函数应添加重入保护，并严格遵循 Checks-Effects-Interactions 模式。跨链执行后应避免立即调用外部合约，以降低回调重入风险。</li>
+</ul>
+</li>
+<li><p><strong>CC-06: 是否存在权限过度集中风险？</strong></p>
+<ul>
+<li><strong>描述：</strong>管理员可能具备修改费率、替换 bridge、升级 implementation 的能力，存在 Rug 风险。</li>
+<li><strong>建议：</strong>关键管理权限应交由多签钱包控制，并为关键参数修改与升级操作设置时间锁机制。同时建议对桥接地址、费率参数与升级逻辑进行权限隔离，避免单点控制风险。</li>
+</ul>
+</li>
+<li><p><strong>CC-07: 是否存在 Flashloan 价格操纵风险？</strong></p>
+<ul>
+<li><strong>描述：</strong>若跨链 liquidity fee 或兑换比例依赖即时 AMM 价格，可能被 flashloan 操纵。</li>
+<li><strong>建议：</strong>协议应采用 TWAP 或多区块平均价格作为参考，并加入价格偏差限制机制。同时限制单区块内的大额操作，以降低瞬时操纵价格的可能性。</li>
+</ul>
+</li>
+<li><p><strong>CC-08: 是否存在 Gas DoS 风险？</strong></p>
+<ul>
+<li><strong>描述：</strong>跨链执行若包含 unbounded loop，可能因 gas 限制导致消息永久失败。</li>
+<li><strong>建议：</strong>避免在跨链执行逻辑中遍历动态数组或无上限数据结构，必要时采用分批处理机制，并为循环设置最大长度限制，以确保交易始终可执行。</li>
+</ul>
+</li>
+<li><p><strong>CC-09: 是否验证签名安全性？</strong></p>
+<ul>
+<li><strong>描述：</strong>签名验证若未校验 signer 或未限制 quorum，可能被绕过。</li>
+<li><strong>建议：</strong>签名验证逻辑应严格校验签名者身份与最小签名数量阈值，避免 quorum 被绕过。同时应防止签名可塑性问题，并使用标准化签名结构进行验证。</li>
+</ul>
+</li>
+<li><p><strong>CC-10: 是否存在跨链经济套利风险？</strong></p>
+<ul>
+<li><strong>描述：</strong>不同链资产价格或流动性不同，可能被反复套利耗尽流动性。</li>
+<li><strong>建议：</strong>应引入动态费率调节机制，并持续监控跨链流动性变化情况。在流动性严重失衡时，应限制提款或提高费用，以降低跨链循环套利的风险。</li>
+</ul>
+</li>
+<li><p><strong>CC-11: 是否处理不同链间状态同步边界条件？</strong></p>
+<ul>
+<li><strong>描述：</strong>在多链环境下，某些跨链事件可能因为异步执行或延迟而导致状态不同步。</li>
+<li><strong>建议：</strong>应明确各链的事件执行顺序与依赖关系；并在代码设计中确保消息处理逻辑可容忍 out-of-order delivery 或延时消息，从而防止状态不一致导致逻辑攻击。</li>
+</ul>
+</li>
+<li><p><strong>CC-12: 是否确保资产恒等守恒（Supply Conservation）？</strong></p>
+<ul>
+<li><strong>描述：</strong>跨链流动性协议必须确保 wrapped token 的总供应 ≤ 源链锁定资产量；否则会造成无限铸造风险。</li>
+<li><strong>建议：</strong>所有跨链 mint 操作必须依赖于严格验证源链锁定事件的证明，并确保每次 mint 都对应锁定或 burn 事件；不得存在可由管理员任意 mint 的接口。</li>
+</ul>
+</li>
+<li><p><strong>CC-13: 是否正确处理 fee-on-transfer &#x2F; rebasing &#x2F; 非标准 token？</strong></p>
+<ul>
+<li><strong>描述：</strong>某些 token 会在转账时扣费或自动调整余额，若未正确处理，会造成账务漂移。</li>
+<li><strong>建议：</strong>跨链协议在处理这些 token 类型时必须测量实际收到数量，并据此更新内部账务。若无法正确处理，则应明确禁止这些 token 的跨链交易或提供兼容适配逻辑。</li>
+</ul>
+</li>
+<li><p><strong>CC-14: 是否存在 Liquidity Imbalance 与 Hedge 风险？</strong></p>
+<ul>
+<li><strong>描述：</strong>在 liquidity pool 模式下，部分链的流动性突然耗尽会导致兑换失败或高滑点。</li>
+<li><strong>建议：</strong>设置单链 liquidity cap、单笔交易的最大额度限制，并可引入动态费率机制（imbalance 越大费率越高）减少单边流失风险。此外，可设计 rebalancing 逻辑，并对其经济安全性进行审查。</li>
+</ul>
+</li>
+<li><p><strong>CC-15: 是否存在基于 block.number 的硬编码时间逻辑？</strong></p>
+<ul>
+<li><strong>描述：</strong>不同链的出块时间存在差异（L1、L2、侧链差异明显），若使用 block.number 作为时间计算依据（例如锁仓时间、奖励周期等），可能导致在不同链上产生时间偏差或逻辑异常。</li>
+<li><strong>建议：</strong>避免使用 block.number 进行时间计算，应使用 block.timestamp 或可配置参数，并在不同链环境下进行测试验证。</li>
+</ul>
+</li>
+<li><p><strong>CC-16: 是否评估目标链之间的差异？</strong></p>
+<ul>
+<li><strong>描述：</strong>不同链在 gas 模型、预编译合约、交易排序、最终性机制等方面存在差异，若未评估这些差异，可能导致部署后出现不可预期行为。</li>
+<li><strong>建议：</strong>在部署前系统性审查目标链之间的技术差异，并在代码层或参数层进行适配与说明文档记录。</li>
+</ul>
+</li>
+<li><p><strong>CC-17: 是否验证所使用的 EVM Opcode 在所有目标链上均被支持？</strong></p>
+<ul>
+<li><strong>描述：</strong>某些 L2 或侧链可能未完全支持所有 EVM Opcode（如 PUSH0 等），若使用未支持指令，可能导致合约无法正常执行。</li>
+<li><strong>建议：</strong>在部署前确认目标链的 opcode 支持情况，尤其是在使用较新 Solidity 版本时，验证编译产物在目标链上的兼容性。</li>
+</ul>
+</li>
+<li><p><strong>CC-18: tx.origin 与 msg.sender 在不同链上的行为是否一致？</strong></p>
+<ul>
+<li><strong>描述：</strong>不同链的交易封装方式或跨链调用机制可能影响 tx.origin 与 msg.sender的行为，若依赖其进行权限判断，可能出现安全漏洞。</li>
+<li><strong>建议：</strong>避免使用 tx.origin 进行权限控制，并在所有目标链上测试调用路径，确保 msg.sender 逻辑符合预期。</li>
+</ul>
+</li>
+<li><p><strong>CC-19: 是否存在低 Gas 成本环境下的经济攻击风险？</strong></p>
+<ul>
+<li><strong>描述：</strong>在 Gas 成本较低或 TPS 较高的链上，某些高频攻击（如循环调用、套利尝试）成本极低，可能使原本在以太坊主网不可行的攻击变得可行。</li>
+<li><strong>建议：</strong>评估低 Gas 环境下的攻击模型，必要时增加频率限制、最小金额限制或经济门槛。</li>
+</ul>
+</li>
+<li><p><strong>CC-20: ERC20 的 decimals 在不同链之间是否一致？</strong></p>
+<ul>
+<li><strong>描述：</strong>同一资产在不同链上的 decimals 可能不同，若跨链或多链系统未统一处理，可能导致资产计算错误或精度丢失。</li>
+<li><strong>建议：</strong>统一内部精度标准，并在跨链资产映射时显式进行 decimals 转换与校验。</li>
+</ul>
+</li>
+<li><p><strong>CC-21: 是否评估不同链上的合约可升级性差异？</strong></p>
+<ul>
+<li><strong>描述：</strong>某些 Token 或合约在某条链上可升级，而在另一条链上不可升级（如某些 USDT 实现），若未评估可能引发信任或安全问题。</li>
+<li><strong>建议：</strong>在集成前验证目标链上合约是否可升级，并在文档中记录升级权限及风险。</li>
+</ul>
+</li>
+<li><p><strong>CC-22: 是否严格审查跨链消息组件的权限控制？</strong></p>
+<ul>
+<li><strong>描述：</strong>跨链消息模块若未进行严格权限控制，可能被未授权调用，导致资产释放或状态变更异常。 </li>
+<li><strong>建议：</strong>为跨链入口函数添加明确的访问控制，仅允许可信桥合约或消息验证模块调用。</li>
+</ul>
+</li>
+<li><p><strong>CC-23: 是否存在支持链白名单机制？</strong></p>
+<ul>
+<li><strong>描述：</strong>若允许来自任意链的跨链消息，而未做来源链限制，可能导致来自未支持链的非法消息被执行。</li>
+<li><strong>建议：</strong>建立 sourceChainId 白名单机制，仅允许来自已审核和支持的链的消息执行。</li>
+</ul>
+</li>
+<li><p><strong>CC-24: 是否验证在 zkSync Era 等特殊 L2 上的兼容性？</strong></p>
+<ul>
+<li><strong>描述：</strong>zkSync Era 等 ZK Rollup 在存储访问、Gas 模型或系统合约方面与主网存在差异，可能导致部署异常或运行错误。</li>
+<li><strong>建议：</strong>在 zkSync Era 等目标链上进行专项测试与部署验证，确保兼容性。</li>
+</ul>
+</li>
+<li><p><strong>CC-25: 是否考虑区块生成不稳定性？</strong></p>
+<ul>
+<li><strong>描述：</strong>某些链可能存在区块生成不稳定、间隔变化大等情况，若协议依赖固定出块节奏，可能出现异常行为。</li>
+<li><strong>建议：</strong>设计逻辑时假设区块时间可能波动，避免依赖严格区块间隔假设。</li>
+</ul>
+</li>
+<li><p><strong>CC-26: Solidity &gt;&#x3D; 0.8.20 使用的 PUSH0 是否在目标链支持？</strong></p>
+<ul>
+<li><strong>描述：</strong>Solidity 0.8.20 及以上版本会生成 PUSH0 opcode，但某些链尚未支持该指令，可能导致部署或执行失败。</li>
+<li><strong>建议：</strong>在部署前确认目标链是否支持 PUSH0，或使用兼容编译选项。</li>
+</ul>
+</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://example.com">何方圜</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="http://example.com/2026/02/25/Crosschain%20%E5%AE%89%E5%85%A8/">http://example.com/2026/02/25/Crosschain 安全/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://https://HeYuan-33.github.io/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%9F%BA%E6%9C%AC%E7%9F%A5%E8%AF%86/">基本知识</a></div><div class="post_share"><div class="social-share" data-image="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/02/25/Liquidation%20%E5%AE%89%E5%85%A8/" title="Liquidation 安全"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Liquidation 安全</div></div></a></div><div class="next-post pull-right"><a href="/2025/12/15/Uniswap-v4/" title="Uniswap v4"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Next</div><div class="next_info">Uniswap v4</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/08/19/Aave%E5%AD%A6%E4%B9%A0%E7%9F%A5%E8%AF%86/" title="Aave学习知识"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">Aave学习知识</div></div></a></div><div><a href="/2024/10/16/AMM%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" title="AMM漏洞分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-16</div><div class="title">AMM漏洞分析</div></div></a></div><div><a href="/2024/10/16/AMM-%E8%87%AA%E5%8A%A8%E5%8C%96%E5%81%9A%E5%B8%82%E5%95%86/" title="AMM(自动化做市商)"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-16</div><div class="title">AMM(自动化做市商)</div></div></a></div><div><a href="/2024/08/19/Compound/" title="Compound"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">Compound</div></div></a></div><div><a href="/2024/08/19/GHO/" title="GHO"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">GHO</div></div></a></div><div><a href="/2024/08/19/EVM%E5%85%A5%E9%97%A8/" title="EVM入门"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">EVM入门</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">何方圜</div><div class="author-info__description">夫孰异道而相安</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">114</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/HeYuan-33/HeYuan-33.github.io"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/HeYuan-33" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="/1405269390@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">CTF的更新</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/25/Vesting-%E5%AE%89%E5%85%A8/" title="Vesting 安全">Vesting 安全</a><time datetime="2026-02-25T06:39:55.000Z" title="Created 2026-02-25 14:39:55">2026-02-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/25/Liquidation%20%E5%AE%89%E5%85%A8/" title="Liquidation 安全">Liquidation 安全</a><time datetime="2026-02-25T06:39:55.000Z" title="Created 2026-02-25 14:39:55">2026-02-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/25/Crosschain%20%E5%AE%89%E5%85%A8/" title="Crosschain 安全">Crosschain 安全</a><time datetime="2026-02-25T06:39:09.000Z" title="Created 2026-02-25 14:39:09">2026-02-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/12/15/Uniswap-v4/" title="Uniswap v4">Uniswap v4</a><time datetime="2025-12-15T13:39:31.000Z" title="Created 2025-12-15 21:39:31">2025-12-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/08/29/MOVE%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/" title="MOVE漏洞总结">MOVE漏洞总结</a><time datetime="2025-08-29T05:51:57.000Z" title="Created 2025-08-29 13:51:57">2025-08-29</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/img/8a5725b44b17e750ba6ce84aaca3013d.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2026 By 何方圜</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

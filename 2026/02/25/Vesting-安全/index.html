@@ -1,0 +1,252 @@
+<!DOCTYPE html><html lang="zh-Cn" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Vesting 安全 | 何方圜的博客</title><meta name="author" content="何方圜"><meta name="copyright" content="何方圜"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="VET-01: Vesting 时间结构是否存在逻辑一致性问题？  描述：Vesting 结构依赖 start、cliff、duration、end 等时间变量计算释放曲线，若这些参数之间缺乏严格的数学约束，可能导致释放逻辑出现结构性错误，例如提前释放、永久锁仓或瞬时全部释放。在支持多阶段释放、参数可修改或批量创建 Vesting 的架构中，时间区间错配更容易发生，并可能影响所有受益人资金安全。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vesting 安全">
+<meta property="og:url" content="http://example.com/2026/02/25/Vesting-%E5%AE%89%E5%85%A8/index.html">
+<meta property="og:site_name" content="何方圜的博客">
+<meta property="og:description" content="VET-01: Vesting 时间结构是否存在逻辑一致性问题？  描述：Vesting 结构依赖 start、cliff、duration、end 等时间变量计算释放曲线，若这些参数之间缺乏严格的数学约束，可能导致释放逻辑出现结构性错误，例如提前释放、永久锁仓或瞬时全部释放。在支持多阶段释放、参数可修改或批量创建 Vesting 的架构中，时间区间错配更容易发生，并可能影响所有受益人资金安全。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg">
+<meta property="article:published_time" content="2026-02-25T06:39:55.000Z">
+<meta property="article:modified_time" content="2026-02-25T09:30:56.865Z">
+<meta property="article:author" content="何方圜">
+<meta property="article:tag" content="基本知识">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="shortcut icon" href="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"><link rel="canonical" href="http://example.com/2026/02/25/Vesting-%E5%AE%89%E5%85%A8/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":false,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Vesting 安全',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2026-02-25 17:30:56'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">114</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/8a5725b44b17e750ba6ce84aaca3013d.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="何方圜的博客"><img class="site-icon" src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg"/><span class="site-name">何方圜的博客</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Vesting 安全</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-02-25T06:39:55.000Z" title="Created 2026-02-25 14:39:55">2026-02-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-02-25T09:30:56.865Z" title="Updated 2026-02-25 17:30:56">2026-02-25</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Vesting 安全"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><ul>
+<li><p><strong>VET-01: Vesting 时间结构是否存在逻辑一致性问题？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>Vesting 结构依赖 start、cliff、duration、end 等时间变量计算释放曲线，若这些参数之间缺乏严格的数学约束，可能导致释放逻辑出现结构性错误，例如提前释放、永久锁仓或瞬时全部释放。在支持多阶段释放、参数可修改或批量创建 Vesting 的架构中，时间区间错配更容易发生，并可能影响所有受益人资金安全。此外，若未防止 end 计算溢出或时间倒退，也可能导致释放比例异常。</p>
+</li>
+<li><p><strong>建议：</strong>在初始化和任何时间参数变更时必须进行完整一致性校验，确保 cliff 不早于 start、duration 大于零、end 严格等于 start 加 duration，并防止溢出。建议将时间计算逻辑集中在单一内部函数中统一处理，避免多处分叉计算造成逻辑不一致。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>VET-02: 释放计算是否存在精度损失或尾差锁定风险？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>线性 Vesting 通常采用整数比例计算已归属数量，而 Solidity 的整数除法会向下取整，可能导致最后阶段存在微量余额无法释放的情况。若未在释放结束时进行兜底处理，可能产生永久锁仓的尾差问题。在大规模或长期 Vesting 场景下，该问题会形成系统性资产沉淀。</p>
+</li>
+<li><p><strong>建议：</strong>在当前时间达到或超过 vesting 结束时间时，应直接释放全部剩余 allocation，而非继续使用比例公式计算。应统一采用先乘后除的比例计算方式，并通过边界测试覆盖极小 allocation 与极长 duration 场景。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>VET-03: 是否存在重复领取或超额释放风险？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若合约在计算可领取金额时未严格使用已归属减去已领取的模式，或在多路径释放逻辑中存在状态更新顺序问题，可能导致重复领取或超额释放。该问题在支持追加 allocation、可撤销 Vesting 或多批次 Vesting 的复杂结构中尤为常见，一旦状态不同步，将直接造成资金损失。</p>
+</li>
+<li><p><strong>建议：</strong>所有释放路径必须统一通过内部函数计算 <code>vested - claimed</code>，并在转账前更新已领取状态以避免重入影响。应避免在多个函数中独立计算可领取金额，并增加多次领取与边界时间的测试覆盖。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>VET-04: 是否存在 Push 模式导致的拒绝服务风险？</strong></p>
+<ul>
+<li><strong>描述：</strong>若合约在发放时主动向受益人转账（Push 模式），当接收方为恶意合约或在 fallback 中消耗大量 Gas 时，可能导致交易整体回滚。在批量发放或循环处理场景中，单一恶意地址即可阻断整个流程，形成拒绝服务风险。</li>
+<li><strong>建议：</strong>采用 Pull Claim 模式，由受益人主动调用 claim 领取资产，避免在循环中进行外部调用。若必须使用 Push 模式，应避免批量循环并妥善处理失败逻辑。</li>
+</ul>
+</li>
+<li><p><strong>VET-05: 可撤销 Vesting 是否正确区分已归属与未归属资产？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>在 Revocable Vesting 结构中，若撤销逻辑未正确计算当前已归属与未归属部分，可能导致管理员错误收回已归属资产，或受益人提前获得未归属资产。此外，若撤销后未冻结后续释放逻辑，可能出现撤销后仍可继续领取的异常状态。</p>
+</li>
+<li><p><strong>建议：</strong>撤销时必须实时计算当前已归属数量，并仅允许回收未归属部分，同时在撤销后锁定 Vesting 状态以防止继续释放。建议通过独立函数计算 vested 数量，避免在撤销与领取逻辑中出现计算分叉。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>VET-06: 是否存在重入风险影响释放状态？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若在更新已领取状态前进行外部 token 转账调用，攻击者可能通过重入再次调用 claim 函数，从而多次提取资金。尤其在使用 ERC777 或存在可回调代币时，该风险会被放大。</p>
+</li>
+<li><p><strong>建议：</strong>遵循 Checks-Effects-Interactions 模式，在转账前更新领取状态，并在必要时使用 ReentrancyGuard 防护。同时避免在同一函数内执行多个外部调用。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>VET-07：多受益人批量 Vesting 是否存在 Gas DoS 风险？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若合约支持批量创建或批量释放 Vesting，并在单次交易中循环处理大量受益人，可能因 Gas 限制导致交易失败。在极端情况下，攻击者可通过构造大量数据使某些函数永久不可执行。</p>
+</li>
+<li><p><strong>建议：</strong>避免在单一交易中进行不受限制的循环处理，应采用逐个领取或分批处理的架构设计，并限制数组长度或引入分页机制。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>VET-08: 是否存在权限集中或治理滥用风险？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若管理员可以修改 Vesting 参数、追加 allocation、提前解锁或强制撤销，而缺乏时间锁或多签机制，则可能形成中心化风险。受益人资金可能在链上结构正确的情况下被治理层单方面改变。</p>
+</li>
+<li><p><strong>建议：</strong>关键权限操作应通过多签或 Timelock 控制，禁止任意修改已生效的 Vesting 核心参数，并对关键治理操作进行事件记录与透明化披露。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>VET-10: 是否存在 allocation 可被重复覆盖风险？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若为同一受益人创建多条 Vesting 记录，但未正确区分批次，可能导致 allocation 被覆盖或合并错误。</p>
+</li>
+<li><p><strong>建议：</strong>为每条 Vesting 生成唯一 ID，并单独存储状态。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>VET-11: 是否存在中途追加 allocation 导致释放曲线扭曲？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若在 Vesting 进行中追加 allocation，但未重新计算释放比例，可能导致部分 token 被立即释放。</p>
+</li>
+<li><p><strong>建议：</strong>追加 allocation 应生成新的 Vesting 批次，而非修改原结构。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>VET-12: 是否存在经济模型设计缺陷？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若 Vesting 曲线与代币经济模型不匹配，例如大量集中在短期 cliff 释放，可能对市场造成剧烈冲击。</p>
+</li>
+<li><p><strong>建议：</strong>在设计阶段进行代币释放压力测试与经济模拟。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>VET-13: 是否存在资金不足导致释放失败风险？</strong></p>
+<ul>
+<li><p><strong>描述：</strong>若 Vesting 依赖未来充值或未提前锁定足额 token，可能在 claim 时因余额不足导致失败。</p>
+</li>
+<li><p><strong>建议：</strong>创建 Vesting 时即锁定全部 allocation，或进行余额校验。</p>
+</li>
+</ul>
+</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://example.com">何方圜</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="http://example.com/2026/02/25/Vesting-%E5%AE%89%E5%85%A8/">http://example.com/2026/02/25/Vesting-安全/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://https://HeYuan-33.github.io/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%9F%BA%E6%9C%AC%E7%9F%A5%E8%AF%86/">基本知识</a></div><div class="post_share"><div class="social-share" data-image="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2026/02/25/Liquidation%20%E5%AE%89%E5%85%A8/" title="Liquidation 安全"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Next</div><div class="next_info">Liquidation 安全</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/08/19/Aave%E5%AD%A6%E4%B9%A0%E7%9F%A5%E8%AF%86/" title="Aave学习知识"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">Aave学习知识</div></div></a></div><div><a href="/2024/10/16/AMM%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" title="AMM漏洞分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-16</div><div class="title">AMM漏洞分析</div></div></a></div><div><a href="/2024/10/16/AMM-%E8%87%AA%E5%8A%A8%E5%8C%96%E5%81%9A%E5%B8%82%E5%95%86/" title="AMM(自动化做市商)"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-16</div><div class="title">AMM(自动化做市商)</div></div></a></div><div><a href="/2024/08/19/Compound/" title="Compound"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">Compound</div></div></a></div><div><a href="/2024/08/19/GHO/" title="GHO"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">GHO</div></div></a></div><div><a href="/2024/08/19/EVM%E5%85%A5%E9%97%A8/" title="EVM入门"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="title">EVM入门</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/1219ec3412a4cedf9378f9c0b14545e1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">何方圜</div><div class="author-info__description">夫孰异道而相安</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">114</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/HeYuan-33/HeYuan-33.github.io"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/HeYuan-33" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="/1405269390@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">CTF的更新</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/25/Vesting-%E5%AE%89%E5%85%A8/" title="Vesting 安全">Vesting 安全</a><time datetime="2026-02-25T06:39:55.000Z" title="Created 2026-02-25 14:39:55">2026-02-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/25/Liquidation%20%E5%AE%89%E5%85%A8/" title="Liquidation 安全">Liquidation 安全</a><time datetime="2026-02-25T06:39:55.000Z" title="Created 2026-02-25 14:39:55">2026-02-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/25/Crosschain%20%E5%AE%89%E5%85%A8/" title="Crosschain 安全">Crosschain 安全</a><time datetime="2026-02-25T06:39:09.000Z" title="Created 2026-02-25 14:39:09">2026-02-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/12/15/Uniswap-v4/" title="Uniswap v4">Uniswap v4</a><time datetime="2025-12-15T13:39:31.000Z" title="Created 2025-12-15 21:39:31">2025-12-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/08/29/MOVE%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/" title="MOVE漏洞总结">MOVE漏洞总结</a><time datetime="2025-08-29T05:51:57.000Z" title="Created 2025-08-29 13:51:57">2025-08-29</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/img/8a5725b44b17e750ba6ce84aaca3013d.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2026 By 何方圜</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
