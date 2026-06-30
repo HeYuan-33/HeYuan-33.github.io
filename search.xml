@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>hello-llm</title>
+      <link href="/2026/06/30/hello-llm/"/>
+      <url>/2026/06/30/hello-llm/</url>
+      
+        <content type="html"><![CDATA[<h1 id="hello-llm"><a href="#hello-llm" class="headerlink" title="hello-llm"></a>hello-llm</h1><p>我的第一个 AI 应用：调用 Claude API，问一个问题，把回答打印出来。<br>这是「AI 应用开发」最核心的一条链路：<strong>调 API → 拿结果</strong>。先把它跑通，之后所有东西都是在这之上一点点加出来的。</p><h2 id="这个项目做了什么"><a href="#这个项目做了什么" class="headerlink" title="这个项目做了什么"></a>这个项目做了什么</h2><p>运行后，它会问模型「用一句话解释什么是 RAG」，然后把模型的回答打印到终端。就这么简单——但你已经在写一个真正调用大模型的程序了。</p><h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><ul><li>安装 Node.js 18 或更高版本（终端运行 <code>node -v</code> 能看到版本号即可）</li><li>一个 Anthropic API Key（在 <a href="https://docs.claude.com/">https://docs.claude.com</a> 指向的 Console 里创建）</li></ul><h2 id="三步上手"><a href="#三步上手" class="headerlink" title="三步上手"></a>三步上手</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1) 安装依赖</span></span><br><span class="line">npm install</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2) 配置 Key：把 .env.example 复制成 .env，再把里面的值换成你的真实 key</span></span><br><span class="line"><span class="built_in">cp</span> .env.example .<span class="built_in">env</span></span><br><span class="line"><span class="comment">#   然后用编辑器打开 .env，填上 ANTHROPIC_API_KEY=sk-ant-...</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3) 运行</span></span><br><span class="line">npm start</span><br></pre></td></tr></table></figure><p>成功的话，你会看到类似：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">模型回答：</span><br><span class="line">RAG 是一种让大模型先从外部知识库检索相关资料、再据此生成答案的方法，能减少幻觉、回答更准确。</span><br></pre></td></tr></table></figure><h2 id="如果报错"><a href="#如果报错" class="headerlink" title="如果报错"></a>如果报错</h2><ul><li><strong>Could not resolve authentication method</strong> → 你还没填 key（第 2 步没做，或 .env 里 key 不对）。这是预期内的提示，填好 key 就好。</li><li><strong>model not found &#x2F; 型号不存在</strong> → 型号名会变。去 <a href="https://docs.claude.com/">https://docs.claude.com</a> 查当前可用型号，替换 <code>src/index.ts</code> 里的 <code>model</code> 字段。</li></ul><h2 id="代码在哪"><a href="#代码在哪" class="headerlink" title="代码在哪"></a>代码在哪</h2><p>只有一个文件：<code>src/index.ts</code>，30 行不到，每一步都有中文注释。<br><strong>建议</strong>：别只是跑通就过。把它读一遍，能自己讲清「client 是什么、messages 是什么、max_tokens 管什么」，才算真懂了。卡住就让 Claude&#x2F;Codex 给你讲，但要追问「为什么」，别只复制答案。</p><h2 id="下一步（每次只加一个新概念）"><a href="#下一步（每次只加一个新概念）" class="headerlink" title="下一步（每次只加一个新概念）"></a>下一步（每次只加一个新概念）</h2><p>跑通之后，挑一个小增量练手：</p><ol><li><strong>改提示</strong>：把问题换成你关心的，或加一条 <code>role: &quot;system&quot;</code> 的系统提示，看输出怎么变。</li><li><strong>加流式输出</strong>：把 <code>messages.create</code> 换成 <code>messages.stream</code>，让回答一个字一个字地冒出来。</li><li><strong>读文件再回答</strong>：读取一个本地 <code>.txt</code> 文件，把内容塞进提示里让模型总结——这就是 RAG 的雏形。</li></ol><p>每完成一步，就 commit 一次。</p><h2 id="提交到-GitHub"><a href="#提交到-GitHub" class="headerlink" title="提交到 GitHub"></a>提交到 GitHub</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git init</span><br><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;feat: 第一个能跑的 Claude API 调用&quot;</span></span><br><span class="line"><span class="comment"># 在 GitHub 新建一个空仓库后：</span></span><br><span class="line">git remote add origin &lt;你的仓库地址&gt;</span><br><span class="line">git branch -M main</span><br><span class="line">git push -u origin main</span><br></pre></td></tr></table></figure><blockquote><p><code>.env</code> 已经在 <code>.gitignore</code> 里，<strong>你的 key 不会被提交上去</strong>——这是好习惯，密钥永远不进仓库。</p></blockquote>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> AI </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Drift Protocol 资金被盗</title>
       <link href="/2026/04/02/Drift-Protocol-%E8%B5%84%E9%87%91%E8%A2%AB%E7%9B%97/"/>
       <url>/2026/04/02/Drift-Protocol-%E8%B5%84%E9%87%91%E8%A2%AB%E7%9B%97/</url>
